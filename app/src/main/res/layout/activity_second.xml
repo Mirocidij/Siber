@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:mask="http://schemas.android.com/apk/res-auto"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+
+
+        android:background="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        tools:context=".SecondActivity"
+>
+
+    <!--Toolbar-->
+    <android.support.v7.widget.Toolbar
+            android:id="@+id/mainToolbar"
+            android:elevation="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/colorPrimaryDark"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+    />
+    <!--Toolbar-->
+
+    <!--Cuts-->
+    <EditText
+            android:id="@+id/etCutsInfo"
+
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:hint="Разрез:"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:textSize="14sp"
+            android:textColorHint="@color/black"
+
+
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/mainToolbar"
+    />
+
+    <EditText
+            android:id="@+id/etCutsInfo2"
+
+            android:hint="Аршановский"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:textSize="14sp"
+            android:focusable="false"
+            android:textColorHint="@color/black"
+
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/mainToolbar"
+    />
+    <!--Cuts-->
+
+    <!--Firms-->
+    <EditText
+            android:id="@+id/etFirmsInfo"
+
+            android:hint="Фирма:"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:textColorHint="@color/black"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etCutsInfo"
+    />
+
+    <EditText
+            android:id="@+id/etFirmsInfo2"
+
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:hint="А это номер"
+            android:textColorHint="@color/black"
+            android:layout_marginLeft="16dp"
+            android:textSize="14sp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etCutsInfo"
+    />
+    <!--Firms-->
+
+    <!--Weight-->
+    <EditText
+            android:id="@+id/etWeight"
+
+            android:hint="Масса"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:textColorHint="@color/black"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etFirmsInfo"
+    />
+
+    <EditText
+            android:id="@+id/etWeight2"
+
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:hint="40 тонн"
+            android:textColorHint="@color/black"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etFirmsInfo"
+    />
+    <!--Weight-->
+
+    <!--Address-->
+    <EditText
+            android:id="@+id/etAddress"
+
+            android:hint="Адресс"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:textColorHint="@color/black"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etWeight"
+    />
+
+    <EditText
+            android:id="@+id/etAddress2"
+
+            android:hint="Ул. Пушкина дом Калатушкина"
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:focusable="false"
+            android:textColorHint="@color/black"
+            android:textSize="14sp"
+
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etWeight"
+    />
+    <!--Address-->
+
+    <!--Phone Number-->
+    <EditText
+            android:id="@+id/etPhoneNumber2"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textSize="14sp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:hint="Введите номер телефона"
+            android:textColorHint="@color/black"
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etAddress"
+
+    />
+
+    <br.com.sapereaude.maskedEditText.MaskedEditText
+            android:id="@+id/etPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:hint="@string/maskedEditTextHint"
+            android:inputType="phone"
+            android:digits="0123456789"
+            android:gravity="right"
+            android:textSize="14sp"
+            mask:keep_hint="true"
+
+            android:layout_marginTop="16dp"
+
+            mask:mask="+7 (###) ###-##-##"
+            mask:layout_constraintTop_toBottomOf="@id/etAddress"
+    />
+    <!--Phone Number-->
+
+    <!--Bottom App Bar-->
+    <android.support.design.widget.CoordinatorLayout
+            android:id="@+id/coordinator"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:elevation="5dp"
+            tools:layout_editor_absoluteX="0dp">
+
+        <android.support.design.bottomappbar.BottomAppBar
+                android:id="@+id/babBar"
+                android:layout_width="match_parent"
+                android:layout_gravity="bottom"
+                android:layout_height="56dp"
+                android:backgroundTint="@color/colorPrimaryDark"
+                app:fabCradleRoundedCornerRadius="20dp"
+
+
+        />
+
+        <android.support.design.widget.FloatingActionButton
+                android:id="@+id/floatBTN"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@drawable/ic_done"
+                android:onClick="Done"
+                app:fabSize="normal"
+                app:layout_anchor="@id/babBar"
+                android:backgroundTint="@color/green"
+
+
+        />
+
+    </android.support.design.widget.CoordinatorLayout>
+    <!--Bottom App Bar-->
+
+    <!--Back Button-->
+    <ImageView
+            android:padding="13dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@drawable/ic_back2"
+            mask:layout_constraintEnd_toEndOf="parent"
+            mask:layout_constraintBottom_toBottomOf="parent"
+            android:elevation="10dp"
+            android:onClick="backToMain"
+
+    />
+    <!--Back Button-->
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,66 @@
+<resources>
+    <string name="app_name">SiberianCoal</string>
+    <string name="firmSelect">Разрез:</string>
+    <string name="coalSelect">Марка угля:</string>
+    <string name="addWeigth">Введите массу в тоннах:</string>
+    <string name="firmSpinnerTooltip">Здесь вы можете выбрать разрез, уголь с котрого хотите заказать</string>
+    <string name="tvMapHelper">Укажите свой адресс</string>
+    <string name="etWeigthHelper">77</string>
+
+    <string-array name="firms">
+        <item>Аршановский разрез</item>
+        <item>Кирбинский разрез</item>
+        <item>Черногорский разрез</item>
+        <item>Изыхский разрез</item>
+        <item>Восточнобейский разрез</item>
+        <item>Белоярский разрез</item>
+    </string-array>
+
+
+    <string-array name="Kirbinsky">
+        <item>ДМСШ 0-25</item>
+        <item>ДО 25-50</item>
+        <item>ДР 0-300</item>
+    </string-array>
+
+    <string-array name="Arshanovsky">
+        <item>ДМСШ 0-25</item>
+        <item>ДО 25-50</item>
+        <item>ДР 0-300</item>
+        <item>Обогощеный</item>
+    </string-array>
+
+    <string-array name="Chernogorsky">
+        <item>ДМСШ 0-25</item>
+        <item>ДО 25-50</item>
+        <item>ДР 0-300</item>
+        <item>Рядовка</item>
+    </string-array>
+
+    <string-array name="Izihsky">
+        <item>ДМСШ 0-25</item>
+        <item>ДО 25-50</item>
+        <item>ДР 0-300</item>
+        <item>Порода</item>
+    </string-array>
+
+    <string-array name="Vostochnobeysky">
+        <item>ДМСШ 0-25</item>
+        <item>ДО 25-50</item>
+        <item>ДР 0-300</item>
+    </string-array>
+
+    <string-array name="Beloyarsky">
+        <item>ДМСШ 0-25</item>
+        <item>ДО 25-50</item>
+        <item>ДР 0-300</item>
+    </string-array>
+    <string name="title_activity_maps">Map</string>
+    <string name="btnMapHint">Отметьте точку на карте</string>
+    <string name="OR">Или</string>
+    <string name="searchBar">Введите адрес доставки</string>
+    <string name="maskedEditTextHint">9527464115</string>
+    <string name="google_maps_key">AIzaSyDnGbV2n_POAmY2Dxnjv3nRT0ZcMRlgZz0</string>
+
+
+</resources>
