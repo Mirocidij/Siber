@@ -59,7 +59,7 @@
     <string name="btnMapHint">Отметьте точку на карте</string>
     <string name="OR">Или</string>
     <string name="searchBar">Введите адрес доставки</string>
-    <string name="maskedEditTextHint">9527464115</string>
+    <string name="maskedEditTextHint">__________</string>
     <string name="google_maps_key">AIzaSyDnGbV2n_POAmY2Dxnjv3nRT0ZcMRlgZz0</string>
 
 
