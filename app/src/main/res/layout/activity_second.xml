@@ -7,7 +7,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
 
 
-        android:background="@color/colorPrimary"
+        android:background="@color/whitish"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
@@ -20,7 +20,7 @@
             android:elevation="4dp"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@color/colorPrimaryDark"
+            android:background="@color/colorPrimary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -235,7 +235,7 @@
                 android:layout_width="match_parent"
                 android:layout_gravity="bottom"
                 android:layout_height="56dp"
-                android:backgroundTint="@color/colorPrimaryDark"
+                android:backgroundTint="@color/colorPrimary"
                 app:fabCradleRoundedCornerRadius="20dp"
 
 
@@ -257,18 +257,5 @@
     </android.support.design.widget.CoordinatorLayout>
     <!--Bottom App Bar-->
 
-    <!--Back Button-->
-    <ImageView
-            android:padding="13dp"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:src="@drawable/ic_back2"
-            mask:layout_constraintEnd_toEndOf="parent"
-            mask:layout_constraintBottom_toBottomOf="parent"
-            android:elevation="10dp"
-            android:onClick="backToMain"
-
-    />
-    <!--Back Button-->
 
 </android.support.constraint.ConstraintLayout>

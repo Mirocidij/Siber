@@ -12,17 +12,6 @@ class SecondActivity : AppCompatActivity() {
         setContentView(R.layout.activity_second)
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-
-
-
-    }
-
-    fun backToMain (v: View) {
-        finish()
-    }
-
     fun Done(v: View) {
 
     }
