@@ -189,6 +189,9 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:textSize="14sp"
+            android:enabled="false"
+            android:focusable="false"
+            android:gravity="left"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:hint="Введите номер телефона"
@@ -200,24 +203,21 @@
 
     />
 
-    <br.com.sapereaude.maskedEditText.MaskedEditText
+    <EditText
             android:id="@+id/etPhoneNumber"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            android:textSize="14sp"
+            android:gravity="right"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:hint="@string/maskedEditTextHint"
+            android:layout_marginTop="16dp"
+            android:paddingBottom="20dp"
             android:inputType="phone"
             android:digits="0123456789"
-            android:gravity="right"
-            android:textSize="14sp"
-            mask:keep_hint="true"
-            android:typeface="monospace"
 
-            android:layout_marginTop="16dp"
-
-            mask:mask="+7 (###) ###-##-##"
             mask:layout_constraintTop_toBottomOf="@id/etAddress"
+
     />
     <!--Phone Number-->
 

@@ -70,7 +70,7 @@
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/ic_next"
-                android:onClick="goNextActivity"
+                android:onClick="accept"
                 android:backgroundTint="@color/green"
                 app:fabSize="normal"
                 app:layout_anchor="@id/babBar"
