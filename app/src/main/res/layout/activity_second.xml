@@ -33,7 +33,7 @@
 
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:hint="Разрез:"
+            android:hint="Постовщик:"
             android:gravity="left"
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -60,7 +60,6 @@
             android:enabled="false"
             android:textSize="14sp"
             android:focusable="false"
-            android:textColorHint="@color/black"
 
             android:layout_marginTop="16dp"
 
@@ -70,7 +69,7 @@
 
     <!--Firms-->
     <EditText
-            android:id="@+id/etFirmsInfo"
+            android:id="@+id/etCoalInfo"
 
             android:hint="Марка:"
             android:gravity="left"
@@ -88,7 +87,7 @@
     />
 
     <EditText
-            android:id="@+id/etFirmsInfo2"
+            android:id="@+id/etCoalInfo2"
 
             android:gravity="right"
             android:layout_width="match_parent"
@@ -96,7 +95,6 @@
             android:enabled="false"
             android:focusable="false"
             android:hint="ДО 25-50"
-            android:textColorHint="@color/black"
             android:layout_marginLeft="16dp"
             android:textSize="14sp"
             android:layout_marginRight="16dp"
@@ -122,7 +120,7 @@
             android:textSize="14sp"
             android:layout_marginTop="16dp"
 
-            mask:layout_constraintTop_toBottomOf="@id/etFirmsInfo"
+            mask:layout_constraintTop_toBottomOf="@id/etPriceInfo"
     />
 
     <EditText
@@ -134,13 +132,12 @@
             android:enabled="false"
             android:focusable="false"
             android:hint="40 тонн"
-            android:textColorHint="@color/black"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:textSize="14sp"
             android:layout_marginTop="16dp"
 
-            mask:layout_constraintTop_toBottomOf="@id/etFirmsInfo"
+            mask:layout_constraintTop_toBottomOf="@id/etPriceInfo"
     />
     <!--Weight-->
 
@@ -174,7 +171,6 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:focusable="false"
-            android:textColorHint="@color/black"
             android:textSize="14sp"
 
             android:layout_marginTop="16dp"
@@ -183,23 +179,63 @@
     />
     <!--Address-->
 
+    <!--Distance-->
+    <EditText
+            android:id="@+id/etDistance"
+
+            android:hint="Расстояние:"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:textColorHint="@color/black"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etAddress"
+    />
+
+    <EditText
+            android:id="@+id/etDistance2"
+
+            android:hint="53.4 km"
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:focusable="false"
+            android:textSize="14sp"
+
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etAddress"
+    />
+    <!--Distance-->
+
+
     <!--Phone Number-->
     <EditText
             android:id="@+id/etPhoneNumber2"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:enabled="false"
             android:focusable="false"
             android:gravity="left"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:hint="Введите номер телефона"
+            android:text="Телефон:"
+            android:textColor="@color/red"
             android:textColorHint="@color/black"
             android:layout_marginTop="16dp"
             android:paddingBottom="20dp"
 
-            mask:layout_constraintTop_toBottomOf="@id/etAddress"
+            mask:layout_constraintTop_toBottomOf="@id/etDistance"
 
     />
 
@@ -216,10 +252,47 @@
             android:inputType="phone"
             android:digits="0123456789"
 
-            mask:layout_constraintTop_toBottomOf="@id/etAddress"
+            mask:layout_constraintTop_toBottomOf="@id/etDistance"
 
     />
     <!--Phone Number-->
+
+    <!--Price-->
+    <EditText
+            android:id="@+id/etPriceInfo"
+
+            android:hint="Цена за тонну:"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:textColorHint="@color/black"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etCoalInfo"
+    />
+
+    <EditText
+            android:id="@+id/etPriceInfo2"
+
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:focusable="false"
+            android:textSize="14sp"
+
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etCoalInfo"
+    />
+    <!--Price-->
 
     <!--Bottom App Bar-->
     <android.support.design.widget.CoordinatorLayout

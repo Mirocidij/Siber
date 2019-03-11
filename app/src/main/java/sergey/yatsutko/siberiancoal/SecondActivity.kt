@@ -28,6 +28,14 @@ class SecondActivity : AppCompatActivity() {
                     etPhoneNumber.text.toString() == "1" -> etPhoneNumber.setText("+7")
                     etPhoneNumber.text.toString() == "0" -> etPhoneNumber.setText("+7")
 
+                    etPhoneNumber.text.toString() == "+6" -> etPhoneNumber.setText("+76")
+                    etPhoneNumber.text.toString() == "+5" -> etPhoneNumber.setText("+75")
+                    etPhoneNumber.text.toString() == "+4" -> etPhoneNumber.setText("+74")
+                    etPhoneNumber.text.toString() == "+3" -> etPhoneNumber.setText("+73")
+                    etPhoneNumber.text.toString() == "+2" -> etPhoneNumber.setText("+72")
+                    etPhoneNumber.text.toString() == "+1" -> etPhoneNumber.setText("+71")
+                    etPhoneNumber.text.toString() == "+0" -> etPhoneNumber.setText("+70")
+
                 }
                 etPhoneNumber.setSelection(etPhoneNumber.length())
 
@@ -39,6 +47,22 @@ class SecondActivity : AppCompatActivity() {
         })
 
 
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val cuts = intent.getStringExtra("Cuts")
+        etCutsInfo2.hint = "$cuts"
+        val coalMark = intent.getStringExtra("CoalMark")
+        etCoalInfo2.hint = (coalMark)
+        val weight = intent.getStringExtra("Weight")
+        etWeight2.hint = "$weight тонн"
+        val price = intent.getIntExtra("price", 0)
+        etPriceInfo2.hint = "$price рублей"
+        val km = intent.getFloatExtra("km", 0f)
+        etDistance2.hint = "$km km"
     }
 
     fun Done(v: View) {

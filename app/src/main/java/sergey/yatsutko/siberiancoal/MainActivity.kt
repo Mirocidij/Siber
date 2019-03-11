@@ -199,6 +199,9 @@ class MainActivity : AppCompatActivity() {
         nextIntent.putExtra("Cuts", firmSpiner.selectedItem.toString())
         nextIntent.putExtra("CoalMark", coalSpinner.selectedItem.toString())
         nextIntent.putExtra("Weight", etWeight.text.toString())
+        nextIntent.putExtra("price", price)
+        nextIntent.putExtra("km", km)
+
 
         startActivity(nextIntent)
     }
