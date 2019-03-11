@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import kotlinx.android.synthetic.main.activity_second.*
+import org.jetbrains.anko.toast
 
 class SecondActivity : AppCompatActivity() {
 
@@ -70,13 +71,11 @@ class SecondActivity : AppCompatActivity() {
 
     }
 
-    override fun onResume() {
-        super.onResume()
-
-
-    }
-
     fun Done(v: View) {
+        val string = etPhoneNumber2.text.toString()
+        if (string.length < 12 && string[0] != '+' && string[1] != '7') {
+            toast("Некорректный номер телефона")
+        }
 
     }
 }
