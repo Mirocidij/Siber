@@ -71,7 +71,7 @@
                 android:layout_height="56dp"
                 android:src="@drawable/ic_next"
                 android:onClick="accept"
-                android:backgroundTint="@color/green"
+                android:backgroundTint="@color/lightBlue"
                 app:fabSize="normal"
                 app:layout_anchor="@id/babBar"
 
