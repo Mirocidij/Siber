@@ -31,6 +31,10 @@ class MainActivity : AppCompatActivity() {
     private var weigth = 0
     // Distance between A and B
     private var km = 0f
+
+    private var deliveryCost = 0f
+    private var overPrice = 0f
+
     // For google map
     private var a = FloatArray(size = 3)
     // Users coordinates
@@ -79,9 +83,10 @@ class MainActivity : AppCompatActivity() {
                 } catch (e: Throwable) {
                     0
                 }
-
-                etCoastForDelivery.hint = "${km * priceForWeight} рублей"
-                etCoastFor.hint = "${km * priceForWeight + price * weigth} рублей"
+                deliveryCost = km * priceForWeight
+                etCoastForDelivery.hint = "${deliveryCost} рублей"
+                overPrice = km * priceForWeight + price * weigth
+                etCoastFor.hint = "${overPrice} рублей"
             }
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -127,7 +132,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 etCoast2.hint = "${coalSpinner.selectedItem}:"
                 etCoast.hint = "$price руб/т"
-                etCoastFor.hint = "${km * priceForWeight + price * weigth} рублей"
+
+                overPrice = km * priceForWeight + price * weigth
+                etCoastFor.hint = "${overPrice} рублей"
 
 
             }
@@ -168,9 +175,10 @@ class MainActivity : AppCompatActivity() {
 
         etDistance.hint = "$km km"
 
-        etCoastFor.hint = "${km * priceForWeight + price * weigth} рублей"
-
-        etCoastForDelivery.hint = "${km * priceForWeight} рублей"
+        deliveryCost = km * priceForWeight
+        etCoastForDelivery.hint = "$deliveryCost рублей"
+        overPrice = km * priceForWeight + price * weigth
+        etCoastFor.hint = "$overPrice рублей"
 
         Log.d("etWeight", "Correct Address")
     }
@@ -201,38 +209,41 @@ class MainActivity : AppCompatActivity() {
         nextIntent.putExtra("Weight", etWeight.text.toString())
         nextIntent.putExtra("price", price)
         nextIntent.putExtra("km", km)
+        nextIntent.putExtra("deliveryCost", deliveryCost)
+        nextIntent.putExtra("overPrice", overPrice)
+
 
 
         startActivity(nextIntent)
     }
 
-    fun coalRotate(v: View) {
-        val coal = findViewById<ImageView>(R.id.coalPic)
-
-        if (!spinningCoal) {
-            val pointWidth = (coal.width / 2).toFloat()
-            val pointHeight = (coal.height / 2).toFloat()
-            val rotation = RotateAnimation(0f, 360f, pointWidth, pointHeight)
-
-            rotation.duration = 400
-            rotation.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationStart(animation: Animation) {
-                    spinningCoal = true
-                }
-
-                override fun onAnimationEnd(animation: Animation) {
-                    spinningCoal = false
-                }
-
-                override fun onAnimationRepeat(animation: Animation) {
-
-                }
-            })
-            coal.startAnimation(rotation)
-        }
-
-
-    }
+//    fun coalRotate(v: View) {
+//        val coal = findViewById<ImageView>(R.id.coalPic)
+//
+//        if (!spinningCoal) {
+//            val pointWidth = (coal.width / 2).toFloat()
+//            val pointHeight = (coal.height / 2).toFloat()
+//            val rotation = RotateAnimation(0f, 360f, pointWidth, pointHeight)
+//
+//            rotation.duration = 400
+//            rotation.setAnimationListener(object : Animation.AnimationListener {
+//                override fun onAnimationStart(animation: Animation) {
+//                    spinningCoal = true
+//                }
+//
+//                override fun onAnimationEnd(animation: Animation) {
+//                    spinningCoal = false
+//                }
+//
+//                override fun onAnimationRepeat(animation: Animation) {
+//
+//                }
+//            })
+//            coal.startAnimation(rotation)
+//        }
+//
+//
+//    }
 
     fun goMap(v: View) {
         val intent = Intent(

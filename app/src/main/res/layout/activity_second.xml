@@ -14,18 +14,7 @@
         tools:context=".SecondActivity"
 >
 
-    <!--Toolbar-->
-    <android.support.v7.widget.Toolbar
-            android:id="@+id/mainToolbar"
-            android:elevation="4dp"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@color/colorPrimary"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-    />
-    <!--Toolbar-->
+
 
     <!--Cuts-->
     <EditText
@@ -45,7 +34,7 @@
 
             android:layout_marginTop="16dp"
 
-            mask:layout_constraintTop_toBottomOf="@id/mainToolbar"
+            mask:layout_constraintTop_toTopOf="parent"
     />
 
     <EditText
@@ -63,7 +52,7 @@
 
             android:layout_marginTop="16dp"
 
-            mask:layout_constraintTop_toBottomOf="@id/mainToolbar"
+            mask:layout_constraintTop_toTopOf="parent"
     />
     <!--Cuts-->
 
@@ -150,7 +139,7 @@
             android:layout_width="match_parent"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_height="50dp"
+            android:layout_height="80dp"
             android:enabled="false"
             android:focusable="false"
             android:textColorHint="@color/black"
@@ -163,20 +152,19 @@
     <EditText
             android:id="@+id/etAddress2"
 
+            android:paddingTop="20dp"
             android:hint="Ул. Пушкина дом Колотушкинаб кв 77"
-            android:gravity="right"
+            android:gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:enabled="false"
+            android:layout_height="80dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
+            android:enabled="false"
             android:focusable="false"
             android:textSize="14sp"
-
             android:layout_marginTop="16dp"
 
-            mask:layout_constraintTop_toBottomOf="@id/etWeight"
-    />
+            mask:layout_constraintTop_toBottomOf="@id/etWeight"/>
     <!--Address-->
 
     <!--Distance-->
@@ -218,8 +206,87 @@
     <!--Distance-->
 
 
+    <!--DeliveryCost-->
+    <EditText
+            android:id="@+id/etDeliveryCost"
+
+            android:hint="Стоимость доставки"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:textColorHint="@color/black"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etDistance"
+    />
+
+    <EditText
+            android:id="@+id/etDeliveryCost2"
+
+            android:hint="53.4 km"
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:focusable="false"
+            android:textSize="14sp"
+
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etDistance"
+    />
+    <!--DeliveryCost-->
+
+
+    <!--overPrice-->
+    <EditText
+            android:id="@+id/etOverPrice"
+
+            android:hint="Полная стоимость:"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:textColorHint="@color/black"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etDeliveryCost"
+    />
+
+    <EditText
+            android:id="@+id/etOverPrice2"
+
+            android:hint="53.4 km"
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:enabled="false"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:focusable="false"
+            android:textSize="14sp"
+
+            android:layout_marginTop="16dp"
+
+            mask:layout_constraintTop_toBottomOf="@id/etDeliveryCost"
+    />
+    <!--Distance-->
+
+
     <!--Phone Number-->
     <EditText
+
             android:id="@+id/etPhoneNumber2"
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -235,11 +302,12 @@
             android:layout_marginTop="16dp"
             android:paddingBottom="20dp"
 
-            mask:layout_constraintTop_toBottomOf="@id/etDistance"
+            mask:layout_constraintTop_toBottomOf="@id/etOverPrice"
 
     />
 
     <EditText
+            android:imeOptions="actionDone"
             android:id="@+id/etPhoneNumber"
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -252,7 +320,7 @@
             android:inputType="phone"
             android:digits="0123456789"
 
-            mask:layout_constraintTop_toBottomOf="@id/etDistance"
+            mask:layout_constraintTop_toBottomOf="@id/etOverPrice"
 
     />
     <!--Phone Number-->

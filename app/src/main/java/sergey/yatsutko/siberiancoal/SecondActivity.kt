@@ -13,6 +13,26 @@ class SecondActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
 
+        val cuts = intent.getStringExtra("Cuts")
+        etCutsInfo2.hint = "$cuts"
+        val coalMark = intent.getStringExtra("CoalMark")
+        etCoalInfo2.hint = (coalMark)
+
+        val weight = intent.getStringExtra("Weight")
+        if (Integer.parseInt(weight) < 5) {
+            etWeight2.hint = "$weight тонны"
+        } else {
+            etWeight2.hint = "$weight тонн"
+        }
+
+        val price = intent.getIntExtra("price", 0)
+        etPriceInfo2.hint = "$price рублей"
+        val km = intent.getFloatExtra("km", 0f)
+        etDistance2.hint = "$km km"
+        etOverPrice2.hint = "${intent.getFloatExtra("overPrice", 0f)}"
+        etDeliveryCost2.hint = "${intent.getFloatExtra("deliveryCost", 0f)}"
+
+
         etPhoneNumber.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
 
@@ -53,16 +73,7 @@ class SecondActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        val cuts = intent.getStringExtra("Cuts")
-        etCutsInfo2.hint = "$cuts"
-        val coalMark = intent.getStringExtra("CoalMark")
-        etCoalInfo2.hint = (coalMark)
-        val weight = intent.getStringExtra("Weight")
-        etWeight2.hint = "$weight тонн"
-        val price = intent.getIntExtra("price", 0)
-        etPriceInfo2.hint = "$price рублей"
-        val km = intent.getFloatExtra("km", 0f)
-        etDistance2.hint = "$km km"
+
     }
 
     fun Done(v: View) {
