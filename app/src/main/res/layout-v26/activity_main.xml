@@ -10,48 +10,6 @@
 
         tools:context=".MainActivity">
 
-    <!--<android.support.v7.widget.Toolbar-->
-            <!--android:elevation="4dp"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="50dp"-->
-            <!--android:id="@+id/mainToolbar"-->
-            <!--android:background="@color/colorPrimary"-->
-            <!--app:layout_constraintStart_toStartOf="parent"-->
-            <!--app:layout_constraintLeft_toLeftOf="parent"-->
-            <!--app:layout_constraintTop_toTopOf="parent"-->
-    <!--/>-->
-
-    <!--<ImageView-->
-            <!--android:id="@+id/coalPic"-->
-            <!--android:onClick="coalRotate"-->
-            <!--android:layout_width="50dp"-->
-            <!--android:layout_height="50dp"-->
-            <!--android:layout_marginBottom="3dp"-->
-            <!--android:src="@drawable/coal"-->
-            <!--android:elevation="6dp"-->
-            <!--android:layout_marginStart="25dp"-->
-            <!--android:layout_marginTop="25dp"-->
-            <!--app:layout_constraintEnd_toEndOf="parent"-->
-            <!--app:layout_constraintBottom_toBottomOf="parent"-->
-
-    <!--/>-->
-
-
-    <!--<TextView-->
-            <!--android:id="@+id/testLOL"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="@string/app_name"-->
-            <!--android:textSize="19sp"-->
-            <!--android:elevation="6dp"-->
-            <!--android:textColor="@color/black"-->
-            <!--android:typeface="monospace"-->
-            <!--app:layout_constraintTop_toTopOf="@id/mainToolbar"-->
-            <!--app:layout_constraintStart_toStartOf="@id/mainToolbar"-->
-            <!--app:layout_constraintBottom_toBottomOf="@id/mainToolbar"-->
-            <!--app:layout_constraintEnd_toEndOf="parent"-->
-    <!--/>-->
-
     <TextView android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:id="@+id/tvFirmSelectHelper"
@@ -115,7 +73,6 @@
               android:textSize="14sp"
               android:textColor="@color/black"
               android:shadowColor="@color/black"
-              android:editable="false"
               app:layout_constraintTop_toBottomOf="@id/coalSpinner"
     />
 

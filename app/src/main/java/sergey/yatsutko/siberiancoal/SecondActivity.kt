@@ -10,6 +10,8 @@ import org.jetbrains.anko.toast
 
 class SecondActivity : AppCompatActivity() {
 
+    var phoneNumberLength = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
@@ -37,27 +39,38 @@ class SecondActivity : AppCompatActivity() {
         etPhoneNumber.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
 
-                when {
-                    etPhoneNumber.text.toString() == "7" -> etPhoneNumber.setText("+7")
-                    etPhoneNumber.text.toString() == "8" -> etPhoneNumber.setText("+7")
-                    etPhoneNumber.text.toString() == "9" -> etPhoneNumber.setText("+79")
-                    etPhoneNumber.text.toString() == "6" -> etPhoneNumber.setText("+76")
-                    etPhoneNumber.text.toString() == "5" -> etPhoneNumber.setText("+75")
-                    etPhoneNumber.text.toString() == "4" -> etPhoneNumber.setText("+74")
-                    etPhoneNumber.text.toString() == "3" -> etPhoneNumber.setText("+73")
-                    etPhoneNumber.text.toString() == "2" -> etPhoneNumber.setText("+72")
-                    etPhoneNumber.text.toString() == "1" -> etPhoneNumber.setText("+71")
-                    etPhoneNumber.text.toString() == "0" -> etPhoneNumber.setText("+70")
+                if (phoneNumberLength < etPhoneNumber.text.length) {
+                    when {
+                        etPhoneNumber.text.toString() == "+" -> etPhoneNumber.setText("+7 (")
+                        etPhoneNumber.text.toString() == "7" -> etPhoneNumber.setText("+7 (")
+                        etPhoneNumber.text.toString() == "8" -> etPhoneNumber.setText("+7 (")
+                        etPhoneNumber.text.toString() == "9" -> etPhoneNumber.setText("+7 (9")
+                        etPhoneNumber.text.toString() == "6" -> etPhoneNumber.setText("+7 (6")
+                        etPhoneNumber.text.toString() == "5" -> etPhoneNumber.setText("+7 (5")
+                        etPhoneNumber.text.toString() == "4" -> etPhoneNumber.setText("+7 (4")
+                        etPhoneNumber.text.toString() == "3" -> etPhoneNumber.setText("+7 (3")
+                        etPhoneNumber.text.toString() == "2" -> etPhoneNumber.setText("+7 (2")
+                        etPhoneNumber.text.toString() == "1" -> etPhoneNumber.setText("+7 (1")
+                        etPhoneNumber.text.toString() == "0" -> etPhoneNumber.setText("+7 (0")
 
-                    etPhoneNumber.text.toString() == "+6" -> etPhoneNumber.setText("+76")
-                    etPhoneNumber.text.toString() == "+5" -> etPhoneNumber.setText("+75")
-                    etPhoneNumber.text.toString() == "+4" -> etPhoneNumber.setText("+74")
-                    etPhoneNumber.text.toString() == "+3" -> etPhoneNumber.setText("+73")
-                    etPhoneNumber.text.toString() == "+2" -> etPhoneNumber.setText("+72")
-                    etPhoneNumber.text.toString() == "+1" -> etPhoneNumber.setText("+71")
-                    etPhoneNumber.text.toString() == "+0" -> etPhoneNumber.setText("+70")
+                        etPhoneNumber.text.toString() == "+6" -> etPhoneNumber.setText("+7 (6")
+                        etPhoneNumber.text.toString() == "+5" -> etPhoneNumber.setText("+7 (5")
+                        etPhoneNumber.text.toString() == "+4" -> etPhoneNumber.setText("+7 (4")
+                        etPhoneNumber.text.toString() == "+3" -> etPhoneNumber.setText("+7 (3")
+                        etPhoneNumber.text.toString() == "+2" -> etPhoneNumber.setText("+7 (2")
+                        etPhoneNumber.text.toString() == "+1" -> etPhoneNumber.setText("+7 (1")
+                        etPhoneNumber.text.toString() == "+0" -> etPhoneNumber.setText("+7 (0")
 
+                        etPhoneNumber.text.length == 7 -> etPhoneNumber.setText("${etPhoneNumber.text.toString()}) ")
+                        etPhoneNumber.text.length == 12 -> etPhoneNumber.setText("${etPhoneNumber.text.toString()}-")
+                        etPhoneNumber.text.length == 15 -> etPhoneNumber.setText("${etPhoneNumber.text.toString()}-")
+
+
+
+
+                    }
                 }
+                phoneNumberLength = etPhoneNumber.text.length
                 etPhoneNumber.setSelection(etPhoneNumber.length())
 
             }

@@ -9,11 +9,8 @@ import android.text.InputFilter
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.RotateAnimation
 import android.widget.AdapterView
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import sergey.yatsutko.siberiancoal.helpful.InputFilterMinMax
@@ -216,34 +213,6 @@ class MainActivity : AppCompatActivity() {
 
         startActivity(nextIntent)
     }
-
-//    fun coalRotate(v: View) {
-//        val coal = findViewById<ImageView>(R.id.coalPic)
-//
-//        if (!spinningCoal) {
-//            val pointWidth = (coal.width / 2).toFloat()
-//            val pointHeight = (coal.height / 2).toFloat()
-//            val rotation = RotateAnimation(0f, 360f, pointWidth, pointHeight)
-//
-//            rotation.duration = 400
-//            rotation.setAnimationListener(object : Animation.AnimationListener {
-//                override fun onAnimationStart(animation: Animation) {
-//                    spinningCoal = true
-//                }
-//
-//                override fun onAnimationEnd(animation: Animation) {
-//                    spinningCoal = false
-//                }
-//
-//                override fun onAnimationRepeat(animation: Animation) {
-//
-//                }
-//            })
-//            coal.startAnimation(rotation)
-//        }
-//
-//
-//    }
 
     fun goMap(v: View) {
         val intent = Intent(

@@ -61,10 +61,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
-    fun backToMain(v: View) {
-        finish()
-    }
-
     fun accept(v: View) {
         if (latitude == 0.0 && longitude == 0.0) {
             Toast.makeText(this, "Не выбрано место доставки", Toast.LENGTH_LONG).show()
