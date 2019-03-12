@@ -32,8 +32,8 @@ class SecondActivity : AppCompatActivity() {
         etPriceInfo2.hint = "$price рублей"
         val km = intent.getFloatExtra("km", 0f)
         etDistance2.hint = "$km km"
-        etOverPrice2.hint = "${intent.getFloatExtra("overPrice", 0f)}"
-        etDeliveryCost2.hint = "${intent.getFloatExtra("deliveryCost", 0f)}"
+        etOverPrice2.hint = "${intent.getFloatExtra("overPrice", 0f)} рублей"
+        etDeliveryCost2.hint = "${intent.getFloatExtra("deliveryCost", 0f)} рублей"
 
 
         etPhoneNumber.addTextChangedListener(object : TextWatcher {
@@ -53,6 +53,9 @@ class SecondActivity : AppCompatActivity() {
                         etPhoneNumber.text.toString() == "1" -> etPhoneNumber.setText("+7 (1")
                         etPhoneNumber.text.toString() == "0" -> etPhoneNumber.setText("+7 (0")
 
+                        etPhoneNumber.text.toString() == "+9" -> etPhoneNumber.setText("+7 (9")
+                        etPhoneNumber.text.toString() == "+8" -> etPhoneNumber.setText("+7 (8")
+                        etPhoneNumber.text.toString() == "+7" -> etPhoneNumber.setText("+7 (")
                         etPhoneNumber.text.toString() == "+6" -> etPhoneNumber.setText("+7 (6")
                         etPhoneNumber.text.toString() == "+5" -> etPhoneNumber.setText("+7 (5")
                         etPhoneNumber.text.toString() == "+4" -> etPhoneNumber.setText("+7 (4")
@@ -61,9 +64,10 @@ class SecondActivity : AppCompatActivity() {
                         etPhoneNumber.text.toString() == "+1" -> etPhoneNumber.setText("+7 (1")
                         etPhoneNumber.text.toString() == "+0" -> etPhoneNumber.setText("+7 (0")
 
-                        etPhoneNumber.text.length == 7 -> etPhoneNumber.setText("${etPhoneNumber.text.toString()}) ")
-                        etPhoneNumber.text.length == 12 -> etPhoneNumber.setText("${etPhoneNumber.text.toString()}-")
-                        etPhoneNumber.text.length == 15 -> etPhoneNumber.setText("${etPhoneNumber.text.toString()}-")
+                        etPhoneNumber.text.length == 7 -> etPhoneNumber.setText("${etPhoneNumber.text}) ")
+                        etPhoneNumber.text.length == 12 -> etPhoneNumber.setText("${etPhoneNumber.text}-")
+                        etPhoneNumber.text.length == 15 -> etPhoneNumber.setText("${etPhoneNumber.text}-")
+
 
 
 
@@ -91,4 +95,4 @@ class SecondActivity : AppCompatActivity() {
         }
 
     }
-}
+}  
