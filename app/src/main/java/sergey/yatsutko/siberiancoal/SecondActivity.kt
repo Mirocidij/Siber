@@ -1,5 +1,6 @@
 package sergey.yatsutko.siberiancoal
 
+import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -7,6 +8,10 @@ import android.text.TextWatcher
 import android.view.View
 import kotlinx.android.synthetic.main.activity_second.*
 import org.jetbrains.anko.toast
+import retrofit2.Call
+import retrofit2.Response
+import sergey.yatsutko.siberiancoal.Smsc.SmscService
+import javax.security.auth.callback.Callback
 
 class SecondActivity : AppCompatActivity() {
 
@@ -89,10 +94,26 @@ class SecondActivity : AppCompatActivity() {
     }
 
     fun Done(v: View) {
-        val string = etPhoneNumber2.text.toString()
-        if (string.length < 12 && string[0] != '+' && string[1] != '7') {
-            toast("Некорректный номер телефона")
-        }
 
+        val string = etPhoneNumber.text.toString()
+        var phone = string.replace("[^0-9+]".toRegex(), "")
+
+        if (string.length < 18 && string[0] != '+' && string[1] != '7') {
+            etPhoneNumber2.setTextColor(resources.getColor(R.color.red))
+            toast("Некорректный номер телефона")
+        } else {
+            toast(phone)
+            SmscService.instance
+                .jsonApi
+                .sendSms(
+                    "lflagmanl",
+                    "eujkmkexitdct[!",
+                    "$phone",
+                    "5243").enqueue()
+        }
     }
-}  
+}
+
+private fun <T> Call<T>.enqueue() {
+
+}
