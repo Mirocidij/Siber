@@ -1,44 +1,62 @@
 package sergey.yatsutko.siberiancoal
 
-import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputFilter
+import android.text.InputType
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.View
 import kotlinx.android.synthetic.main.activity_second.*
-import org.jetbrains.anko.toast
-import retrofit2.Call
-import retrofit2.Response
+import org.jetbrains.anko.*
 import sergey.yatsutko.siberiancoal.Smsc.SmscService
-import javax.security.auth.callback.Callback
+import kotlin.random.Random
 
 class SecondActivity : AppCompatActivity() {
 
     var phoneNumberLength = -1
+    var code = "0"
+
+
+    private var cuts = ""
+    private var coalMark = ""
+    private var weight = ""
+    private var price = 0
+    private var distance = 0f
+    private var phone = ""
+    private var overPrice = 0f
+    private var deliveryCost = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
 
-        val cuts = intent.getStringExtra("Cuts")
+        cuts = intent.getStringExtra("Cuts")
+        coalMark = intent.getStringExtra("CoalMark")
+        weight = intent.getStringExtra("Weight")
+        price = intent.getIntExtra("price", 0)
+        distance = intent.getFloatExtra("km", 0f)
+        overPrice = intent.getFloatExtra("overPrice", 0f)
+        deliveryCost = intent.getFloatExtra("deliveryCost", 0f)
+
+
         etCutsInfo2.hint = "$cuts"
-        val coalMark = intent.getStringExtra("CoalMark")
         etCoalInfo2.hint = (coalMark)
 
-        val weight = intent.getStringExtra("Weight")
         if (Integer.parseInt(weight) < 5) {
             etWeight2.hint = "$weight тонны"
         } else {
             etWeight2.hint = "$weight тонн"
         }
 
-        val price = intent.getIntExtra("price", 0)
         etPriceInfo2.hint = "$price рублей"
-        val km = intent.getFloatExtra("km", 0f)
-        etDistance2.hint = "$km km"
-        etOverPrice2.hint = "${intent.getFloatExtra("overPrice", 0f)} рублей"
-        etDeliveryCost2.hint = "${intent.getFloatExtra("deliveryCost", 0f)} рублей"
+
+        etDistance2.hint = "$distance km"
+
+        etOverPrice2.hint = "$overPrice рублей"
+
+        etDeliveryCost2.hint = "$deliveryCost рублей"
 
 
         etPhoneNumber.addTextChangedListener(object : TextWatcher {
@@ -69,12 +87,21 @@ class SecondActivity : AppCompatActivity() {
                         etPhoneNumber.text.toString() == "+1" -> etPhoneNumber.setText("+7 (1")
                         etPhoneNumber.text.toString() == "+0" -> etPhoneNumber.setText("+7 (0")
 
+                        etPhoneNumber.text.toString() == "+79" -> etPhoneNumber.setText("+7 (9")
+                        etPhoneNumber.text.toString() == "+78" -> etPhoneNumber.setText("+7 (8")
+                        etPhoneNumber.text.toString() == "+77" -> etPhoneNumber.setText("+7 (7")
+                        etPhoneNumber.text.toString() == "+76" -> etPhoneNumber.setText("+7 (6")
+                        etPhoneNumber.text.toString() == "+75" -> etPhoneNumber.setText("+7 (5")
+                        etPhoneNumber.text.toString() == "+74" -> etPhoneNumber.setText("+7 (4")
+                        etPhoneNumber.text.toString() == "+73" -> etPhoneNumber.setText("+7 (3")
+                        etPhoneNumber.text.toString() == "+72" -> etPhoneNumber.setText("+7 (2")
+                        etPhoneNumber.text.toString() == "+71" -> etPhoneNumber.setText("+7 (1")
+                        etPhoneNumber.text.toString() == "+70" -> etPhoneNumber.setText("+7 (0")
+
+
                         etPhoneNumber.text.length == 7 -> etPhoneNumber.setText("${etPhoneNumber.text}) ")
                         etPhoneNumber.text.length == 12 -> etPhoneNumber.setText("${etPhoneNumber.text}-")
                         etPhoneNumber.text.length == 15 -> etPhoneNumber.setText("${etPhoneNumber.text}-")
-
-
-
 
 
                     }
@@ -90,30 +117,61 @@ class SecondActivity : AppCompatActivity() {
         })
 
 
-
     }
 
     fun Done(v: View) {
 
-        val string = etPhoneNumber.text.toString()
-        var phone = string.replace("[^0-9+]".toRegex(), "")
+        if (etPhoneNumber.text.length == 18 && etPhoneNumber.text.toString()[0] == '+' && etPhoneNumber.text.toString()[1] == '7' && etPhoneNumber.text.isNotEmpty()) {
+            val string = etPhoneNumber.text.toString()
+            phone = string.replace("[^0-9+]".toRegex(), "")
+            code = Random.nextInt(1000, 9999).toString()
+            toast(code)
 
-        if (string.length < 18 && string[0] != '+' && string[1] != '7') {
-            etPhoneNumber2.setTextColor(resources.getColor(R.color.red))
-            toast("Некорректный номер телефона")
+            SmscService.getInstance().SendSms(code, phone)
+
+            showAlert(message = "", title = "Введите код из SMS", hint = "")
+
         } else {
-            toast(phone)
-            SmscService.instance
-                .jsonApi
-                .sendSms(
-                    "lflagmanl",
-                    "eujkmkexitdct[!",
-                    "$phone",
-                    "5243").enqueue()
+
+            toast("Некорректный номер телефона")
+
         }
     }
-}
 
-private fun <T> Call<T>.enqueue() {
+
+    fun showAlert(message: String, title: String, hint: String) {
+        alert(message = message, title = title) {
+            customView {
+                val a = editText()
+                a.setSelection(0)
+                a.hint = hint
+                a.inputType = InputType.TYPE_CLASS_NUMBER
+                a.gravity = Gravity.CENTER
+                a.filters = arrayOf(InputFilter.LengthFilter(4))
+
+                yesButton {
+                    if (a.text.toString() != code) {
+                        showAlert(message = "", title = "", hint = "Неверный код")
+                    } else {
+                        val mes = "Разрез: $cuts" +
+                                "\nМарка: $coalMark" +
+                                "\nМасса: $weight ${
+                                if (weight.toInt() < 5) {
+                                    "тонны"
+                                } else "тонн"
+                                }" +
+                                "\nРасстояние: ${distance.toInt()} км" +
+                                "\nЦена за тонну: ${price} рублей" +
+                                "\nЦена доставки: ${deliveryCost.toInt()} рублей" +
+                                "\nОбщая цена ${overPrice.toInt()} рублей" +
+                                "\nТелефон: $phone"
+                        SmscService.getInstance().SendSms(mes, "+79628003000")
+                    }
+                }
+            }
+
+            noButton { toast("No") }
+        }.show()
+    }
 
 }
