@@ -59,6 +59,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
 
+
     }
 
     fun accept(v: View) {

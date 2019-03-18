@@ -61,5 +61,8 @@
     <string name="OR">Или</string>
     <string name="searchBar">Введите адрес доставки</string>
     <string name="google_maps_key">AIzaSyDnGbV2n_POAmY2Dxnjv3nRT0ZcMRlgZz0</string>
+    <string name="unknown_error_message">ошибка</string>
+    <string name="remote_error_message">jib,rf</string>
+    <string name="network_error_message">jib,rf</string>
 
 </resources>

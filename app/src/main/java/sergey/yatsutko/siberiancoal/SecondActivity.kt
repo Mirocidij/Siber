@@ -27,6 +27,7 @@ class SecondActivity : AppCompatActivity() {
     private var phone = ""
     private var overPrice = 0f
     private var deliveryCost = 0f
+    private var address = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +40,7 @@ class SecondActivity : AppCompatActivity() {
         distance = intent.getFloatExtra("km", 0f)
         overPrice = intent.getFloatExtra("overPrice", 0f)
         deliveryCost = intent.getFloatExtra("deliveryCost", 0f)
-
+        address = intent.getStringExtra("address")
 
         etCutsInfo2.hint = "$cuts"
         etCoalInfo2.hint = (coalMark)
@@ -57,6 +58,8 @@ class SecondActivity : AppCompatActivity() {
         etOverPrice2.hint = "$overPrice рублей"
 
         etDeliveryCost2.hint = "$deliveryCost рублей"
+
+        etAddress2.setText(address)
 
 
         etPhoneNumber.addTextChangedListener(object : TextWatcher {
@@ -160,6 +163,7 @@ class SecondActivity : AppCompatActivity() {
                                     "тонны"
                                 } else "тонн"
                                 }" +
+                                "\nАдресс: $address" +
                                 "\nРасстояние: ${distance.toInt()} км" +
                                 "\nЦена за тонну: ${price} рублей" +
                                 "\nЦена доставки: ${deliveryCost.toInt()} рублей" +

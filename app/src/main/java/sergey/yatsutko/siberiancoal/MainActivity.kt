@@ -9,14 +9,45 @@ import android.text.InputFilter
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
-import android.widget.EditText
-import android.widget.Toast
+import android.widget.*
+
+import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.geometry.BoundingBox
+import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.search.*
+
+import com.yandex.runtime.Error
+import com.yandex.runtime.network.NetworkError
+import com.yandex.runtime.network.RemoteError
+
 import kotlinx.android.synthetic.main.activity_main.*
 import sergey.yatsutko.siberiancoal.helpful.InputFilterMinMax
 import sergey.yatsutko.siberiancoal.helpful.selectEntries
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
+
+    private var marker = true
+
+    private val MAPKIT_API_KEY = "a139146c-adfa-484c-abb6-5ce42284f64e"
+    private val RESULT_NUMBER_LIMIT = 5
+
+    private var searchManager: SearchManager? = null
+    private var suggestResultView: ListView? = null
+    private var resultAdapter: ArrayAdapter<*>? = null
+    private var suggestResult: MutableList<String>? = null
+
+    private val CENTER = Point(53.721254, 91.443417)
+    private val BOX_SIZE = 0.2
+    private val BOUNDING_BOX = BoundingBox(
+        Point(CENTER.latitude - BOX_SIZE, CENTER.longitude - BOX_SIZE),
+        Point(CENTER.latitude + BOX_SIZE, CENTER.longitude + BOX_SIZE)
+    )
+    private val SEARCH_OPTIONS = SearchOptions().setSearchTypes(
+        SearchType.GEO.value or
+                SearchType.BIZ.value or
+                SearchType.TRANSIT.value)
+
 
     // Prices for coal
     private val prices = intArrayOf(1700, 1800, 1900, 2000)
@@ -45,10 +76,55 @@ class MainActivity : AppCompatActivity() {
     // :D
     private var spinningCoal: Boolean = false
 
+//    https://maps.googleapis.com/maps/api/directions/json?
+//    origin=53.402971,91.083748&destination=53.717647,91.429705
+//    &key=YOUR_API_KEY
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        MapKitFactory.setApiKey(MAPKIT_API_KEY)
+        MapKitFactory.initialize(this@MainActivity)
+        SearchFactory.initialize(this@MainActivity)
+
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
+        val queryEdit = findViewById(R.id.searchBar) as EditText
+        suggestResultView = findViewById(R.id.suggest_result) as ListView
+        suggestResult = ArrayList()
+        resultAdapter = ArrayAdapter(this,
+            android.R.layout.simple_list_item_2,
+            android.R.id.text1,
+            suggestResult!!)
+        suggestResultView!!.adapter = resultAdapter
+
+        queryEdit.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
+
+            override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
+
+            override fun afterTextChanged(editable: Editable) {
+                scroll.elevation = 20f
+                if (marker) {
+                    requestSuggest(editable.toString())
+                }
+                marker = true
+            }
+        })
+
+
+
+        suggestResultView!!.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+            marker = false
+            scroll.elevation = 0f
+            queryEdit.setText(suggestResult!![position])
+            suggestResultView!!.visibility = View.INVISIBLE
+            Toast.makeText(this@MainActivity, suggestResult!![position], Toast.LENGTH_LONG).show()
+        }
+
+
 
         etDistance.hint = "0.0 km"
         etCoastForDelivery.hint = "0.0 рублей"
@@ -208,9 +284,7 @@ class MainActivity : AppCompatActivity() {
         nextIntent.putExtra("km", km)
         nextIntent.putExtra("deliveryCost", deliveryCost)
         nextIntent.putExtra("overPrice", overPrice)
-
-
-
+        nextIntent.putExtra("address", searchBar.text.toString())
         startActivity(nextIntent)
     }
 
@@ -222,4 +296,39 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(intent, 1)
     }
 
+    override fun onStop() {
+        MapKitFactory.getInstance().onStop()
+        super.onStop()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        MapKitFactory.getInstance().onStart()
+    }
+
+    override fun onSuggestResponse(suggest: List<SuggestItem>) {
+        suggestResult!!.clear()
+        for (i in 0..Math.min(RESULT_NUMBER_LIMIT - 1, suggest.size)) {
+            suggestResult!!.add(suggest[i].displayText!!)
+        }
+        resultAdapter!!.notifyDataSetChanged()
+
+
+        suggestResultView!!.visibility = View.VISIBLE
+    }
+
+    override fun onSuggestError(error: Error) {
+        var errorMessage = getString(R.string.unknown_error_message)
+        if (error is RemoteError) {
+            errorMessage = getString(R.string.remote_error_message)
+        } else if (error is NetworkError) {
+            errorMessage = getString(R.string.network_error_message)
+        }
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun requestSuggest(query: String) {
+        suggestResultView!!.visibility = View.INVISIBLE
+        searchManager!!.suggest(query, BOUNDING_BOX, SEARCH_OPTIONS, this)
+    }
 }
