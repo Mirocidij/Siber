@@ -139,7 +139,7 @@
             android:layout_width="match_parent"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_height="80dp"
+            android:layout_height="50dp"
             android:enabled="false"
             android:focusable="false"
             android:textColorHint="@color/black"
@@ -152,17 +152,17 @@
     <EditText
             android:id="@+id/etAddress2"
 
-            android:paddingTop="35dp"
             android:hint=""
             android:gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="50dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:enabled="false"
             android:focusable="false"
             android:textSize="14sp"
             android:layout_marginTop="16dp"
+            android:paddingLeft="50dp"
 
             mask:layout_constraintTop_toBottomOf="@id/etWeight"/>
     <!--Address-->

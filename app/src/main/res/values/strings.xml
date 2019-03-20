@@ -10,17 +10,10 @@
 
     <string-array name="firms">
         <item>Аршановский разрез</item>
-        <item>Кирбинский разрез</item>
-        <item>Черногорский разрез</item>
-        <item>Изыхский разрез</item>
-        <item>Восточнобейский разрез</item>
         <item>Белоярский разрез</item>
-    </string-array>
-
-    <string-array name="Kirbinsky">
-        <item>ДМСШ 0–25</item>
-        <item>ДО 25–50</item>
-        <item>ДР 0–300</item>
+        <item>Черногорский разрез</item>
+        <item>Восточнобейский разрез</item>
+        <item>Изыхский разрез</item>
     </string-array>
 
     <string-array name="Arshanovsky">
@@ -30,11 +23,23 @@
         <item>Обогощеный</item>
     </string-array>
 
+    <string-array name="Beloyarsky">
+        <item>ДМСШ 0–25</item>
+        <item>ДО 25–50</item>
+        <item>ДР 0–300</item>
+    </string-array>
+
     <string-array name="Chernogorsky">
         <item>ДМСШ 0–25</item>
         <item>ДО 25–50</item>
         <item>ДР 0–300</item>
         <item>Рядовка</item>
+    </string-array>
+
+    <string-array name="Vostochnobeysky">
+        <item>ДМСШ 0–25</item>
+        <item>ДО 25–50</item>
+        <item>ДР 0–300</item>
     </string-array>
 
     <string-array name="Izihsky">
@@ -44,25 +49,20 @@
         <item>Порода</item>
     </string-array>
 
-    <string-array name="Vostochnobeysky">
+    <string-array name="Kirbinsky">
         <item>ДМСШ 0–25</item>
         <item>ДО 25–50</item>
         <item>ДР 0–300</item>
     </string-array>
 
-    <string-array name="Beloyarsky">
-        <item>ДМСШ 0–25</item>
-        <item>ДО 25–50</item>
-        <item>ДР 0–300</item>
-    </string-array>
 
     <string name="title_activity_maps">Map</string>
     <string name="btnMapHint">Отметьте точку на карте</string>
     <string name="OR">Или</string>
     <string name="searchBar">Введите адрес доставки</string>
     <string name="google_maps_key">AIzaSyDnGbV2n_POAmY2Dxnjv3nRT0ZcMRlgZz0</string>
-    <string name="unknown_error_message">ошибка</string>
-    <string name="remote_error_message">jib,rf</string>
-    <string name="network_error_message">jib,rf</string>
+    <string name="unknown_error_message">Unknown error</string>
+    <string name="remote_error_message">Remote server error</string>
+    <string name="network_error_message">Network error</string>
 
 </resources>

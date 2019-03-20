@@ -131,7 +131,6 @@ class SecondActivity : AppCompatActivity() {
             toast(code)
 
             SmscService.getInstance().SendSms(code, phone)
-
             showAlert(message = "", title = "Введите код из SMS", hint = "")
 
         } else {
