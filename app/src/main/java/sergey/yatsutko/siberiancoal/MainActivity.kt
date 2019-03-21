@@ -28,6 +28,7 @@ import sergey.yatsutko.siberiancoal.helpful.selectEntries
 class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
 
     private var marker = true
+    private var firmBool = false
 
     private val MAPKIT_API_KEY = "a139146c-adfa-484c-abb6-5ce42284f64e"
     private val RESULT_NUMBER_LIMIT = 5
@@ -73,12 +74,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
         arrayOf(53.402971, 53.529799, 53.759367, 53.326586, 53.630114),
         arrayOf(91.083748, 91.410684, 01.061604, 91.361016, 91.436063)
     )
-    // :D
-    private var spinningCoal: Boolean = false
-
-//    https://maps.googleapis.com/maps/api/directions/json?
-//    origin=53.402971,91.083748&destination=53.717647,91.429705
-//    &key=YOUR_API_KEY
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -172,20 +167,24 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
                 parent: AdapterView<*>,
                 itemSelected: View, selectedItemPosition: Int, selectedId: Long
             ) {
-                val choose = resources.getStringArray(R.array.firms)
+                if (firmBool) {
+                    when (selectedItemPosition) {
+                        0 -> coalSpinner.adapter =
+                            selectEntries(this@MainActivity, R.array.Arshanovsky)
+                        1 -> coalSpinner.adapter =
+                            selectEntries(this@MainActivity, R.array.Beloyarsky)
+                        2-> coalSpinner.adapter =
+                            selectEntries(this@MainActivity, R.array.Chernogorsky)
+                        3 -> coalSpinner.adapter =
+                            selectEntries(this@MainActivity, R.array.Vostochnobeysky)
+                        4 -> coalSpinner.adapter =
+                            selectEntries(this@MainActivity, R.array.Izihsky)
 
-                when {
-                    choose[selectedItemPosition] == "Кирбинский разрез" -> coalSpinner.adapter =
-                        selectEntries(this@MainActivity, R.array.Kirbinsky)
-                    choose[selectedItemPosition] == "Черногорский разрез" -> coalSpinner.adapter =
-                        selectEntries(this@MainActivity, R.array.Chernogorsky)
-                    choose[selectedItemPosition] == "Изыхский разрез" -> coalSpinner.adapter =
-                        selectEntries(this@MainActivity, R.array.Izihsky)
-                    choose[selectedItemPosition] == "Восточнобейский разрез" -> coalSpinner.adapter =
-                        selectEntries(this@MainActivity, R.array.Vostochnobeysky)
-                    choose[selectedItemPosition] == "Белоярский разрез" -> coalSpinner.adapter =
-                        selectEntries(this@MainActivity, R.array.Beloyarsky)
+                    }
                 }
+                firmBool = true
+
+
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
