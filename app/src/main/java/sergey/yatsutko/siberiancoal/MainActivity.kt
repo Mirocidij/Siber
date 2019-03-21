@@ -15,7 +15,15 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 
 import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.RequestPoint
+import com.yandex.mapkit.RequestPointType
+import com.yandex.mapkit.directions.DirectionsFactory
+import com.yandex.mapkit.directions.driving.DrivingOptions
+import com.yandex.mapkit.directions.driving.DrivingRoute
+import com.yandex.mapkit.directions.driving.DrivingRouter
+import com.yandex.mapkit.directions.driving.DrivingSession
 import com.yandex.mapkit.geometry.BoundingBox
+import com.yandex.mapkit.geometry.Geo
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.search.*
 
@@ -24,12 +32,15 @@ import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
 
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.toast
 import org.json.JSONObject
 import sergey.yatsutko.siberiancoal.helpful.InputFilterMinMax
 import sergey.yatsutko.siberiancoal.helpful.selectEntries
 
 
-class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
+class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, DrivingSession.DrivingRouteListener{
+
+
 
     private var marker = true
     private var firmBool = false
@@ -53,7 +64,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
                 SearchType.BIZ.value or
                 SearchType.TRANSIT.value)
 
-
     // Prices for coal
     private val prices = intArrayOf(1700, 1800, 1900, 2000)
     // Default price
@@ -74,18 +84,27 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
     // Cuts coordinates
     private val cuts = arrayOf(
         arrayOf(53.402971, 53.529799, 53.759367, 53.326586, 53.630114),
-        arrayOf(91.083748, 91.410684, 01.061604, 91.361016, 91.436063)
+        arrayOf(91.083748, 91.410684, 91.061604, 91.361016, 91.436063)
     )
+
+    private var ROUTE_START_LOCATION = Point(cuts[0][0], cuts[1][0])
+    private var ROUTE_END_LOCATION = Point(53.720439, 91.427967)
+
+    private lateinit var drivingRouter: DrivingRouter
+    private lateinit var drivingSession: DrivingSession
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.setApiKey(MAPKIT_API_KEY)
         MapKitFactory.initialize(this@MainActivity)
+        DirectionsFactory.initialize(this@MainActivity)
         SearchFactory.initialize(this@MainActivity)
 
 
-        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        super.onCreate(savedInstanceState)
+
+        drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
         val queryEdit = findViewById(R.id.searchBar) as EditText
@@ -119,6 +138,7 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
             queryEdit.setText(suggestResult!![position])
             suggestResultView!!.visibility = View.INVISIBLE
             Toast.makeText(this@MainActivity, suggestResult!![position], Toast.LENGTH_LONG).show()
+            getCoordinates(suggestResult!![position])
         }
 
 
@@ -226,7 +246,10 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
         latitude = data.extras.getDouble("latitude")
         longitude = data.extras.getDouble("longitude")
 
-        setAddress(latitude = latitude, longitude = longitude)
+        submitRequest()
+
+        ROUTE_END_LOCATION = Point(latitude, longitude)
+        getAddress(latitude = latitude, longitude = longitude)
 
         try {
             weigth = Integer.parseInt(etWeight.text.toString())
@@ -332,7 +355,7 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
         searchManager!!.suggest(query, BOUNDING_BOX, SEARCH_OPTIONS, this)
     }
 
-    private fun setAddress(latitude: Double, longitude: Double) {
+    private fun getAddress(latitude: Double, longitude: Double) {
 
         val queue = Volley.newRequestQueue(this)
         val url = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$longitude,$latitude&apikey=17757be8-4817-4365-886c-d89845ac6976"
@@ -368,9 +391,98 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
 
     }
 
+    private fun getCoordinates(address: String) {
+
+        val queue = Volley.newRequestQueue(this)
+        val url = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$address&apikey=17757be8-4817-4365-886c-d89845ac6976"
+
+
+
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            Response.Listener<String> { response ->
+
+                var jsonObject =
+                    JSONObject(response)
+
+                val coordinates = jsonObject.getJSONObject("response")
+                    .getJSONObject("GeoObjectCollection")
+                    .getJSONArray("featureMember")
+                    .getJSONObject(0)
+                    .getJSONObject("GeoObject")
+                    .getJSONObject("Point")
+                    .getString("pos").split(" ")
+
+                ROUTE_END_LOCATION = Point(coordinates[1].toDouble(), coordinates[0].toDouble())
+
+                toast(coordinates[0] + coordinates[1])
+                submitRequest()
+
+
+
+
+            },
+            Response.ErrorListener {
+                toast("That didn't work!")
+            })
+
+
+        queue.add(stringRequest)
+
+    }
+
+
     override fun onBackPressed() {
         super.onBackPressed()
         moveTaskToBack(true)
+    }
+
+    override fun onDrivingRoutesError(error: Error) {
+        var errorMessage = getString(R.string.unknown_error_message)
+        if (error is RemoteError) {
+            errorMessage = getString(R.string.remote_error_message)
+        } else if (error is NetworkError) {
+            errorMessage = getString(R.string.network_error_message)
+        }
+
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {
+        val points = java.util.ArrayList<Point>()
+        points.addAll(routes.get(0).getGeometry().getPoints())
+
+        var distance = 0.0
+
+        for (i in 0 until points.size - 1) {
+            distance += Geo.distance(points[i], points[i + 1])
+        }
+
+        km = Math.ceil(distance/1000).toFloat()
+
+        etDistance.hint = "$km km"
+
+
+        Log.d("Coordinates", Integer.toString(Math.round(distance / 1000).toInt()) + " km")
+    }
+
+    private fun submitRequest() {
+        val options = DrivingOptions()
+        val requestPoints = java.util.ArrayList<RequestPoint>()
+        requestPoints.add(
+            RequestPoint(
+                ROUTE_START_LOCATION,
+                RequestPointType.WAYPOINT,
+                null
+            )
+        )
+        requestPoints.add(
+            RequestPoint(
+                ROUTE_END_LOCATION,
+                RequestPointType.WAYPOINT, null
+            )
+        )
+        drivingSession = drivingRouter.requestRoutes(requestPoints, options, this)
     }
 
 

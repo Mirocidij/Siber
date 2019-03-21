@@ -24,10 +24,10 @@ class SecondActivity : AppCompatActivity() {
     private var coalMark = ""
     private var weight = ""
     private var price = 0
-    private var distance = 0f
+    private var distance = 0
     private var phone = ""
-    private var overPrice = 0f
-    private var deliveryCost = 0f
+    private var overPrice = 0
+    private var deliveryCost = 0
     private var address = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,9 +38,9 @@ class SecondActivity : AppCompatActivity() {
         coalMark = intent.getStringExtra("CoalMark")
         weight = intent.getStringExtra("Weight")
         price = intent.getIntExtra("price", 0)
-        distance = intent.getFloatExtra("km", 0f)
-        overPrice = intent.getFloatExtra("overPrice", 0f)
-        deliveryCost = intent.getFloatExtra("deliveryCost", 0f)
+        distance = intent.getIntExtra("km", 0)
+        overPrice = intent.getIntExtra("overPrice", 0)
+        deliveryCost = intent.getIntExtra("deliveryCost", 0)
         address = intent.getStringExtra("address")
 
         etCutsInfo2.hint = "$cuts"
