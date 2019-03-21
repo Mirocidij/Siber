@@ -1,7 +1,6 @@
 package sergey.yatsutko.siberiancoal
 
 import android.content.Intent
-import android.location.Location
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
@@ -10,6 +9,10 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.*
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.BoundingBox
@@ -21,6 +24,7 @@ import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
 
 import kotlinx.android.synthetic.main.activity_main.*
+import org.json.JSONObject
 import sergey.yatsutko.siberiancoal.helpful.InputFilterMinMax
 import sergey.yatsutko.siberiancoal.helpful.selectEntries
 
@@ -64,8 +68,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
     private var deliveryCost = 0f
     private var overPrice = 0f
 
-    // For google map
-    private var a = FloatArray(size = 3)
     // Users coordinates
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
@@ -224,8 +226,7 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
         latitude = data.extras.getDouble("latitude")
         longitude = data.extras.getDouble("longitude")
 
-        Location.distanceBetween(latitude, longitude, cuts[0][0], cuts[0][1], a)
-        km = a[0] / 50000
+        setAddress(latitude = latitude, longitude = longitude)
 
         try {
             weigth = Integer.parseInt(etWeight.text.toString())
@@ -280,9 +281,9 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
         nextIntent.putExtra("CoalMark", coalSpinner.selectedItem.toString())
         nextIntent.putExtra("Weight", etWeight.text.toString())
         nextIntent.putExtra("price", price)
-        nextIntent.putExtra("km", km)
-        nextIntent.putExtra("deliveryCost", deliveryCost)
-        nextIntent.putExtra("overPrice", overPrice)
+        nextIntent.putExtra("km", km.toInt())
+        nextIntent.putExtra("deliveryCost", deliveryCost.toInt())
+        nextIntent.putExtra("overPrice", overPrice.toInt())
         nextIntent.putExtra("address", searchBar.text.toString())
         startActivity(nextIntent)
     }
@@ -330,4 +331,47 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener{
         suggestResultView!!.visibility = View.INVISIBLE
         searchManager!!.suggest(query, BOUNDING_BOX, SEARCH_OPTIONS, this)
     }
+
+    private fun setAddress(latitude: Double, longitude: Double) {
+
+        val queue = Volley.newRequestQueue(this)
+        val url = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$longitude,$latitude&apikey=17757be8-4817-4365-886c-d89845ac6976"
+        var address = ""
+
+
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            Response.Listener<String> { response ->
+
+                var jsonObject =
+                    JSONObject(response)
+
+                address = jsonObject.getJSONObject("response")
+                    .getJSONObject("GeoObjectCollection")
+                    .getJSONArray("featureMember")
+                    .getJSONObject(0)
+                    .getJSONObject("GeoObject")
+                    .getJSONObject("metaDataProperty")
+                    .getJSONObject("GeocoderMetaData")
+                    .getString("text")
+
+                marker = false
+                searchBar.setText(address)
+
+            },
+            Response.ErrorListener {
+                address = "That didn't work!"
+            })
+
+
+        queue.add(stringRequest)
+
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        moveTaskToBack(true)
+    }
+
+
 }

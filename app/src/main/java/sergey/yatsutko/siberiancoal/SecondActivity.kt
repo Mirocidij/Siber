@@ -1,5 +1,6 @@
 package sergey.yatsutko.siberiancoal
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -169,6 +170,10 @@ class SecondActivity : AppCompatActivity() {
                                 "\nОбщая цена ${overPrice.toInt()} рублей" +
                                 "\nТелефон: $phone"
                         SmscService.getInstance().SendSms(mes, "+79628003000")
+
+                        alert(message = "В ближашее время оператор с вами свяжется", title = "Спасибо за заказ") {
+                            yesButton { startActivity(Intent(this@SecondActivity, MainActivity::class.java)) }
+                        }.show()
                     }
                 }
             }

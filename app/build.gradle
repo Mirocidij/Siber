@@ -45,11 +45,14 @@ dependencies {
 
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    // Anko
-    implementation "org.jetbrains.anko:anko:0.10.8"
     // Дополнительные модули MapKit.
     implementation 'com.yandex.android:mapkit:3.3.1'
     implementation 'com.yandex.android:search:3.3.1'
     implementation 'com.yandex.android:directions:3.3.1'
+
+    // Anko
+    implementation "org.jetbrains.anko:anko:0.10.8"
+    // Volley
+    implementation 'com.android.volley:volley:1.1.1'
 
 }
