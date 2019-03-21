@@ -9,6 +9,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.*
+
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -39,8 +40,6 @@ import sergey.yatsutko.siberiancoal.helpful.selectEntries
 
 
 class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, DrivingSession.DrivingRouteListener{
-
-
 
     private var marker = true
     private var firmBool = false
@@ -122,9 +121,11 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
 
             override fun afterTextChanged(editable: Editable) {
+
                 scroll.elevation = 20f
                 if (marker) {
                     requestSuggest(editable.toString())
+
                 }
                 marker = true
             }
@@ -138,6 +139,7 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
             queryEdit.setText(suggestResult!![position])
             suggestResultView!!.visibility = View.INVISIBLE
             Toast.makeText(this@MainActivity, suggestResult!![position], Toast.LENGTH_LONG).show()
+
             getCoordinates(suggestResult!![position])
         }
 
@@ -148,7 +150,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
 
         //Inform Edit Text
         val etCoast = findViewById<EditText>(R.id.etCoast)
-        val etCoast2 = findViewById<EditText>(R.id.etCoast2)
 
         etWeight.filters = arrayOf(InputFilterMinMax(0, 40), InputFilter.LengthFilter(2))
 
@@ -173,10 +174,9 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                 } catch (e: Throwable) {
                     0
                 }
-                deliveryCost = km * priceForWeight
-                etCoastForDelivery.hint = "${deliveryCost} рублей"
-                overPrice = km * priceForWeight + price * weigth
-                etCoastFor.hint = "${overPrice} рублей"
+
+                updateCost()
+
             }
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -201,9 +201,12 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                             selectEntries(this@MainActivity, R.array.Vostochnobeysky)
                         4 -> coalSpinner.adapter =
                             selectEntries(this@MainActivity, R.array.Izihsky)
-
+                        else -> {}
                     }
+
                 }
+                ROUTE_START_LOCATION = Point(cuts[0][selectedItemPosition], cuts[1][selectedItemPosition])
+                submitRequest()
                 firmBool = true
 
 
@@ -224,16 +227,13 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                 } else {
                     prices[selectedItemPosition] + 5 * selectedItemPosition
                 }
-                etCoast2.hint = "${coalSpinner.selectedItem}:"
+
+                updateCost()
                 etCoast.hint = "$price руб/т"
-
-                overPrice = km * priceForWeight + price * weigth
-                etCoastFor.hint = "${overPrice} рублей"
-
-
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
+
         }
     }
 
@@ -269,12 +269,9 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
             0
         }
 
-        etDistance.hint = "$km km"
 
-        deliveryCost = km * priceForWeight
-        etCoastForDelivery.hint = "$deliveryCost рублей"
-        overPrice = km * priceForWeight + price * weigth
-        etCoastFor.hint = "$overPrice рублей"
+
+        updateCost()
 
         Log.d("etWeight", "Correct Address")
     }
@@ -289,7 +286,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
             return
         } else {
             Log.d("etWeight", "NonEmptyWeight")
-
         }
 
         if (latitude == 0.0 && longitude == 0.0) {
@@ -335,7 +331,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
             suggestResult!!.add(suggest[i].displayText!!)
         }
         resultAdapter!!.notifyDataSetChanged()
-
 
         suggestResultView!!.visibility = View.VISIBLE
     }
@@ -386,7 +381,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                 address = "That didn't work!"
             })
 
-
         queue.add(stringRequest)
 
     }
@@ -395,8 +389,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
 
         val queue = Volley.newRequestQueue(this)
         val url = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$address&apikey=17757be8-4817-4365-886c-d89845ac6976"
-
-
 
         val stringRequest = StringRequest(
             Request.Method.GET, url,
@@ -414,12 +406,11 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                     .getString("pos").split(" ")
 
                 ROUTE_END_LOCATION = Point(coordinates[1].toDouble(), coordinates[0].toDouble())
+                latitude = coordinates[1].toDouble()
+                longitude = coordinates[0].toDouble()
 
                 toast(coordinates[0] + coordinates[1])
                 submitRequest()
-
-
-
 
             },
             Response.ErrorListener {
@@ -454,13 +445,19 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
 
         var distance = 0.0
 
-        for (i in 0 until points.size - 1) {
-            distance += Geo.distance(points[i], points[i + 1])
+        try {
+            for (i in 0 until points.size - 1) {
+                distance += Geo.distance(points[i], points[i + 1])
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
         }
 
-        km = Math.ceil(distance/1000).toFloat()
 
-        etDistance.hint = "$km km"
+
+        km = Math.round(distance/1000).toFloat()
+
+        updateCost()
 
 
         Log.d("Coordinates", Integer.toString(Math.round(distance / 1000).toInt()) + " km")
@@ -483,6 +480,14 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
             )
         )
         drivingSession = drivingRouter.requestRoutes(requestPoints, options, this)
+    }
+
+    fun updateCost() {
+        deliveryCost = km * priceForWeight
+        etCoastForDelivery.hint = "${deliveryCost} рублей"
+        overPrice = km * priceForWeight + price * weigth
+        etCoastFor.hint = "${overPrice} рублей"
+        etDistance.hint = "$km km"
     }
 
 

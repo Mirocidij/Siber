@@ -41,9 +41,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
-
-
-
         mMap = googleMap
 
 
@@ -59,21 +56,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
 
-
     }
 
     fun accept(v: View) {
-        if (latitude == 0.0 && longitude == 0.0) {
-            Toast.makeText(this, "Не выбрано место доставки", Toast.LENGTH_LONG).show()
-        } else {
-            val intent = Intent(
-                this@MapsActivity,
-                MainActivity::class.java
-            )
-            intent.putExtra("longitude", longitude)
-            intent.putExtra("latitude", latitude)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
+
+
+        try {
+            if (latitude == 0.0 && longitude == 0.0) {
+                Toast.makeText(this, "Не выбрано место доставки", Toast.LENGTH_LONG).show()
+            } else {
+                val intent = Intent(
+                    this@MapsActivity,
+                    MainActivity::class.java
+                )
+                intent.putExtra("longitude", longitude)
+                intent.putExtra("latitude", latitude)
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            }
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
         }
 
     }

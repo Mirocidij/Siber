@@ -123,6 +123,14 @@ class SecondActivity : AppCompatActivity() {
 
     }
 
+    override fun onBackPressed() {
+        try {
+            super.onBackPressed()
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+        }
+    }
+
     fun Done(v: View) {
 
         if (etPhoneNumber.text.length == 18 && etPhoneNumber.text.toString()[0] == '+' && etPhoneNumber.text.toString()[1] == '7' && etPhoneNumber.text.isNotEmpty()) {
