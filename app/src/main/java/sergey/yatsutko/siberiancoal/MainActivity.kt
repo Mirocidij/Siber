@@ -33,16 +33,19 @@ import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
 
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
+import org.jetbrains.anko.yesButton
 import org.json.JSONObject
 import sergey.yatsutko.siberiancoal.helpful.InputFilterMinMax
 import sergey.yatsutko.siberiancoal.helpful.selectEntries
 
 
-class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, DrivingSession.DrivingRouteListener{
+class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, DrivingSession.DrivingRouteListener {
 
     private var marker = true
     private var firmBool = false
+    var distance = 0.0
 
     private val MAPKIT_API_KEY = "a139146c-adfa-484c-abb6-5ce42284f64e"
     private val RESULT_NUMBER_LIMIT = 5
@@ -61,7 +64,8 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
     private val SEARCH_OPTIONS = SearchOptions().setSearchTypes(
         SearchType.GEO.value or
                 SearchType.BIZ.value or
-                SearchType.TRANSIT.value)
+                SearchType.TRANSIT.value
+    )
 
     // Prices for coal
     private val prices = intArrayOf(1700, 1800, 1900, 2000)
@@ -87,7 +91,7 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
     )
 
     private var ROUTE_START_LOCATION = Point(cuts[0][0], cuts[1][0])
-    private var ROUTE_END_LOCATION = Point(53.720439, 91.427967)
+    private var ROUTE_END_LOCATION = Point(latitude, longitude)
 
     private lateinit var drivingRouter: DrivingRouter
     private lateinit var drivingSession: DrivingSession
@@ -103,16 +107,23 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
         setContentView(R.layout.activity_main)
         super.onCreate(savedInstanceState)
 
+        if (!hasConnection(this@MainActivity)) {
+            alert("Заказать уголь без интернет подключения невозможно", "Внимание") { yesButton {  } }.show()
+
+        }
+
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
         val queryEdit = findViewById(R.id.searchBar) as EditText
         suggestResultView = findViewById(R.id.suggest_result) as ListView
         suggestResult = ArrayList()
-        resultAdapter = ArrayAdapter(this,
+        resultAdapter = ArrayAdapter(
+            this,
             android.R.layout.simple_list_item_2,
             android.R.id.text1,
-            suggestResult!!)
+            suggestResult!!
+        )
         suggestResultView!!.adapter = resultAdapter
 
         queryEdit.addTextChangedListener(object : TextWatcher {
@@ -122,25 +133,38 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
 
             override fun afterTextChanged(editable: Editable) {
 
-                scroll.elevation = 20f
-                if (marker) {
-                    requestSuggest(editable.toString())
-
+                try {
+                    scroll.elevation = 20f
+                    if (marker) {
+                        requestSuggest(editable.toString())
+                    }
+                    marker = true
+                } catch (e: IndexOutOfBoundsException) {
+                    e.printStackTrace()
                 }
-                marker = true
+
             }
         })
 
 
-
         suggestResultView!!.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+
             marker = false
             scroll.elevation = 0f
-            queryEdit.setText(suggestResult!![position])
-            suggestResultView!!.visibility = View.INVISIBLE
-            Toast.makeText(this@MainActivity, suggestResult!![position], Toast.LENGTH_LONG).show()
 
-            getCoordinates(suggestResult!![position])
+            val streetName = suggestResult!![position].split(", ")
+            var street = ""
+            if (streetName.size >= 3) {
+                street =
+                    streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", "  + streetName[streetName.size - 1]
+            } else {
+              street = suggestResult!![position]
+            }
+
+            queryEdit.setText(street)
+            suggestResultView!!.visibility = View.INVISIBLE
+
+            getCoordinates(street)
         }
 
 
@@ -195,21 +219,21 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                             selectEntries(this@MainActivity, R.array.Arshanovsky)
                         1 -> coalSpinner.adapter =
                             selectEntries(this@MainActivity, R.array.Beloyarsky)
-                        2-> coalSpinner.adapter =
+                        2 -> coalSpinner.adapter =
                             selectEntries(this@MainActivity, R.array.Chernogorsky)
                         3 -> coalSpinner.adapter =
                             selectEntries(this@MainActivity, R.array.Vostochnobeysky)
                         4 -> coalSpinner.adapter =
                             selectEntries(this@MainActivity, R.array.Izihsky)
-                        else -> {}
+                        else -> {
+                        }
                     }
+                    ROUTE_START_LOCATION = Point(cuts[0][selectedItemPosition], cuts[1][selectedItemPosition])
 
+
+                    submitRequest()
                 }
-                ROUTE_START_LOCATION = Point(cuts[0][selectedItemPosition], cuts[1][selectedItemPosition])
-                submitRequest()
                 firmBool = true
-
-
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -246,9 +270,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
         latitude = data.extras.getDouble("latitude")
         longitude = data.extras.getDouble("longitude")
 
-        submitRequest()
-
-        ROUTE_END_LOCATION = Point(latitude, longitude)
         getAddress(latitude = latitude, longitude = longitude)
 
         try {
@@ -278,23 +299,21 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
 
     fun goNextActivity(v: View) {
 
-        val nextIntent = Intent(this@MainActivity, SecondActivity::class.java)
-
         if (etWeight.text.toString() == "0" || etWeight.text.toString() == "00" || etWeight.text.toString().isEmpty()) {
-            Toast.makeText(this@MainActivity, "Некорректная масса", Toast.LENGTH_SHORT).show()
-            Log.d("etWeight", "IsEmptyWeight")
+            alert(message = "Некорректая масса", title = "Ошибка") {
+                yesButton { }
+            }.show()
             return
-        } else {
-            Log.d("etWeight", "NonEmptyWeight")
         }
 
-        if (latitude == 0.0 && longitude == 0.0) {
-            Toast.makeText(this@MainActivity, "Не выбрано место доставки", Toast.LENGTH_SHORT).show()
-            Log.d("etWeight", "IncorrectAddress")
+        if (distance == 0.0) {
+            alert(message = "Некорректный адрес доставки", title = "Ошибка") {
+                yesButton { }
+            }.show()
             return
-        } else {
-            Log.d("etWeight", "CorrectAddress")
         }
+
+        val nextIntent = Intent(this@MainActivity, SecondActivity::class.java)
 
         nextIntent.putExtra("Cuts", firmSpiner.selectedItem.toString())
         nextIntent.putExtra("CoalMark", coalSpinner.selectedItem.toString())
@@ -308,6 +327,13 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
     }
 
     fun goMap(v: View) {
+
+        if (!hasConnection(this@MainActivity)) {
+            alert("Отсутствует интернет соединение", "Операция невозможна") { yesButton {  } }.show()
+            return
+        }
+
+
         val intent = Intent(
             this@MainActivity,
             MapsActivity::class.java
@@ -326,13 +352,20 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
     }
 
     override fun onSuggestResponse(suggest: List<SuggestItem>) {
-        suggestResult!!.clear()
-        for (i in 0..Math.min(RESULT_NUMBER_LIMIT - 1, suggest.size)) {
-            suggestResult!!.add(suggest[i].displayText!!)
-        }
-        resultAdapter!!.notifyDataSetChanged()
 
-        suggestResultView!!.visibility = View.VISIBLE
+        try {
+            suggestResult!!.clear()
+            for (i in 0..Math.min(RESULT_NUMBER_LIMIT - 1, suggest.size)) {
+                suggestResult!!.add(suggest[i].displayText!!)
+            }
+            resultAdapter!!.notifyDataSetChanged()
+
+            suggestResultView!!.visibility = View.VISIBLE
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+
+
     }
 
     override fun onSuggestError(error: Error) {
@@ -346,15 +379,21 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
     }
 
     private fun requestSuggest(query: String) {
-        suggestResultView!!.visibility = View.INVISIBLE
-        searchManager!!.suggest(query, BOUNDING_BOX, SEARCH_OPTIONS, this)
+        try {
+            suggestResultView!!.visibility = View.INVISIBLE
+            searchManager!!.suggest(query, BOUNDING_BOX, SEARCH_OPTIONS, this)
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
     }
 
     private fun getAddress(latitude: Double, longitude: Double) {
 
         val queue = Volley.newRequestQueue(this)
-        val url = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$longitude,$latitude&apikey=17757be8-4817-4365-886c-d89845ac6976"
+        val url =
+            "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$longitude,$latitude&apikey=17757be8-4817-4365-886c-d89845ac6976"
         var address = ""
+        var isHouse = ""
 
 
         val stringRequest = StringRequest(
@@ -363,6 +402,16 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
 
                 var jsonObject =
                     JSONObject(response)
+
+                isHouse = jsonObject.getJSONObject("response")
+                    .getJSONObject("GeoObjectCollection")
+                    .getJSONArray("featureMember")
+                    .getJSONObject(0)
+                    .getJSONObject("GeoObject")
+                    .getJSONObject("metaDataProperty")
+                    .getJSONObject("GeocoderMetaData")
+                    .getString("kind")
+
 
                 address = jsonObject.getJSONObject("response")
                     .getJSONObject("GeoObjectCollection")
@@ -373,8 +422,27 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                     .getJSONObject("GeocoderMetaData")
                     .getString("text")
 
+                val streetName = address.split(", ")
+                if (streetName.size >= 3) {
+                    address =
+                        streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", "  + streetName[streetName.size - 1]
+                }
+
                 marker = false
                 searchBar.setText(address)
+
+                if (isHouse == "house") {
+                    ROUTE_END_LOCATION = Point(latitude, longitude)
+                    submitRequest()
+                } else {
+                    distance = 0.0
+                    etDistance.hint = "0.0 km"
+
+                    alert("Выберите дом", "Ошибка") {
+                        yesButton { }
+                    }.show()
+                }
+
 
             },
             Response.ErrorListener {
@@ -388,7 +456,10 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
     private fun getCoordinates(address: String) {
 
         val queue = Volley.newRequestQueue(this)
-        val url = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$address&apikey=17757be8-4817-4365-886c-d89845ac6976"
+        val url =
+            "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$address&apikey=17757be8-4817-4365-886c-d89845ac6976"
+
+        var isHouse = ""
 
         val stringRequest = StringRequest(
             Request.Method.GET, url,
@@ -397,20 +468,42 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                 var jsonObject =
                     JSONObject(response)
 
-                val coordinates = jsonObject.getJSONObject("response")
+                isHouse = jsonObject.getJSONObject("response")
                     .getJSONObject("GeoObjectCollection")
                     .getJSONArray("featureMember")
                     .getJSONObject(0)
                     .getJSONObject("GeoObject")
-                    .getJSONObject("Point")
-                    .getString("pos").split(" ")
+                    .getJSONObject("metaDataProperty")
+                    .getJSONObject("GeocoderMetaData")
+                    .getString("kind")
 
-                ROUTE_END_LOCATION = Point(coordinates[1].toDouble(), coordinates[0].toDouble())
-                latitude = coordinates[1].toDouble()
-                longitude = coordinates[0].toDouble()
+                Log.d("Pisya", isHouse)
 
-                toast(coordinates[0] + coordinates[1])
-                submitRequest()
+
+                if (isHouse == "house") {
+                    val coordinates = jsonObject.getJSONObject("response")
+                        .getJSONObject("GeoObjectCollection")
+                        .getJSONArray("featureMember")
+                        .getJSONObject(0)
+                        .getJSONObject("GeoObject")
+                        .getJSONObject("Point")
+                        .getString("pos").split(" ")
+
+                    ROUTE_END_LOCATION = Point(coordinates[1].toDouble(), coordinates[0].toDouble())
+                    latitude = coordinates[1].toDouble()
+                    longitude = coordinates[0].toDouble()
+
+//                toast(coordinates[0] + coordinates[1])
+                    submitRequest()
+                } else {
+                    distance = 0.0
+                    etDistance.hint = "0.0 km"
+
+                    alert("Выберите дом", "Ошибка") {
+                        yesButton { }
+                    }.show()
+                }
+
 
             },
             Response.ErrorListener {
@@ -422,10 +515,9 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
 
     }
 
-
     override fun onBackPressed() {
         super.onBackPressed()
-        moveTaskToBack(true)
+        finish()
     }
 
     override fun onDrivingRoutesError(error: Error) {
@@ -440,23 +532,26 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
     }
 
     override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {
+
         val points = java.util.ArrayList<Point>()
-        points.addAll(routes.get(0).getGeometry().getPoints())
 
-        var distance = 0.0
+        Log.d("Jopa", "Routes: " + routes.size.toString())
 
-        try {
+        distance = 0.0
+        if (routes.size > 0) {
+            points.addAll(routes.get(0).getGeometry().getPoints())
+
             for (i in 0 until points.size - 1) {
                 distance += Geo.distance(points[i], points[i + 1])
+                Log.d("Jopa", "Distance: $distance")
             }
-        } catch (e: IndexOutOfBoundsException) {
-            e.printStackTrace()
+        } else {
+            alert("Дорога не найдена", "Ошибка") {
+                yesButton { }
+            }.show()
         }
 
-
-
-        km = Math.round(distance/1000).toFloat()
-
+        km = (Math.round(distance) / 1000).toFloat()
         updateCost()
 
 
@@ -464,6 +559,12 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
     }
 
     private fun submitRequest() {
+
+        if (ROUTE_END_LOCATION.latitude == 0.0) {
+            distance = 0.0
+            etDistance.hint = "0.0 km"
+            return
+        }
         val options = DrivingOptions()
         val requestPoints = java.util.ArrayList<RequestPoint>()
         requestPoints.add(

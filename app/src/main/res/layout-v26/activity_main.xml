@@ -129,6 +129,7 @@
 
 
     <EditText
+            android:textSize="14sp"
             android:id="@+id/searchBar"
             android:layout_width="match_parent"
             android:layout_height="60dp"

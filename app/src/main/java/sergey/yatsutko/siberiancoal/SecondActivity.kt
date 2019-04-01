@@ -133,7 +133,19 @@ class SecondActivity : AppCompatActivity() {
 
     fun Done(v: View) {
 
-        if (etPhoneNumber.text.length == 18 && etPhoneNumber.text.toString()[0] == '+' && etPhoneNumber.text.toString()[1] == '7' && etPhoneNumber.text.isNotEmpty()) {
+        if (!hasConnection(this@SecondActivity)) {
+            alert("Отсутствует интернет соединение", "Операция невозможна") { yesButton {  } }.show()
+            return
+        }
+
+        var a = etPhoneNumber.text
+        var count = 0
+
+        for (i in 0 until a.length) {
+            if (a[i] == '+') count++
+        }
+
+        if (etPhoneNumber.text.length == 18 && etPhoneNumber.text.toString()[0] == '+' && etPhoneNumber.text.toString()[1] == '7' && etPhoneNumber.text.isNotEmpty() && count == 1) {
             val string = etPhoneNumber.text.toString()
             phone = string.replace("[^0-9+]".toRegex(), "")
             code = Random.nextInt(1000, 9999).toString()
