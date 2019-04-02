@@ -1,4 +1,4 @@
-package sergey.yatsutko.siberiancoal.helpful
+package sergey.yatsutko.siberiancoal.commons
 
 import android.content.Context
 import android.widget.ArrayAdapter

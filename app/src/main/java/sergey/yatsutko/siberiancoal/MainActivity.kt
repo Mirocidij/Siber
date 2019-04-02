@@ -35,8 +35,8 @@ import com.yandex.runtime.network.RemoteError
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.toast
 import org.json.JSONObject
-import sergey.yatsutko.siberiancoal.helpful.InputFilterMinMax
-import sergey.yatsutko.siberiancoal.helpful.selectEntries
+import sergey.yatsutko.siberiancoal.commons.selectEntries
+import sergey.yatsutko.siberiancoal.commons.InputFilterMinMax
 
 
 class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, DrivingSession.DrivingRouteListener{
