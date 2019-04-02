@@ -39,6 +39,7 @@ import org.jetbrains.anko.yesButton
 import org.json.JSONObject
 import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.commons.InputFilterMinMax
+import sergey.yatsutko.siberiancoal.commons.hasConnection
 
 
 class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, DrivingSession.DrivingRouteListener {
