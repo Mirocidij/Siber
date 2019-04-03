@@ -20,7 +20,7 @@ class SmsService private constructor() {
             .build()
     }
 
-    fun SendSms(message: String, phone: String) {
+    fun sendSms(message: String, phone: String) {
         SmsService.instance
             .jsonApi
             .sendSms(
@@ -42,7 +42,7 @@ class SmsService private constructor() {
     companion object {
 
         private var mInstance: SmsService? = null
-        private val BASE_URL = "https://smsc.ru"
+        private const val BASE_URL = "https://smsc.ru"
 
         val instance: SmsService
             get() : SmsService {
@@ -52,6 +52,4 @@ class SmsService private constructor() {
                 return mInstance!!
             }
     }
-
-
 }

@@ -1,4 +1,4 @@
-package sergey.yatsutko.siberiancoal
+package sergey.yatsutko.siberiancoal.presentation.UI
 
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
@@ -11,6 +11,7 @@ import android.view.Gravity
 import android.view.View
 import kotlinx.android.synthetic.main.activity_second.*
 import org.jetbrains.anko.*
+import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.Sms.SmsService
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import kotlin.random.Random
@@ -152,7 +153,7 @@ class SecondActivity : AppCompatActivity() {
             code = Random.nextInt(1000, 9999).toString()
             toast(code)
 
-            SmsService.instance.SendSms(code, phone)
+            SmsService.instance.sendSms(code, phone)
             showAlert(message = "", title = "Введите код из SMS", hint = "")
 
         } else {
@@ -190,7 +191,7 @@ class SecondActivity : AppCompatActivity() {
                                 "\nЦена доставки: ${deliveryCost.toInt()} рублей" +
                                 "\nОбщая цена ${overPrice.toInt()} рублей" +
                                 "\nТелефон: $phone"
-                        SmsService.instance.SendSms(mes, "+79628003000")
+                        SmsService.instance.sendSms(mes, "+79628003000")
 
                         alert(message = "В ближашее время оператор с вами свяжется", title = "Спасибо за заказ") {
                             yesButton { startActivity(Intent(this@SecondActivity, MainActivity::class.java)) }

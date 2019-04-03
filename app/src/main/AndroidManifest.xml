@@ -22,7 +22,7 @@
             android:theme="@style/AppTheme">
         <activity
                 android:screenOrientation="portrait"
-                android:name=".SecondActivity">
+                android:name=".presentation.UI.SecondActivity">
         </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -38,12 +38,12 @@
 
         <activity
                 android:screenOrientation="portrait"
-                android:name=".MapsActivity"
+                android:name=".presentation.UI.MapsActivity"
                 android:label="@string/title_activity_maps">
         </activity>
         <activity
                 android:screenOrientation="portrait"
-                android:name=".MainActivity">
+                android:name=".presentation.UI.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

@@ -1,4 +1,4 @@
-package sergey.yatsutko.siberiancoal
+package sergey.yatsutko.siberiancoal.presentation.UI
 
 import android.content.Intent
 import android.os.Bundle
@@ -37,6 +37,7 @@ import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.yesButton
 import org.json.JSONObject
+import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.commons.InputFilterMinMax
 import sergey.yatsutko.siberiancoal.commons.hasConnection

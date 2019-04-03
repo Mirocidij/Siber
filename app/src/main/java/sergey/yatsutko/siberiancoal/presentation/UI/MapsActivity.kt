@@ -1,4 +1,4 @@
-package sergey.yatsutko.siberiancoal
+package sergey.yatsutko.siberiancoal.presentation.UI
 
 import android.app.Activity
 import android.content.Intent
@@ -12,6 +12,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import android.widget.Toast
+import sergey.yatsutko.siberiancoal.R
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
