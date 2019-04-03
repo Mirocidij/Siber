@@ -1,4 +1,4 @@
-package sergey.yatsutko.siberiancoal.Sms
+package sergey.yatsutko.siberiancoal.data.network.Sms
 
 import io.reactivex.Completable
 import retrofit2.Call

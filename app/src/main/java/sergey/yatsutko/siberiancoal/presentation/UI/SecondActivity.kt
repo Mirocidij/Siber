@@ -12,7 +12,7 @@ import android.view.View
 import kotlinx.android.synthetic.main.activity_second.*
 import org.jetbrains.anko.*
 import sergey.yatsutko.siberiancoal.R
-import sergey.yatsutko.siberiancoal.Sms.SmsService
+import sergey.yatsutko.siberiancoal.data.network.Sms.SmsService
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import kotlin.random.Random
 
