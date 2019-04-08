@@ -18,6 +18,7 @@ import org.jetbrains.anko.*
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.data.network.Sms.SmsService
 import sergey.yatsutko.siberiancoal.commons.hasConnection
+import sergey.yatsutko.siberiancoal.data.repository.SmsApiRepository
 import kotlin.random.Random
 
 class SecondActivity : AppCompatActivity() {
@@ -161,6 +162,7 @@ class SecondActivity : AppCompatActivity() {
             phone = string.replace("[^0-9+]".toRegex(), "")
             code = Random.nextInt(1000, 9999).toString()
 
+
             var handler = object : Handler() {
                 override fun handleMessage(msg: Message?) {
                     showAlert(message = "", title = "Введите код из SMS", hint = "")
@@ -168,23 +170,7 @@ class SecondActivity : AppCompatActivity() {
                 }
             }
 
-
-
-            SmsService
-                .instance
-                .jsonApi
-                .sendSms(phone, code)
-                .doOnSubscribe {
-
-                }
-                .doOnComplete {
-
-                    handler.sendEmptyMessage(1)
-
-                }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
+            SmsApiRepository(phone, code, handler)
 
 
         } else {
