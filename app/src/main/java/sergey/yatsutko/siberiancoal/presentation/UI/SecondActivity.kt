@@ -147,7 +147,7 @@ class SecondActivity : AppCompatActivity() {
             return
         }
 
-        var a = etPhoneNumber.text
+        val a = etPhoneNumber.text
         var count = 0
 
         for (i in 0 until a.length) {
@@ -157,43 +157,30 @@ class SecondActivity : AppCompatActivity() {
         if (etPhoneNumber.text.length == 18
             && etPhoneNumber.text.toString()[0] == '+'
             && etPhoneNumber.text.toString()[1] == '7'
-            && etPhoneNumber.text.isNotEmpty() && count == 1
+            && etPhoneNumber.text.isNotEmpty()
+            && count == 1
         ) {
 
             val string = etPhoneNumber.text.toString()
             phone = string.replace("[^0-9+]".toRegex(), "")
             code = Random.nextInt(1000, 9999).toString()
 
-            var handler = object : Handler() {
-                override fun handleMessage(msg: Message?) {
-                    showAlert(message = "", title = "Введите код из SMS", hint = "")
-                    toast(code)
-                }
-            }
-
-
-
             SmsService
                 .instance
                 .jsonApi
                 .sendSms(phone, code)
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe {
-
-
 
                 }
                 .doOnComplete {
 
-                    showAlert()
+                    showAlert(message = "", title = "Введите код из SMS", hint = "")
+                    toast(code)
 
                 }
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe()
-
-//            SmsApiRepository(phone, code, handler)
-
-
 
 
         } else {
@@ -203,8 +190,7 @@ class SecondActivity : AppCompatActivity() {
         }
     }
 
-
-    fun showAlert(message: String, title: String, hint: String) {
+    private fun showAlert(message: String, title: String, hint: String) {
         alert(message = message, title = title) {
             customView {
                 val a = editText()
@@ -220,39 +206,34 @@ class SecondActivity : AppCompatActivity() {
                     } else {
                         val mes = "Разрез: $cuts" +
                                 "\nМарка: $coalMark" +
-                                "\nМасса: $weight ${
-                                if (weight.toInt() < 5) {
-                                    "тонны"
-                                } else "тонн"
-                                }" +
+                                "\nМасса: $weight тонн" +
                                 "\nАдресс: $address" +
-                                "\nРасстояние: distance км" +
+                                "\nРасстояние: $distance км" +
                                 "\nЦена за тонну: $price рублей" +
                                 "\nЦена доставки: $deliveryCost рублей" +
                                 "\nОбщая цена $overPrice рублей" +
                                 "\nТелефон: $phone"
 
-                        SmsService.instance.sendSms(mes, "+79628003000")
+                        SmsService
+                            .instance
+                            .jsonApi
+                            .sendSms("+79628003000", mes)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnSubscribe {
 
-                        alert(message = "В ближашее время оператор с вами свяжется", title = "Спасибо за заказ") {
-                            yesButton { startActivity(Intent(this@SecondActivity, MainActivity::class.java)) }
-                        }.show()
+                            }.doOnComplete {
+                                alert(
+                                    message = "В ближашее время оператор с вами свяжется",
+                                    title = "Спасибо за заказ"
+                                ) {
+                                    yesButton { startActivity(Intent(this@SecondActivity, MainActivity::class.java)) }
+                                }.show()
+                            }.subscribeOn(Schedulers.io())
+                            .subscribe()
                     }
                 }
             }
-
             noButton { toast("No") }
         }.show()
     }
-
-    fun showAlert() {
-        val alertDialog = AlertDialog.Builder(this@SecondActivity).create()
-        alertDialog.setTitle("111")
-        alertDialog.setMessage("222")
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK"
-        ) { dialog, which -> dialog.dismiss()
-        }
-        alertDialog.show()
-    }
-
 }
