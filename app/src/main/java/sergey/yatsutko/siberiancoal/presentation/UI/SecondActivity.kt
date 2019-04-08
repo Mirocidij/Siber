@@ -1,12 +1,8 @@
 package sergey.yatsutko.siberiancoal.presentation.UI
 
-import android.content.DialogInterface
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
-import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
@@ -18,9 +14,8 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_second.*
 import org.jetbrains.anko.*
 import sergey.yatsutko.siberiancoal.R
-import sergey.yatsutko.siberiancoal.data.network.Sms.SmsService
 import sergey.yatsutko.siberiancoal.commons.hasConnection
-import sergey.yatsutko.siberiancoal.data.repository.SmsApiRepository
+import sergey.yatsutko.siberiancoal.data.network.Sms.SmsService
 import kotlin.random.Random
 
 class SecondActivity : AppCompatActivity() {
@@ -140,7 +135,7 @@ class SecondActivity : AppCompatActivity() {
         }
     }
 
-    fun Done(v: View) {
+    fun done(v: View) {
 
         if (!hasConnection(this@SecondActivity)) {
             alert("Отсутствует интернет соединение", "Операция невозможна") { yesButton { } }.show()

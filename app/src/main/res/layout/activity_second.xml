@@ -390,7 +390,7 @@
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/ic_done"
-                android:onClick="Done"
+                android:onClick="done"
                 app:fabSize="normal"
                 app:layout_anchor="@id/babBar"
                 android:backgroundTint="@color/lightBlue"
