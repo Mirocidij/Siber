@@ -479,8 +479,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                     .getJSONObject("GeocoderMetaData")
                     .getString("kind")
 
-                Log.d("Pisya", isHouse)
-
 
                 if (isHouse == "house") {
                     val coordinates = jsonObject.getJSONObject("response")
@@ -537,7 +535,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
 
         val points = java.util.ArrayList<Point>()
 
-        Log.d("Jopa", "Routes: " + routes.size.toString())
 
         distance = 0.0
         if (routes.size > 0) {
@@ -545,7 +542,6 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
 
             for (i in 0 until points.size - 1) {
                 distance += Geo.distance(points[i], points[i + 1])
-                Log.d("Jopa", "Distance: $distance")
             }
         } else {
             alert("Дорога не найдена", "Ошибка") {

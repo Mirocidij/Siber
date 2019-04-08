@@ -14,13 +14,9 @@ class SmsApiRepository constructor(phone: String, message: String, handler : Han
             .sendSms(phoneNumber = phone, message = message)
             .doOnSubscribe {
 
-
-
             }
             .doOnComplete {
-
                 handler.sendEmptyMessage(1)
-
             }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

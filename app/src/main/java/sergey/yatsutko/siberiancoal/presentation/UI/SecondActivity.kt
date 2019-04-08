@@ -1,10 +1,12 @@
 package sergey.yatsutko.siberiancoal.presentation.UI
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.support.v7.app.AlertDialog
 import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
@@ -162,7 +164,6 @@ class SecondActivity : AppCompatActivity() {
             phone = string.replace("[^0-9+]".toRegex(), "")
             code = Random.nextInt(1000, 9999).toString()
 
-
             var handler = object : Handler() {
                 override fun handleMessage(msg: Message?) {
                     showAlert(message = "", title = "Введите код из SMS", hint = "")
@@ -170,7 +171,29 @@ class SecondActivity : AppCompatActivity() {
                 }
             }
 
-            SmsApiRepository(phone, code, handler)
+
+
+            SmsService
+                .instance
+                .jsonApi
+                .sendSms(phone, code)
+                .doOnSubscribe {
+
+
+
+                }
+                .doOnComplete {
+
+                    showAlert()
+
+                }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+
+//            SmsApiRepository(phone, code, handler)
+
+
 
 
         } else {
@@ -203,11 +226,12 @@ class SecondActivity : AppCompatActivity() {
                                 } else "тонн"
                                 }" +
                                 "\nАдресс: $address" +
-                                "\nРасстояние: ${distance.toInt()} км" +
-                                "\nЦена за тонну: ${price} рублей" +
-                                "\nЦена доставки: ${deliveryCost.toInt()} рублей" +
-                                "\nОбщая цена ${overPrice.toInt()} рублей" +
+                                "\nРасстояние: distance км" +
+                                "\nЦена за тонну: $price рублей" +
+                                "\nЦена доставки: $deliveryCost рублей" +
+                                "\nОбщая цена $overPrice рублей" +
                                 "\nТелефон: $phone"
+
                         SmsService.instance.sendSms(mes, "+79628003000")
 
                         alert(message = "В ближашее время оператор с вами свяжется", title = "Спасибо за заказ") {
@@ -219,6 +243,16 @@ class SecondActivity : AppCompatActivity() {
 
             noButton { toast("No") }
         }.show()
+    }
+
+    fun showAlert() {
+        val alertDialog = AlertDialog.Builder(this@SecondActivity).create()
+        alertDialog.setTitle("111")
+        alertDialog.setMessage("222")
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK"
+        ) { dialog, which -> dialog.dismiss()
+        }
+        alertDialog.show()
     }
 
 }
