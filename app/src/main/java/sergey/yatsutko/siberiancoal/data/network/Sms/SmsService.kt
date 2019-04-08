@@ -5,6 +5,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 class SmsService private constructor() {
@@ -16,7 +17,7 @@ class SmsService private constructor() {
     init {
         mRetrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
     }
 
@@ -24,19 +25,9 @@ class SmsService private constructor() {
         SmsService.instance
             .jsonApi
             .sendSms(
-                "lflagmanl",
-                "eujkmkexitdct[!",
                 phone,
                 message
-            ).enqueue(object : Callback<Completable> {
-                override fun onResponse(call: Call<Completable>, response: Response<Completable>) {
-
-                }
-
-                override fun onFailure(call: Call<Completable>, t: Throwable) {
-
-                }
-            })
+            )
     }
 
     companion object {

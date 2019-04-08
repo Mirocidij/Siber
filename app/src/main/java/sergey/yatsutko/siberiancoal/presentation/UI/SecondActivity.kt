@@ -3,12 +3,16 @@ package sergey.yatsutko.siberiancoal.presentation.UI
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_second.*
 import org.jetbrains.anko.*
 import sergey.yatsutko.siberiancoal.R
@@ -136,7 +140,7 @@ class SecondActivity : AppCompatActivity() {
     fun Done(v: View) {
 
         if (!hasConnection(this@SecondActivity)) {
-            alert("Отсутствует интернет соединение", "Операция невозможна") { yesButton {  } }.show()
+            alert("Отсутствует интернет соединение", "Операция невозможна") { yesButton { } }.show()
             return
         }
 
@@ -147,14 +151,41 @@ class SecondActivity : AppCompatActivity() {
             if (a[i] == '+') count++
         }
 
-        if (etPhoneNumber.text.length == 18 && etPhoneNumber.text.toString()[0] == '+' && etPhoneNumber.text.toString()[1] == '7' && etPhoneNumber.text.isNotEmpty() && count == 1) {
+        if (etPhoneNumber.text.length == 18
+            && etPhoneNumber.text.toString()[0] == '+'
+            && etPhoneNumber.text.toString()[1] == '7'
+            && etPhoneNumber.text.isNotEmpty() && count == 1
+        ) {
+
             val string = etPhoneNumber.text.toString()
             phone = string.replace("[^0-9+]".toRegex(), "")
             code = Random.nextInt(1000, 9999).toString()
-            toast(code)
 
-            SmsService.instance.sendSms(code, phone)
-            showAlert(message = "", title = "Введите код из SMS", hint = "")
+            var handler = object : Handler() {
+                override fun handleMessage(msg: Message?) {
+                    showAlert(message = "", title = "Введите код из SMS", hint = "")
+                    toast(code)
+                }
+            }
+
+
+
+            SmsService
+                .instance
+                .jsonApi
+                .sendSms(phone, code)
+                .doOnSubscribe {
+
+                }
+                .doOnComplete {
+
+                    handler.sendEmptyMessage(1)
+
+                }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+
 
         } else {
 
@@ -176,7 +207,7 @@ class SecondActivity : AppCompatActivity() {
 
                 yesButton {
                     if (a.text.toString() != code) {
-                        showAlert(message = "", title = "", hint = "Неверный код")
+                        showAlert(message = "", title = "Введите код из SMS", hint = "Неверный код")
                     } else {
                         val mes = "Разрез: $cuts" +
                                 "\nМарка: $coalMark" +
