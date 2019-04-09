@@ -585,7 +585,7 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
         deliveryCost = km * priceForWeight
         etCoastForDelivery.hint = "${deliveryCost} рублей"
         overPrice = km * priceForWeight + price * weigth
-        etCoastFor.hint = "${overPrice} рублей"
+        etCoastFor.hint = "$overPrice рублей"
         etDistance.hint = "$km km"
     }
 

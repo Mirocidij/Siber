@@ -1,27 +1,14 @@
 package sergey.yatsutko.siberiancoal.data.repository
 
-import android.os.Handler
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.Completable
 import io.reactivex.schedulers.Schedulers
-import sergey.yatsutko.siberiancoal.data.network.Sms.SmsService
+import sergey.yatsutko.siberiancoal.data.network.sms.SmsRequest
+import sergey.yatsutko.siberiancoal.data.network.sms.SmsService
 
-class SmsApiRepository constructor(phone: String, message: String, handler : Handler) {
+class SmsApiRepository constructor(private val api: SmsRequest = SmsService.api) {
 
-    init {
-        SmsService
-            .instance
-            .jsonApi
-            .sendSms(phoneNumber = phone, message = message)
-            .doOnSubscribe {
-
-            }
-            .doOnComplete {
-                handler.sendEmptyMessage(1)
-            }
+    fun sendSms(phoneNumber: String, message: String): Completable =
+        api.sendSms(phoneNumber = phoneNumber, message = message)
             .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe()
-    }
-    
 
 }

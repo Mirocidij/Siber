@@ -10,19 +10,20 @@ import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_second.*
 import org.jetbrains.anko.*
 import sergey.yatsutko.siberiancoal.R
+
 import sergey.yatsutko.siberiancoal.commons.hasConnection
-import sergey.yatsutko.siberiancoal.data.network.Sms.SmsService
+import sergey.yatsutko.siberiancoal.data.repository.SmsApiRepository
 import kotlin.random.Random
 
 class SecondActivity : AppCompatActivity() {
 
+    private val repository: SmsApiRepository = SmsApiRepository()
+
     var phoneNumberLength = -1
     var code = "0"
-
 
     private var cuts = ""
     private var coalMark = ""
@@ -160,21 +161,12 @@ class SecondActivity : AppCompatActivity() {
             phone = string.replace("[^0-9+]".toRegex(), "")
             code = Random.nextInt(1000, 9999).toString()
 
-            SmsService
-                .instance
-                .jsonApi
-                .sendSms(phone, code)
+            repository.sendSms(phoneNumber = phone, message = code)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe {
-
-                }
                 .doOnComplete {
-
-                    showAlert(message = "", title = "Введите код из SMS", hint = "")
+                    showCodeAlert(message = "", title = "Введите код из SMS", hint = "")
                     toast(code)
-
                 }
-                .subscribeOn(Schedulers.io())
                 .subscribe()
 
 
@@ -185,7 +177,7 @@ class SecondActivity : AppCompatActivity() {
         }
     }
 
-    private fun showAlert(message: String, title: String, hint: String) {
+    private fun showCodeAlert(message: String, title: String, hint: String) {
         alert(message = message, title = title) {
             customView {
                 val a = editText()
@@ -197,33 +189,19 @@ class SecondActivity : AppCompatActivity() {
 
                 yesButton {
                     if (a.text.toString() != code) {
-                        showAlert(message = "", title = "Введите код из SMS", hint = "Неверный код")
+                        showCodeAlert(message = "", title = "Введите код из SMS", hint = "Неверный код")
                     } else {
-                        val mes = "Разрез: $cuts" +
-                                "\nМарка: $coalMark" +
-                                "\nМасса: $weight тонн" +
-                                "\nАдресс: $address" +
-                                "\nРасстояние: $distance км" +
-                                "\nЦена за тонну: $price рублей" +
-                                "\nЦена доставки: $deliveryCost рублей" +
-                                "\nОбщая цена $overPrice рублей" +
-                                "\nТелефон: $phone"
-
-                        SmsService
-                            .instance
-                            .jsonApi
-                            .sendSms("+79628003000", mes)
+                        repository
+                            .sendSms(phoneNumber = "+79628003000", message = generateMessage())
                             .observeOn(AndroidSchedulers.mainThread())
-                            .doOnSubscribe {
-
-                            }.doOnComplete {
+                            .doOnComplete {
                                 alert(
                                     message = "В ближашее время оператор с вами свяжется",
                                     title = "Спасибо за заказ"
                                 ) {
                                     yesButton { startActivity(Intent(this@SecondActivity, MainActivity::class.java)) }
                                 }.show()
-                            }.subscribeOn(Schedulers.io())
+                            }
                             .subscribe()
                     }
                 }
@@ -231,4 +209,15 @@ class SecondActivity : AppCompatActivity() {
             noButton { toast("No") }
         }.show()
     }
+
+    private fun generateMessage(): String =
+            "Разрез: $cuts" +
+            "\nМарка: $coalMark" +
+            "\nМасса: $weight тонн" +
+            "\nАдресс: $address" +
+            "\nРасстояние: $distance км" +
+            "\nЦена за тонну: $price рублей" +
+            "\nЦена доставки: $deliveryCost рублей" +
+            "\nОбщая цена $overPrice рублей" +
+            "\nТелефон: $phone"
 }
