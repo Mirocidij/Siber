@@ -1,6 +1,9 @@
 package sergey.yatsutko.siberiancoal.data.network.Sms
 
 import io.reactivex.Completable
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,6 +31,9 @@ class SmsService private constructor() {
                 phone,
                 message
             )
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe()
     }
 
     companion object {

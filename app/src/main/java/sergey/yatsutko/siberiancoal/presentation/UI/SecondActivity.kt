@@ -1,10 +1,8 @@
 package sergey.yatsutko.siberiancoal.presentation.UI
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
+import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
@@ -12,19 +10,20 @@ import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_second.*
 import org.jetbrains.anko.*
 import sergey.yatsutko.siberiancoal.R
-import sergey.yatsutko.siberiancoal.data.network.Sms.SmsService
+
 import sergey.yatsutko.siberiancoal.commons.hasConnection
+import sergey.yatsutko.siberiancoal.data.repository.SmsApiRepository
 import kotlin.random.Random
 
 class SecondActivity : AppCompatActivity() {
 
+    private val repository: SmsApiRepository = SmsApiRepository()
+
     var phoneNumberLength = -1
     var code = "0"
-
 
     private var cuts = ""
     private var coalMark = ""
@@ -137,14 +136,14 @@ class SecondActivity : AppCompatActivity() {
         }
     }
 
-    fun Done(v: View) {
+    fun done(v: View) {
 
         if (!hasConnection(this@SecondActivity)) {
             alert("Отсутствует интернет соединение", "Операция невозможна") { yesButton { } }.show()
             return
         }
 
-        var a = etPhoneNumber.text
+        val a = etPhoneNumber.text
         var count = 0
 
         for (i in 0 until a.length) {
@@ -154,36 +153,20 @@ class SecondActivity : AppCompatActivity() {
         if (etPhoneNumber.text.length == 18
             && etPhoneNumber.text.toString()[0] == '+'
             && etPhoneNumber.text.toString()[1] == '7'
-            && etPhoneNumber.text.isNotEmpty() && count == 1
+            && etPhoneNumber.text.isNotEmpty()
+            && count == 1
         ) {
 
             val string = etPhoneNumber.text.toString()
             phone = string.replace("[^0-9+]".toRegex(), "")
             code = Random.nextInt(1000, 9999).toString()
 
-            var handler = object : Handler() {
-                override fun handleMessage(msg: Message?) {
-                    showAlert(message = "", title = "Введите код из SMS", hint = "")
+            repository.sendSms(phoneNumber = phone, message = code)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete {
+                    showCodeAlert(message = "", title = "Введите код из SMS", hint = "")
                     toast(code)
                 }
-            }
-
-
-
-            SmsService
-                .instance
-                .jsonApi
-                .sendSms(phone, code)
-                .doOnSubscribe {
-
-                }
-                .doOnComplete {
-
-                    handler.sendEmptyMessage(1)
-
-                }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe()
 
 
@@ -194,8 +177,7 @@ class SecondActivity : AppCompatActivity() {
         }
     }
 
-
-    fun showAlert(message: String, title: String, hint: String) {
+    private fun showCodeAlert(message: String, title: String, hint: String) {
         alert(message = message, title = title) {
             customView {
                 val a = editText()
@@ -207,32 +189,35 @@ class SecondActivity : AppCompatActivity() {
 
                 yesButton {
                     if (a.text.toString() != code) {
-                        showAlert(message = "", title = "Введите код из SMS", hint = "Неверный код")
+                        showCodeAlert(message = "", title = "Введите код из SMS", hint = "Неверный код")
                     } else {
-                        val mes = "Разрез: $cuts" +
-                                "\nМарка: $coalMark" +
-                                "\nМасса: $weight ${
-                                if (weight.toInt() < 5) {
-                                    "тонны"
-                                } else "тонн"
-                                }" +
-                                "\nАдресс: $address" +
-                                "\nРасстояние: ${distance.toInt()} км" +
-                                "\nЦена за тонну: ${price} рублей" +
-                                "\nЦена доставки: ${deliveryCost.toInt()} рублей" +
-                                "\nОбщая цена ${overPrice.toInt()} рублей" +
-                                "\nТелефон: $phone"
-                        SmsService.instance.sendSms(mes, "+79628003000")
-
-                        alert(message = "В ближашее время оператор с вами свяжется", title = "Спасибо за заказ") {
-                            yesButton { startActivity(Intent(this@SecondActivity, MainActivity::class.java)) }
-                        }.show()
+                        repository
+                            .sendSms(phoneNumber = "+79628003000", message = generateMessage())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnComplete {
+                                alert(
+                                    message = "В ближашее время оператор с вами свяжется",
+                                    title = "Спасибо за заказ"
+                                ) {
+                                    yesButton { startActivity(Intent(this@SecondActivity, MainActivity::class.java)) }
+                                }.show()
+                            }
+                            .subscribe()
                     }
                 }
             }
-
             noButton { toast("No") }
         }.show()
     }
 
+    private fun generateMessage(): String =
+            "Разрез: $cuts" +
+            "\nМарка: $coalMark" +
+            "\nМасса: $weight тонн" +
+            "\nАдресс: $address" +
+            "\nРасстояние: $distance км" +
+            "\nЦена за тонну: $price рублей" +
+            "\nЦена доставки: $deliveryCost рублей" +
+            "\nОбщая цена $overPrice рублей" +
+            "\nТелефон: $phone"
 }
