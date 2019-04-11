@@ -16,18 +16,18 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun mainActivityWasCreated(context: Context) {
+
         if (!hasConnection(context)) {
             viewState.showNetworkErrorMessage()
         }
+
     }
 
     fun firmSpinnerWasRechanged(selectedItemPosition: Int) {
+
+
         viewState.changeCoalSpinnerEntries(selectedItemPosition)
         viewState.submitRequest()
         viewState.updateCost()
-
     }
-
-
-
 }

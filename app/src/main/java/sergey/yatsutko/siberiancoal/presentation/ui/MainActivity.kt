@@ -7,15 +7,16 @@ import android.text.InputFilter
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.*
-
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import android.widget.Toast
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
-
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.RequestPoint
 import com.yandex.mapkit.RequestPointType
@@ -24,15 +25,15 @@ import com.yandex.mapkit.directions.driving.DrivingOptions
 import com.yandex.mapkit.directions.driving.DrivingRoute
 import com.yandex.mapkit.directions.driving.DrivingRouter
 import com.yandex.mapkit.directions.driving.DrivingSession
-import com.yandex.mapkit.geometry.BoundingBox
 import com.yandex.mapkit.geometry.Geo
 import com.yandex.mapkit.geometry.Point
-import com.yandex.mapkit.search.*
-
+import com.yandex.mapkit.search.SearchFactory
+import com.yandex.mapkit.search.SearchManager
+import com.yandex.mapkit.search.SearchManagerType
+import com.yandex.mapkit.search.SuggestItem
 import com.yandex.runtime.Error
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
-
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
@@ -40,9 +41,9 @@ import org.jetbrains.anko.yesButton
 import org.json.JSONObject
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
-import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.commons.InputFilterMinMax
 import sergey.yatsutko.siberiancoal.commons.hasConnection
+import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainPresenter
 import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainView
 
@@ -57,27 +58,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     private var firmBool = false
     var distance = 0.0
 
-    private val RESULT_NUMBER_LIMIT = 5
-
     private var searchManager: SearchManager? = null
     private var suggestResultView: ListView? = null
     private var resultAdapter: ArrayAdapter<*>? = null
     private var suggestResult: MutableList<String>? = null
 
-    private val CENTER = Point(53.721254, 91.443417)
-    private val BOX_SIZE = 0.2
-    private val BOUNDING_BOX = BoundingBox(
-        Point(CENTER.latitude - BOX_SIZE, CENTER.longitude - BOX_SIZE),
-        Point(CENTER.latitude + BOX_SIZE, CENTER.longitude + BOX_SIZE)
-    )
-    private val SEARCH_OPTIONS = SearchOptions().setSearchTypes(
-        SearchType.GEO.value or
-                SearchType.BIZ.value or
-                SearchType.TRANSIT.value
-    )
 
-    // Prices for coal
-    private val prices = intArrayOf(1700, 1800, 1900, 2000)
     // Default price
     private var price = 0
     // Price depend on weight
@@ -94,12 +80,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
     // Cuts coordinates
-    private val cuts = arrayOf(
-        arrayOf(53.402971, 53.529799, 53.759367, 53.326586, 53.630114),
-        arrayOf(91.083748, 91.410684, 91.061604, 91.361016, 91.436063)
-    )
 
-    private var ROUTE_START_LOCATION = Point(cuts[0][0], cuts[1][0])
+    private var ROUTE_START_LOCATION = Point(App.cuts[0][0], App.cuts[1][0])
     private var ROUTE_END_LOCATION = Point(latitude, longitude)
 
     private lateinit var drivingRouter: DrivingRouter
@@ -175,10 +157,9 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
 
         etDistance.hint = "0.0 km"
-        etCoastForDelivery.hint = "0.0 рублей"
+        etCostForDelivery.hint = "0.0 рублей"
 
         //Inform Edit Text
-        val etCoast = findViewById<EditText>(R.id.etCoast)
 
         etWeight.filters = arrayOf(InputFilterMinMax(0, 40), InputFilter.LengthFilter(2))
 
@@ -240,12 +221,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
 
                 price = if (selectedItemPosition % 2 == 0) {
-                    prices[selectedItemPosition] - 5 * selectedItemPosition
+                    App.prices[selectedItemPosition] - 5 * selectedItemPosition
                 } else {
-                    prices[selectedItemPosition] + 5 * selectedItemPosition
+                    App.prices[selectedItemPosition] + 5 * selectedItemPosition
                 }
                 updateCost()
-                etCoast.hint = "$price руб/т"
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -347,7 +327,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
         try {
             suggestResult!!.clear()
-            for (i in 0..Math.min(RESULT_NUMBER_LIMIT - 1, suggest.size)) {
+            for (i in 0..Math.min(App.RESULT_NUMBER_LIMIT - 1, suggest.size)) {
                 suggestResult!!.add(suggest[i].displayText!!)
             }
             resultAdapter!!.notifyDataSetChanged()
@@ -373,7 +353,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     private fun requestSuggest(query: String) {
         try {
             suggestResultView!!.visibility = View.INVISIBLE
-            searchManager!!.suggest(query, BOUNDING_BOX, SEARCH_OPTIONS, this)
+            searchManager!!.suggest(query, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
         } catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
         }
@@ -573,9 +553,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun updateCost() {
         deliveryCost = km * priceForWeight
-        etCoastForDelivery.hint = "$deliveryCost рублей"
         overPrice = km * priceForWeight + price * weigth
-        etCoastFor.hint = "$overPrice рублей"
+        etCost.hint = "$price руб/т"
+        etCostForDelivery.hint = "$deliveryCost рублей"
+        overPriceCost.hint = "$overPrice рублей"
         etDistance.hint = "$km km"
     }
 
@@ -598,7 +579,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             else -> {
             }
         }
-        ROUTE_START_LOCATION = Point(cuts[0][selectedItemPosition], cuts[1][selectedItemPosition])
+        ROUTE_START_LOCATION = Point(App.cuts[0][selectedItemPosition], App.cuts[1][selectedItemPosition])
     }
 
 

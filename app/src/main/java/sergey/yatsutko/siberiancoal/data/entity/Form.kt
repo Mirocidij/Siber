@@ -4,13 +4,13 @@ import java.io.Serializable
 
 class Form : Serializable{
 
-    lateinit var coalFirm : String
-    lateinit var coalMark : String
-    var pricePerTonn : Int? = null
-    var weight : Int? = null
-    lateinit var address : String
-    var distance : Int? = null
-    var deliveryPrice : Int? = null
-    var overPrice : Int? = null
+    var coalFirm : String = "Аршановский разрез"
+    var coalMark : String = "ДМСШ 0-25"
+    var pricePerTonn : Int? = 1700
+    var address : String = "Введите адресс доставки"
+    var weight : Int? = 0
+    var distance : Int? = 0
+    var deliveryPrice : Int? = 0
+    var overPrice : Int? = 0
 
 }

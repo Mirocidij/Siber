@@ -61,7 +61,7 @@
     />
 
     <EditText
-            android:id="@+id/etCoast"
+            android:id="@+id/etCost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -79,7 +79,7 @@
 
     <EditText
             android:hint="Цена:"
-            android:id="@+id/etCoast2"
+            android:id="@+id/etCost2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -106,7 +106,7 @@
 
             android:layout_marginTop="16dp"
             app:layout_constraintLeft_toLeftOf="@id/tvFirmSelectHelper"
-            app:layout_constraintTop_toBottomOf="@id/etCoast"
+            app:layout_constraintTop_toBottomOf="@id/etCost"
 
     />
 
@@ -123,8 +123,8 @@
             android:digits="0123456789"
 
 
-            app:layout_constraintEnd_toEndOf="@id/etCoast"
-            app:layout_constraintTop_toBottomOf="@id/etCoast"
+            app:layout_constraintEnd_toEndOf="@id/etCost"
+            app:layout_constraintTop_toBottomOf="@id/etCost"
     />
 
 
@@ -254,7 +254,7 @@
     />
 
     <EditText
-            android:id="@+id/etCoastForDelivery"
+            android:id="@+id/etCostForDelivery"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -272,7 +272,7 @@
     />
 
     <EditText
-            android:id="@+id/etCoastForDelivery2"
+            android:id="@+id/etCostForDelivery2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -292,7 +292,7 @@
 
 
     <EditText
-            android:id="@+id/etCoastFor"
+            android:id="@+id/overPriceCost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -306,11 +306,11 @@
             android:textColor="@color/black"
             android:shadowColor="@color/black"
 
-            app:layout_constraintTop_toBottomOf="@id/etCoastForDelivery"
+            app:layout_constraintTop_toBottomOf="@id/etCostForDelivery"
     />
 
     <EditText
-            android:id="@+id/etCoastFor2"
+            android:id="@+id/overPriceCost2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -325,7 +325,7 @@
             android:textColor="@color/black"
             android:shadowColor="@color/black"
 
-            app:layout_constraintTop_toBottomOf="@id/etCoastForDelivery"
+            app:layout_constraintTop_toBottomOf="@id/etCostForDelivery"
     />
 
     <android.support.design.widget.CoordinatorLayout
