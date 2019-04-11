@@ -1,6 +1,5 @@
 package sergey.yatsutko.siberiancoal.presentation.ui
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -44,7 +43,6 @@ import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.InputFilterMinMax
 import sergey.yatsutko.siberiancoal.commons.hasConnection
-import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainPresenter
 import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainView
 
@@ -57,7 +55,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     private var marker = true
 
-    var distance = 0.0
+    private var distance = 0.0
 
     private var searchManager: SearchManager? = null
     private var suggestResultView: ListView? = null
@@ -141,12 +139,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             scroll.elevation = 0f
 
             val streetName = suggestResult!![position].split(", ")
-            var street = ""
-            if (streetName.size >= 3) {
-                street =
-                    streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
+            val street = if (streetName.size >= 3) {
+                streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
             } else {
-                street = suggestResult!![position]
+                suggestResult!![position]
             }
 
             searchBar.setText(street)
@@ -182,7 +178,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                     0
                 }
 
-                updateCost()
+//                updateCost()
 
             }
 
@@ -215,14 +211,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                 selectedItemPosition: Int,
                 selectedId: Long
             ) {
-
-
-                price = if (selectedItemPosition % 2 == 0) {
-                    App.prices[selectedItemPosition] - 5 * selectedItemPosition
-                } else {
-                    App.prices[selectedItemPosition] + 5 * selectedItemPosition
-                }
-                updateCost()
+                presenter.coalSpinnerWasChanged(selectedItemPosition, coalSpinner.selectedItem.toString())
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -261,7 +250,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
 
 
-        updateCost()
+//        updateCost()
 
         Log.d("etWeight", "Correct Address")
     }
@@ -500,27 +489,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {
 
-        val points = java.util.ArrayList<Point>()
+        presenter.onDrivingRoutesDone(routes)
 
-
-        distance = 0.0
-        if (routes.size > 0) {
-            points.addAll(routes.get(0).getGeometry().getPoints())
-
-            for (i in 0 until points.size - 1) {
-                distance += Geo.distance(points[i], points[i + 1])
-            }
-        } else {
-            alert("Дорога не найдена", "Ошибка") {
-                yesButton { }
-            }.show()
-        }
-
-        km = (Math.round(distance) / 1000).toFloat()
-        updateCost()
-
-
-        Log.d("Coordinates", Integer.toString(Math.round(distance / 1000).toInt()) + " km")
     }
 
     override fun submitRequest() {
@@ -548,13 +518,18 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         drivingSession = drivingRouter.requestRoutes(requestPoints, options, this)
     }
 
-    override fun updateCost() {
+    override fun updateCost(_pricePerTon: Int, _distance: Int, _deliveryCost: Int, _overPrice: Int) {
+
+
         deliveryCost = km * priceForWeight
         overPrice = km * priceForWeight + price * weigth
-        etCost.hint = "$price руб/т"
+        etCost.hint = "$_pricePerTon руб/т"
+        etDistance.hint = "$_distance km"
         etCostForDelivery.hint = "$deliveryCost рублей"
         overPriceCost.hint = "$overPrice рублей"
-        etDistance.hint = "$km km"
+
+
+
     }
 
     override fun showNetworkErrorMessage() {
@@ -564,6 +539,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     override fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int) {
         coalSpinner.adapter = adapter
         ROUTE_START_LOCATION = Point(App.cuts[0][i], App.cuts[1][i])
+    }
+
+    override fun showErrorRoadNotFound() {
+        alert("Дорога не найдена", "Ошибка") {
+            yesButton { }
+        }.show()
     }
 
 }

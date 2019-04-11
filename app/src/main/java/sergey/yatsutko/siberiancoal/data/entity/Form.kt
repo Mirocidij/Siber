@@ -10,7 +10,7 @@ class Form : Serializable{
     var address : String = "Введите адресс доставки"
     var weight : Int? = 0
     var distance : Int? = 0
-    var deliveryPrice : Int? = 0
+    var deliveryCost : Int? = 0
     var overPrice : Int? = 0
 
 }
