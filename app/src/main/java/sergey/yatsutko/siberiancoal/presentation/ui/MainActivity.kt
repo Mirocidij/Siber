@@ -56,7 +56,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     lateinit var presenter: MainPresenter
 
     private var marker = true
-    private var firmBool = false
+
     var distance = 0.0
 
     private var searchManager: SearchManager? = null
@@ -156,10 +156,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         }
 
 
-
-        etDistance.hint = "0.0 km"
-        etCostForDelivery.hint = "0.0 рублей"
-
         //Inform Edit Text
 
         etWeight.filters = arrayOf(InputFilterMinMax(0, 40), InputFilter.LengthFilter(2))
@@ -197,15 +193,16 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
         firmSpiner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>,
-                itemSelected: View,
-                selectedItemPosition: Int,
-                selectedId: Long
+                parent: AdapterView<*>, itemSelected: View, selectedItemPosition: Int, selectedId: Long
             ) {
-                if (firmBool) {
-                    presenter.firmSpinnerWasChanged(selectedItemPosition, firmSpiner.selectedItem.toString(), this@MainActivity)
-                }
-                firmBool = true
+
+                presenter.firmSpinnerWasChanged(
+                    selectedItemPosition,
+                    firmSpiner.selectedItem.toString(),
+                    this@MainActivity
+                )
+
+
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
