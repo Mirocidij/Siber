@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
+            android:name=".App"
             android:screenOrientation="portrait"
             android:allowBackup="true"
             android:icon="@mipmap/icon_coal_two"
@@ -22,7 +23,7 @@
             android:theme="@style/AppTheme">
         <activity
                 android:screenOrientation="portrait"
-                android:name=".presentation.UI.SecondActivity">
+                android:name=".presentation.ui.SecondActivity">
         </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -38,12 +39,12 @@
 
         <activity
                 android:screenOrientation="portrait"
-                android:name=".presentation.UI.MapsActivity"
+                android:name=".presentation.ui.MapsActivity"
                 android:label="@string/title_activity_maps">
         </activity>
         <activity
                 android:screenOrientation="portrait"
-                android:name=".presentation.UI.MainActivity">
+                android:name=".presentation.ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

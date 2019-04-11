@@ -1,4 +1,4 @@
-package sergey.yatsutko.siberiancoal.presentation.UI
+package sergey.yatsutko.siberiancoal.presentation.ui
 
 import android.content.Intent
 import android.os.Bundle
