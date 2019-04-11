@@ -159,7 +159,7 @@
         <ListView
                 android:elevation="20dp"
                 android:background="@color/white"
-                android:id="@+id/suggest_result"
+                android:id="@+id/suggestResult"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 app:layout_constraintTop_toBottomOf="@id/searchBar"

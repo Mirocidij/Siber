@@ -1,5 +1,6 @@
 package sergey.yatsutko.siberiancoal.presentation.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -103,7 +104,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
-        suggestResultView = findViewById(R.id.suggest_result) as ListView
+        suggestResultView = findViewById(R.id.suggestResult) as ListView
         suggestResult = ArrayList()
         resultAdapter = ArrayAdapter(
             this,
@@ -202,7 +203,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                 selectedId: Long
             ) {
                 if (firmBool) {
-                    presenter.firmSpinnerWasRechanged(selectedItemPosition)
+                    presenter.firmSpinnerWasChanged(selectedItemPosition, firmSpiner.selectedItem.toString(), this@MainActivity)
                 }
                 firmBool = true
             }
@@ -217,7 +218,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                 selectedItemPosition: Int,
                 selectedId: Long
             ) {
-
 
 
                 price = if (selectedItemPosition % 2 == 0) {
@@ -564,24 +564,9 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         alert("Заказать уголь без интернет подключения невозможно", "Внимание") { yesButton { } }.show()
     }
 
-    override fun changeCoalSpinnerEntries(selectedItemPosition: Int) {
-        when (selectedItemPosition) {
-            0 -> coalSpinner.adapter =
-                selectEntries(this@MainActivity, R.array.Arshanovsky)
-            1 -> coalSpinner.adapter =
-                selectEntries(this@MainActivity, R.array.Beloyarsky)
-            2 -> coalSpinner.adapter =
-                selectEntries(this@MainActivity, R.array.Chernogorsky)
-            3 -> coalSpinner.adapter =
-                selectEntries(this@MainActivity, R.array.Vostochnobeysky)
-            4 -> coalSpinner.adapter =
-                selectEntries(this@MainActivity, R.array.Izihsky)
-            else -> {
-            }
-        }
-        ROUTE_START_LOCATION = Point(App.cuts[0][selectedItemPosition], App.cuts[1][selectedItemPosition])
+    override fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int) {
+        coalSpinner.adapter = adapter
+        ROUTE_START_LOCATION = Point(App.cuts[0][i], App.cuts[1][i])
     }
-
-
 
 }
