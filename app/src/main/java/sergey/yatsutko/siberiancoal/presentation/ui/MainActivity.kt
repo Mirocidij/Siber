@@ -2,7 +2,6 @@ package sergey.yatsutko.siberiancoal.presentation.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.InputFilter
 import android.text.TextWatcher
@@ -14,6 +13,8 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.arellomobile.mvp.MvpAppCompatActivity
+import com.arellomobile.mvp.presenter.InjectPresenter
 
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.RequestPoint
@@ -37,19 +38,25 @@ import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.yesButton
 import org.json.JSONObject
+import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.commons.InputFilterMinMax
 import sergey.yatsutko.siberiancoal.commons.hasConnection
+import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainPresenter
+import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainView
 
 
-class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, DrivingSession.DrivingRouteListener {
+class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestListener,
+    DrivingSession.DrivingRouteListener {
+
+    @InjectPresenter
+    lateinit var presenter: MainPresenter
 
     private var marker = true
     private var firmBool = false
     var distance = 0.0
 
-    private val MAPKIT_API_KEY = "a139146c-adfa-484c-abb6-5ce42284f64e"
     private val RESULT_NUMBER_LIMIT = 5
 
     private var searchManager: SearchManager? = null
@@ -100,24 +107,20 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        MapKitFactory.setApiKey(MAPKIT_API_KEY)
+        MapKitFactory.setApiKey(App.MAPKIT_API_KEY)
         MapKitFactory.initialize(this@MainActivity)
         DirectionsFactory.initialize(this@MainActivity)
         SearchFactory.initialize(this@MainActivity)
-
-
         setContentView(R.layout.activity_main)
         super.onCreate(savedInstanceState)
 
-        if (!hasConnection(this@MainActivity)) {
-            alert("Заказать уголь без интернет подключения невозможно", "Внимание") { yesButton {  } }.show()
+        // Проверка интернет подключения
+        presenter.mainActivityWasCreated(this@MainActivity)
 
-        }
 
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
-        val queryEdit = findViewById(R.id.searchBar) as EditText
         suggestResultView = findViewById(R.id.suggest_result) as ListView
         suggestResult = ArrayList()
         resultAdapter = ArrayAdapter(
@@ -128,7 +131,7 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
         )
         suggestResultView!!.adapter = resultAdapter
 
-        queryEdit.addTextChangedListener(object : TextWatcher {
+        searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
 
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
@@ -158,12 +161,12 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
             var street = ""
             if (streetName.size >= 3) {
                 street =
-                    streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", "  + streetName[streetName.size - 1]
+                    streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
             } else {
-              street = suggestResult!![position]
+                street = suggestResult!![position]
             }
 
-            queryEdit.setText(street)
+            searchBar.setText(street)
             suggestResultView!!.visibility = View.INVISIBLE
 
             getCoordinates(street)
@@ -213,27 +216,12 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
         firmSpiner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
-                itemSelected: View, selectedItemPosition: Int, selectedId: Long
+                itemSelected: View,
+                selectedItemPosition: Int,
+                selectedId: Long
             ) {
                 if (firmBool) {
-                    when (selectedItemPosition) {
-                        0 -> coalSpinner.adapter =
-                            selectEntries(this@MainActivity, R.array.Arshanovsky)
-                        1 -> coalSpinner.adapter =
-                            selectEntries(this@MainActivity, R.array.Beloyarsky)
-                        2 -> coalSpinner.adapter =
-                            selectEntries(this@MainActivity, R.array.Chernogorsky)
-                        3 -> coalSpinner.adapter =
-                            selectEntries(this@MainActivity, R.array.Vostochnobeysky)
-                        4 -> coalSpinner.adapter =
-                            selectEntries(this@MainActivity, R.array.Izihsky)
-                        else -> {
-                        }
-                    }
-                    ROUTE_START_LOCATION = Point(cuts[0][selectedItemPosition], cuts[1][selectedItemPosition])
-
-
-                    submitRequest()
+                    presenter.firmSpinnerWasRechanged(selectedItemPosition)
                 }
                 firmBool = true
             }
@@ -248,12 +236,14 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                 selectedItemPosition: Int,
                 selectedId: Long
             ) {
+
+
+
                 price = if (selectedItemPosition % 2 == 0) {
                     prices[selectedItemPosition] - 5 * selectedItemPosition
                 } else {
                     prices[selectedItemPosition] + 5 * selectedItemPosition
                 }
-
                 updateCost()
                 etCoast.hint = "$price руб/т"
             }
@@ -331,7 +321,7 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
     fun goMap(v: View) {
 
         if (!hasConnection(this@MainActivity)) {
-            alert("Отсутствует интернет соединение", "Операция невозможна") { yesButton {  } }.show()
+            alert("Отсутствует интернет соединение", "Операция невозможна") { yesButton { } }.show()
             return
         }
 
@@ -427,7 +417,7 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
                 val streetName = address.split(", ")
                 if (streetName.size >= 3) {
                     address =
-                        streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", "  + streetName[streetName.size - 1]
+                        streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
                 }
 
                 marker = false
@@ -556,7 +546,7 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
         Log.d("Coordinates", Integer.toString(Math.round(distance / 1000).toInt()) + " km")
     }
 
-    private fun submitRequest() {
+    override fun submitRequest() {
 
         if (ROUTE_END_LOCATION.latitude == 0.0) {
             distance = 0.0
@@ -581,13 +571,36 @@ class MainActivity : AppCompatActivity(), SearchManager.SuggestListener, Driving
         drivingSession = drivingRouter.requestRoutes(requestPoints, options, this)
     }
 
-    fun updateCost() {
+    override fun updateCost() {
         deliveryCost = km * priceForWeight
-        etCoastForDelivery.hint = "${deliveryCost} рублей"
+        etCoastForDelivery.hint = "$deliveryCost рублей"
         overPrice = km * priceForWeight + price * weigth
         etCoastFor.hint = "$overPrice рублей"
         etDistance.hint = "$km km"
     }
+
+    override fun showNetworkErrorMessage() {
+        alert("Заказать уголь без интернет подключения невозможно", "Внимание") { yesButton { } }.show()
+    }
+
+    override fun changeCoalSpinnerEntries(selectedItemPosition: Int) {
+        when (selectedItemPosition) {
+            0 -> coalSpinner.adapter =
+                selectEntries(this@MainActivity, R.array.Arshanovsky)
+            1 -> coalSpinner.adapter =
+                selectEntries(this@MainActivity, R.array.Beloyarsky)
+            2 -> coalSpinner.adapter =
+                selectEntries(this@MainActivity, R.array.Chernogorsky)
+            3 -> coalSpinner.adapter =
+                selectEntries(this@MainActivity, R.array.Vostochnobeysky)
+            4 -> coalSpinner.adapter =
+                selectEntries(this@MainActivity, R.array.Izihsky)
+            else -> {
+            }
+        }
+        ROUTE_START_LOCATION = Point(cuts[0][selectedItemPosition], cuts[1][selectedItemPosition])
+    }
+
 
 
 }
