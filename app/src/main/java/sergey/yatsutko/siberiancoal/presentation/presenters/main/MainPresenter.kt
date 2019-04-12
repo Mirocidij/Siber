@@ -1,6 +1,7 @@
 package sergey.yatsutko.siberiancoal.presentation.presenters.main
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.widget.ArrayAdapter
 import com.arellomobile.mvp.InjectViewState
@@ -13,6 +14,7 @@ import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.data.entity.Form
+import sergey.yatsutko.siberiancoal.presentation.ui.SecondActivity
 
 @InjectViewState
 class MainPresenter : MvpPresenter<MainView>() {
@@ -121,6 +123,24 @@ class MainPresenter : MvpPresenter<MainView>() {
 
         Log.d(TAG, "Стоимость доставки: ${form.deliveryCost}")
         Log.d(TAG, "Полная стоимость: ${form.overPrice}")
+    }
+
+    fun nextActivityButtonWasPressed(context: Context) {
+
+        if (form.weight.toString() == "0" || form.weight.toString() == "00" || form.weight.toString().isEmpty()) {
+            viewState.incorrectWeightError()
+            return
+        }
+
+        if (form.distance == 0) {
+            viewState.incorrectAddressError()
+            return
+        }
+
+        val nextIntent = Intent(context, SecondActivity::class.java)
+        nextIntent.putExtra("form", form)
+        viewState.openNewActivity(nextIntent = nextIntent)
+
     }
 
 }

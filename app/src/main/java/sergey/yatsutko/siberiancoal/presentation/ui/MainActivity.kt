@@ -25,7 +25,6 @@ import com.yandex.mapkit.directions.driving.DrivingOptions
 import com.yandex.mapkit.directions.driving.DrivingRoute
 import com.yandex.mapkit.directions.driving.DrivingRouter
 import com.yandex.mapkit.directions.driving.DrivingSession
-import com.yandex.mapkit.geometry.Geo
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.search.SearchFactory
 import com.yandex.mapkit.search.SearchManager
@@ -63,17 +62,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     private var suggestResult: MutableList<String>? = null
 
 
-    // Default price
-    private var price = 0
-    // Price depend on weight
-    private var priceForWeight = 0
-    // Coal weight
-    private var weigth = 0
-    // Distance between A and B
-    private var km = 0f
-
-    private var deliveryCost = 0f
-    private var overPrice = 0f
 
     // Users coordinates
     private var latitude: Double = 0.0
@@ -176,14 +164,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             override fun onItemSelected(
                 parent: AdapterView<*>, itemSelected: View, selectedItemPosition: Int, selectedId: Long
             ) {
-
                 presenter.firmSpinnerWasChanged(
                     selectedItemPosition,
                     firmSpiner.selectedItem.toString(),
                     this@MainActivity
                 )
-
-
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -220,39 +205,19 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     fun goNextActivity(v: View) {
-        if (etWeight.text.toString() == "0" || etWeight.text.toString() == "00" || etWeight.text.toString().isEmpty()) {
-            alert(message = "Некорректая масса", title = "Ошибка") {
-                yesButton { }
-            }.show()
-            return
-        }
-        if (distance == 0.0) {
-            alert(message = "Некорректный адрес доставки", title = "Ошибка") {
-                yesButton { }
-            }.show()
-            return
-        }
 
-        val nextIntent = Intent(this@MainActivity, SecondActivity::class.java)
+        presenter.nextActivityButtonWasPressed(context = this@MainActivity)
 
-        nextIntent.putExtra("Cuts", firmSpiner.selectedItem.toString())
-        nextIntent.putExtra("CoalMark", coalSpinner.selectedItem.toString())
-        nextIntent.putExtra("Weight", etWeight.text.toString())
-        nextIntent.putExtra("price", price)
-        nextIntent.putExtra("km", km.toInt())
-        nextIntent.putExtra("deliveryCost", deliveryCost.toInt())
-        nextIntent.putExtra("overPrice", overPrice.toInt())
-        nextIntent.putExtra("address", searchBar.text.toString())
-        startActivity(nextIntent)
     }
 
     fun goMap(v: View) {
 
-        if (!hasConnection(this@MainActivity)) {
-            alert("Отсутствует интернет соединение", "Операция невозможна") { yesButton { } }.show()
+        if (!hasConnection(context =  this@MainActivity)) {
+            alert("Отсутствует интернет соединение", "Операция невозможна") {
+                yesButton { }
+            }.show()
             return
         }
-
 
         val intent = Intent(
             this@MainActivity,
@@ -315,7 +280,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         var address = ""
         var isHouse = ""
 
-
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             Response.Listener<String> { response ->
@@ -331,7 +295,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                     .getJSONObject("metaDataProperty")
                     .getJSONObject("GeocoderMetaData")
                     .getString("kind")
-
 
                 address = jsonObject.getJSONObject("response")
                     .getJSONObject("GeoObjectCollection")
@@ -362,8 +325,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                         yesButton { }
                     }.show()
                 }
-
-
             },
             Response.ErrorListener {
                 address = "That didn't work!"
@@ -484,8 +445,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         ROUTE_START_LOCATION = Point(App.cuts[0][i], App.cuts[1][i])
     }
 
-    // Errors
+    override fun openNewActivity(nextIntent: Intent) {
+        startActivity(nextIntent)
+    }
 
+    // Errors
     override fun showNetworkConnectionError() {
         alert("Заказать уголь без интернет подключения невозможно", "Внимание") {
             yesButton { }
@@ -500,6 +464,18 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun showHouseNotFoundError() {
         alert("Выберите дом", "Ошибка") {
+            yesButton { }
+        }.show()
+    }
+
+    override fun incorrectWeightError() {
+        alert(message = "Некорректая масса", title = "Ошибка") {
+            yesButton { }
+        }.show()
+    }
+
+    override fun incorrectAddressError() {
+        alert(message = "Некорректный адрес доставки", title = "Ошибка") {
             yesButton { }
         }.show()
     }
