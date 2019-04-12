@@ -16,11 +16,12 @@ interface MainView : MvpView {
     fun submitRequest()
     fun openNewActivity(nextIntent: Intent)
 
+
     // Error
 
-    fun showNetworkConnectionError()
     fun showRoadNotFoundError()
     fun showHouseNotFoundError()
-    fun incorrectWeightError()
-    fun incorrectAddressError()
+    fun showIncorrectWeightError()
+    fun showIncorrectAddressError()
+    fun showNetworkConnectionError()
 }

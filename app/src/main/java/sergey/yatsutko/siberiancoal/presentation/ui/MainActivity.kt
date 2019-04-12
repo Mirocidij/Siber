@@ -54,19 +54,16 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     private var marker = true
 
-    private var distance = 0.0
+    private var distance = 0
 
     private var searchManager: SearchManager? = null
     private var suggestResultView: ListView? = null
     private var resultAdapter: ArrayAdapter<*>? = null
     private var suggestResult: MutableList<String>? = null
 
-
-
     // Users coordinates
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
-    // Cuts coordinates
 
     private var ROUTE_START_LOCATION = Point(App.cuts[0][0], App.cuts[1][0])
     private var ROUTE_END_LOCATION = Point(latitude, longitude)
@@ -88,9 +85,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
 
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
-
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
-        suggestResultView = findViewById(R.id.suggestResult) as ListView
+        suggestResultView = findViewById<ListView>(R.id.suggestResult)
         suggestResult = ArrayList()
         resultAdapter = ArrayAdapter(
             this,
@@ -277,8 +273,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         val queue = Volley.newRequestQueue(this)
         val url =
             "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$longitude,$latitude&apikey=17757be8-4817-4365-886c-d89845ac6976"
-        var address = ""
-        var isHouse = ""
+        var address: String
+        var isHouse: String
 
         val stringRequest = StringRequest(
             Request.Method.GET, url,
@@ -318,7 +314,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                     ROUTE_END_LOCATION = Point(latitude, longitude)
                     submitRequest()
                 } else {
-                    distance = 0.0
+                    distance = 0
                     etDistance.hint = "0.0 km"
 
                     alert("Выберите дом", "Ошибка") {
@@ -375,12 +371,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
                     submitRequest()
                 } else {
-                    distance = 0.0
+                    distance = 0
                     etDistance.hint = "0.0 km"
 
-                    alert("Выберите дом", "Ошибка") {
-                        yesButton { }
-                    }.show()
+                    showHouseNotFoundError()
                 }
             },
             Response.ErrorListener {
@@ -411,7 +405,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun submitRequest() {
         if (ROUTE_END_LOCATION.latitude == 0.0) {
-            distance = 0.0
+            distance = 0
             etDistance.hint = "0.0 km"
             return
         }
@@ -468,13 +462,13 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         }.show()
     }
 
-    override fun incorrectWeightError() {
+    override fun showIncorrectWeightError() {
         alert(message = "Некорректая масса", title = "Ошибка") {
             yesButton { }
         }.show()
     }
 
-    override fun incorrectAddressError() {
+    override fun showIncorrectAddressError() {
         alert(message = "Некорректный адрес доставки", title = "Ошибка") {
             yesButton { }
         }.show()

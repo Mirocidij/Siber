@@ -128,12 +128,12 @@ class MainPresenter : MvpPresenter<MainView>() {
     fun nextActivityButtonWasPressed(context: Context) {
 
         if (form.weight.toString() == "0" || form.weight.toString() == "00" || form.weight.toString().isEmpty()) {
-            viewState.incorrectWeightError()
+            viewState.showIncorrectWeightError()
             return
         }
 
         if (form.distance == 0) {
-            viewState.incorrectAddressError()
+            viewState.showIncorrectAddressError()
             return
         }
 
