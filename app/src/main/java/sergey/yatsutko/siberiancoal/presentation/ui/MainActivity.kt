@@ -402,7 +402,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int) {
         coalSpinner.adapter = adapter
-        routeStartLocation = Point(App.cuts[0][i], App.cuts[1][i])
     }
 
     override fun updateCost(_pricePerTon: Int, _distance: Int, _deliveryCost: Int, _overPrice: Int) {
