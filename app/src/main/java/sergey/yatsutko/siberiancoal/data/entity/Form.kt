@@ -15,7 +15,7 @@ class Form : Serializable{
     var distanceCost : Int = 0
     var deliveryCost : Int = 0
     var overPrice : Int = 0
-    var routeStartLocation : Point = Point(App.cuts[0][0], App.cuts[1][0])
-    var routeEndLocation : Point = Point(0.0, 0.0)
+    var routeStartLocation  = doubleArrayOf(App.cuts[0][0], App.cuts[1][0])
+    var routeEndLocation = doubleArrayOf(0.0, 0.0)
 
 }

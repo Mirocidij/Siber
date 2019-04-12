@@ -53,7 +53,7 @@ class MainPresenter : MvpPresenter<MainView>() {
                 else -> selectEntries(context, R.array.Arshanovsky)
             }
 
-            form.routeStartLocation = Point(App.cuts[0][i], App.cuts[1][i])
+            form.routeStartLocation = doubleArrayOf(App.cuts[0][i], App.cuts[1][i])
             viewState.changeCoalSpinnerEntries(adapter, i)
         }
         firmBool = true
@@ -121,14 +121,14 @@ class MainPresenter : MvpPresenter<MainView>() {
             return
         }
 
-        form.routeEndLocation = Point(
+        form.routeEndLocation = doubleArrayOf(
             data.extras.getDouble("latitude"),
             data.extras.getDouble("longitude")
         )
 
         viewState.getAddress(
-            latitude = form.routeEndLocation.latitude,
-            longitude = form.routeEndLocation.longitude
+            latitude = form.routeEndLocation[0],
+            longitude = form.routeEndLocation[1]
         )
 
         updateCost()
@@ -167,7 +167,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     }
 
     fun submitRequest() {
-        if (form.routeEndLocation.latitude == 0.0) {
+        if (form.routeEndLocation[0] == 0.0) {
             form.distance = 0
             updateCost()
             return
@@ -176,14 +176,20 @@ class MainPresenter : MvpPresenter<MainView>() {
         val requestPoints = java.util.ArrayList<RequestPoint>()
         requestPoints.add(
             RequestPoint(
-                form.routeStartLocation,
+                Point(
+                    form.routeStartLocation[0],
+                    form.routeStartLocation[1]
+                ),
                 RequestPointType.WAYPOINT,
                 null
             )
         )
         requestPoints.add(
             RequestPoint(
-                form.routeEndLocation,
+                Point(
+                    form.routeEndLocation[0],
+                    form.routeEndLocation[1]
+                ),
                 RequestPointType.WAYPOINT, null
             )
         )

@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.InputFilter
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -24,7 +23,6 @@ import com.yandex.mapkit.directions.driving.DrivingOptions
 import com.yandex.mapkit.directions.driving.DrivingRoute
 import com.yandex.mapkit.directions.driving.DrivingRouter
 import com.yandex.mapkit.directions.driving.DrivingSession
-import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.search.SearchFactory
 import com.yandex.mapkit.search.SearchManager
 import com.yandex.mapkit.search.SearchManagerType
@@ -50,20 +48,17 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     @InjectPresenter
     lateinit var presenter: MainPresenter
 
-    private var marker = true
 
+    private var marker = true
     private var searchManager: SearchManager? = null
     private var suggestResultView: ListView? = null
     private var resultAdapter: ArrayAdapter<*>? = null
     private var suggestResult: MutableList<String>? = null
 
-    // Users coordinates
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
-
     private lateinit var drivingRouter: DrivingRouter
     private lateinit var drivingSession: DrivingSession
 
+    // Lifecycle methods
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.setApiKey(App.MAPKIT_API_KEY)
@@ -72,8 +67,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         SearchFactory.initialize(this@MainActivity)
         setContentView(R.layout.activity_main)
         super.onCreate(savedInstanceState)
-
-
 
 
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
@@ -87,7 +80,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             suggestResult!!
         )
         suggestResultView!!.adapter = resultAdapter
-
 
 
         // Проверка интернет подключения
@@ -200,10 +192,29 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         super.onStop()
     }
 
+    //
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         presenter.inOnActivityResult(data = data)
     }
+
+    private fun requestSuggest(query: String) {
+        try {
+            suggestResultView!!.visibility = View.INVISIBLE
+            searchManager!!.suggest(query, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+    }
+
+
+    // Yandex SearchKit callback methods
 
     override fun onSuggestResponse(suggest: List<SuggestItem>) {
         try {
@@ -229,13 +240,77 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
     }
 
-    private fun requestSuggest(query: String) {
-        try {
-            suggestResultView!!.visibility = View.INVISIBLE
-            searchManager!!.suggest(query, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
-        } catch (e: IndexOutOfBoundsException) {
-            e.printStackTrace()
+
+    // Yandex DirectionKit callback methods
+
+    override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {
+        presenter.onDrivingRoutesDone(routes)
+    }
+
+    override fun onDrivingRoutesError(error: Error) {
+        var errorMessage = getString(R.string.unknown_error_message)
+        if (error is RemoteError) {
+            errorMessage = getString(R.string.remote_error_message)
+        } else if (error is NetworkError) {
+            errorMessage = getString(R.string.network_error_message)
         }
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+    }
+
+
+    // MainView methods
+
+    override fun getCoordinates(address: String) {
+
+        val queue = Volley.newRequestQueue(this)
+        val url =
+            "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$address&apikey=17757be8-4817-4365-886c-d89845ac6976"
+
+        var isHouse: String
+
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            Response.Listener<String> { response ->
+
+                val jsonObject =
+                    JSONObject(response)
+
+                isHouse = jsonObject.getJSONObject("response")
+                    .getJSONObject("GeoObjectCollection")
+                    .getJSONArray("featureMember")
+                    .getJSONObject(0)
+                    .getJSONObject("GeoObject")
+                    .getJSONObject("metaDataProperty")
+                    .getJSONObject("GeocoderMetaData")
+                    .getString("kind")
+
+
+                if (isHouse == "house") {
+                    val coordinates = jsonObject.getJSONObject("response")
+                        .getJSONObject("GeoObjectCollection")
+                        .getJSONArray("featureMember")
+                        .getJSONObject(0)
+                        .getJSONObject("GeoObject")
+                        .getJSONObject("Point")
+                        .getString("pos").split(" ")
+
+                    presenter.form.routeEndLocation =
+                        doubleArrayOf(coordinates[1].toDouble(), coordinates[0].toDouble())
+
+
+                    presenter.submitRequest()
+                } else {
+                    presenter.form.distance = 0
+                    etDistance.hint = "0.0 km"
+
+                    showHouseNotFoundError()
+                }
+            },
+            Response.ErrorListener {
+                toast("That didn't work!")
+            })
+
+        queue.add(stringRequest)
     }
 
     override fun getAddress(latitude: Double, longitude: Double) {
@@ -281,7 +356,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                 searchBar.setText(address)
 
                 if (isHouse == "house") {
-                    presenter.form.routeEndLocation = Point(latitude, longitude)
+                    presenter.form.routeEndLocation = doubleArrayOf(latitude, longitude)
                     presenter.submitRequest()
                 } else {
                     presenter.form.distance = 0
@@ -298,93 +373,16 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     }
 
-    override fun getCoordinates(address: String) {
-
-        val queue = Volley.newRequestQueue(this)
-        val url =
-            "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$address&apikey=17757be8-4817-4365-886c-d89845ac6976"
-
-        var isHouse: String
-
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            Response.Listener<String> { response ->
-
-                val jsonObject =
-                    JSONObject(response)
-
-                isHouse = jsonObject.getJSONObject("response")
-                    .getJSONObject("GeoObjectCollection")
-                    .getJSONArray("featureMember")
-                    .getJSONObject(0)
-                    .getJSONObject("GeoObject")
-                    .getJSONObject("metaDataProperty")
-                    .getJSONObject("GeocoderMetaData")
-                    .getString("kind")
-
-
-                if (isHouse == "house") {
-                    val coordinates = jsonObject.getJSONObject("response")
-                        .getJSONObject("GeoObjectCollection")
-                        .getJSONArray("featureMember")
-                        .getJSONObject(0)
-                        .getJSONObject("GeoObject")
-                        .getJSONObject("Point")
-                        .getString("pos").split(" ")
-
-                    presenter.form.routeEndLocation = Point(coordinates[1].toDouble(), coordinates[0].toDouble())
-                    latitude = coordinates[1].toDouble()
-                    longitude = coordinates[0].toDouble()
-
-
-                    presenter.submitRequest()
-                } else {
-                    presenter.form.distance = 0
-                    etDistance.hint = "0.0 km"
-
-                    showHouseNotFoundError()
-                }
-            },
-            Response.ErrorListener {
-                toast("That didn't work!")
-            })
-
-        queue.add(stringRequest)
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        finish()
-    }
-
-    override fun onDrivingRoutesError(error: Error) {
-        var errorMessage = getString(R.string.unknown_error_message)
-        if (error is RemoteError) {
-            errorMessage = getString(R.string.remote_error_message)
-        } else if (error is NetworkError) {
-            errorMessage = getString(R.string.network_error_message)
-        }
-        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {
-        presenter.onDrivingRoutesDone(routes)
-    }
-
-
-    // MainView methods
-
-    override fun submitRequest(requestPoints: ArrayList<RequestPoint>) {
-        val options = DrivingOptions()
-        drivingSession = drivingRouter.requestRoutes(requestPoints, options, this@MainActivity)
-    }
-
     override fun openNewActivity(nextIntent: Intent) {
         startActivity(nextIntent)
     }
 
     override fun openNewActivityForResult(nextIntent: Intent) {
         startActivityForResult(nextIntent, 1)
+    }
+
+    override fun submitRequest(requestPoints: ArrayList<RequestPoint>) {
+        drivingSession = drivingRouter.requestRoutes(requestPoints, DrivingOptions(), this@MainActivity)
     }
 
     override fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int) {
@@ -397,6 +395,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         etCostForDelivery.hint = "$_deliveryCost рублей"
         overPriceCost.hint = "$_overPrice рублей"
     }
+
 
     // Errors
 
