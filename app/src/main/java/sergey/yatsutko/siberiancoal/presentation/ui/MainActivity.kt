@@ -189,7 +189,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         if (data == null) {
             return
         }
-
         latitude = data.extras.getDouble("latitude")
         longitude = data.extras.getDouble("longitude")
 
@@ -280,7 +279,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             Request.Method.GET, url,
             Response.Listener<String> { response ->
 
-                var jsonObject =
+                val jsonObject =
                     JSONObject(response)
 
                 isHouse = jsonObject.getJSONObject("response")
@@ -336,13 +335,13 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         val url =
             "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$address&apikey=17757be8-4817-4365-886c-d89845ac6976"
 
-        var isHouse = ""
+        var isHouse: String
 
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             Response.Listener<String> { response ->
 
-                var jsonObject =
+                val jsonObject =
                     JSONObject(response)
 
                 isHouse = jsonObject.getJSONObject("response")
