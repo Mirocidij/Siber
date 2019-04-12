@@ -20,6 +20,7 @@ interface MainView : MvpView {
     fun getAddress(latitude: Double, longitude: Double)
     fun getCoordinates(address: String)
     fun requestSuggest(request: String)
+    fun displaySearchResult(results: ArrayList<String>?)
 
 
     // Error

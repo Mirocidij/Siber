@@ -3,6 +3,7 @@ package sergey.yatsutko.siberiancoal.presentation.presenters.main
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.view.View
 import android.widget.ArrayAdapter
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
@@ -11,6 +12,7 @@ import com.yandex.mapkit.RequestPointType
 import com.yandex.mapkit.directions.driving.DrivingRoute
 import com.yandex.mapkit.geometry.Geo
 import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.search.SuggestItem
 import com.yandex.runtime.Error
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
@@ -62,6 +64,17 @@ class MainPresenter : MvpPresenter<MainView>() {
         Log.d(TAG, "Выбрана фирма: ${form.coalFirm}")
     }
 
+    fun coalSpinnerWasChanged(i: Int, selectedItem: String) {
+        form.coalMark = selectedItem
+        form.pricePerTonn = App.prices[i]
+
+        updateCost()
+
+        Log.d(TAG, "Выбрана марка: ${form.coalMark}")
+        Log.d(TAG, "Цена за тонну: ${form.pricePerTonn}")
+    }
+
+
     fun resultWasClicked(position: Int, suggestResult: MutableList<String>) {
         marker = false
 
@@ -108,16 +121,6 @@ class MainPresenter : MvpPresenter<MainView>() {
         viewState.showYandexErrorToast(errorMessage = errorMessage)
     }
 
-    fun coalSpinnerWasChanged(i: Int, selectedItem: String) {
-        form.coalMark = selectedItem
-        form.pricePerTonn = App.prices[i]
-
-        updateCost()
-
-        Log.d(TAG, "Выбрана марка: ${form.coalMark}")
-        Log.d(TAG, "Цена за тонну: ${form.pricePerTonn}")
-    }
-
     fun nextActivityButtonWasPressed(context: Context) {
 
         if (form.weight.toString() == "0" || form.weight.toString() == "00" || form.weight.toString().isEmpty()) {
@@ -158,17 +161,6 @@ class MainPresenter : MvpPresenter<MainView>() {
         viewState.openNewActivityForResult(nextIntent = intent)
     }
 
-    fun searchBarWasChanged(text: String) {
-        try {
-            if (marker) {
-                viewState.requestSuggest(text)
-            }
-            marker = true
-        } catch (e: IndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
-    }
-
     fun inOnActivityResult(data: Intent?) {
         if (data == null) {
             return
@@ -187,6 +179,35 @@ class MainPresenter : MvpPresenter<MainView>() {
         updateCost()
     }
 
+    fun onSuggestResponseDone(suggest: List<SuggestItem>) {
+        val listItems  = ArrayList<String>(App.RESULT_NUMBER_LIMIT)
+
+        try {
+            for (i in 0..Math.min(App.RESULT_NUMBER_LIMIT - 1, suggest.size)) {
+                listItems!!.add(suggest[i].displayText!!)
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+
+        listItems.forEach {
+            Log.d(TAG, it)
+        }
+
+        viewState.displaySearchResult(listItems)
+    }
+
+    fun searchBarWasChanged(text: String) {
+        try {
+            if (marker) {
+                viewState.requestSuggest(text)
+            }
+            marker = true
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+    }
+
     fun weightWasChanged(weight: Int) {
         form.weight = weight
         form.distanceCost = try {
@@ -203,6 +224,8 @@ class MainPresenter : MvpPresenter<MainView>() {
 
         updateCost()
     }
+
+
 
     fun submitRequest() {
         if (form.routeEndLocation[0] == 0.0) {

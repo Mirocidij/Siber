@@ -45,12 +45,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     @InjectPresenter
     lateinit var presenter: MainPresenter
 
-
-    private var marker = true
+    private var suggestResult: MutableList<String>? = null
+    private var resultAdapter: ArrayAdapter<*>? = null
     private var searchManager: SearchManager? = null
     private var suggestResultView: ListView? = null
-    private var resultAdapter: ArrayAdapter<*>? = null
-    private var suggestResult: MutableList<String>? = null
+
+    private var marker = true
 
     private lateinit var drivingRouter: DrivingRouter
     private lateinit var drivingSession: DrivingSession
@@ -58,7 +58,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     // Lifecycle methods
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         MapKitFactory.setApiKey(App.MAPKIT_API_KEY)
         MapKitFactory.initialize(this@MainActivity)
         DirectionsFactory.initialize(this@MainActivity)
@@ -81,7 +80,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
         // Проверка интернет подключения
         presenter.mainActivityWasCreated(this@MainActivity)
-
 
         float_btn.setOnClickListener {
             presenter.nextActivityButtonWasPressed(context = this@MainActivity)
@@ -182,17 +180,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     // Yandex SearchKit callback methods
 
     override fun onSuggestResponse(suggest: List<SuggestItem>) {
-        try {
-            suggestResult!!.clear()
-            for (i in 0..Math.min(App.RESULT_NUMBER_LIMIT - 1, suggest.size)) {
-                suggestResult!!.add(suggest[i].displayText!!)
-            }
-            resultAdapter!!.notifyDataSetChanged()
-
-            suggestResultView!!.visibility = View.VISIBLE
-        } catch (e: IndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
+        presenter.onSuggestResponseDone(suggest)
     }
 
     override fun onSuggestError(error: Error) {
@@ -212,15 +200,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
 
     // MainView methods
-
-    override fun requestSuggest(request: String) {
-        try {
-            suggestResultView!!.visibility = View.INVISIBLE
-            searchManager!!.suggest(request, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
-        } catch (e: IndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
-    }
 
     override fun getCoordinates(address: String) {
 
@@ -273,19 +252,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             })
 
         queue.add(stringRequest)
-    }
-
-    override fun updateSearchBar(address: String) {
-        searchBar.setText(address)
-        suggestResultView!!.visibility = View.INVISIBLE
-    }
-
-    override fun openNewActivity(nextIntent: Intent) {
-        startActivity(nextIntent)
-    }
-
-    override fun openNewActivityForResult(nextIntent: Intent) {
-        startActivityForResult(nextIntent, 1)
     }
 
     override fun getAddress(latitude: Double, longitude: Double) {
@@ -346,6 +312,37 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
         queue.add(stringRequest)
 
+    }
+
+    override fun requestSuggest(request: String) {
+        try {
+            suggestResultView!!.visibility = View.INVISIBLE
+            searchManager!!.suggest(request, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun updateSearchBar(address: String) {
+        searchBar.setText(address)
+        suggestResultView!!.visibility = View.INVISIBLE
+    }
+
+    override fun openNewActivity(nextIntent: Intent) {
+        startActivity(nextIntent)
+    }
+
+    override fun openNewActivityForResult(nextIntent: Intent) {
+        startActivityForResult(nextIntent, 1)
+    }
+
+    override fun displaySearchResult(results: ArrayList<String>?) {
+        suggestResult!!.clear()
+        results!!.forEach {
+            suggestResult!!.add(it)
+        }
+        resultAdapter!!.notifyDataSetChanged()
+        suggestResultView!!.visibility = View.VISIBLE
     }
 
     override fun submitRequest(requestPoints: ArrayList<RequestPoint>) {
