@@ -1,8 +1,11 @@
 package sergey.yatsutko.siberiancoal.presentation.presenters.main
 
+import android.content.Context
 import android.content.Intent
 import android.widget.ArrayAdapter
 import com.arellomobile.mvp.MvpView
+import com.yandex.mapkit.RequestPoint
+import com.yandex.mapkit.geometry.Point
 
 interface MainView : MvpView {
     fun updateCost(
@@ -13,8 +16,10 @@ interface MainView : MvpView {
     )
 
     fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int)
-    fun submitRequest()
+    fun submitRequest(requestPoints: ArrayList<RequestPoint>)
     fun openNewActivity(nextIntent: Intent)
+    fun openNewActivityForResult(nextIntent: Intent)
+
 
 
     // Error

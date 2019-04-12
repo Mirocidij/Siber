@@ -1,5 +1,6 @@
 package sergey.yatsutko.siberiancoal.presentation.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -204,22 +205,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     fun goMap(v: View) {
-
-        if (!hasConnection(context =  this@MainActivity)) {
-            showNetworkConnectionError()
-            return
-        }
-
-        val intent = Intent(
-            this@MainActivity,
-            MapsActivity::class.java
-        )
-        startActivityForResult(intent, 1)
-    }
-
-    override fun onStop() {
-        MapKitFactory.getInstance().onStop()
-        super.onStop()
+        presenter.goMapButtonWasPresed(context = this@MainActivity)
     }
 
     override fun onStart() {
@@ -227,8 +213,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         MapKitFactory.getInstance().onStart()
     }
 
-    override fun onSuggestResponse(suggest: List<SuggestItem>) {
+    override fun onStop() {
+        MapKitFactory.getInstance().onStop()
+        super.onStop()
+    }
 
+    override fun onSuggestResponse(suggest: List<SuggestItem>) {
         try {
             suggestResult!!.clear()
             for (i in 0..Math.min(App.RESULT_NUMBER_LIMIT - 1, suggest.size)) {
@@ -305,7 +295,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
                 if (isHouse == "house") {
                     routeEndLocation = Point(latitude, longitude)
-                    submitRequest()
+                    presenter.submitRequest()
                 } else {
                     distance = 0
                     etDistance.hint = "0.0 km"
@@ -355,12 +345,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                         .getJSONObject("Point")
                         .getString("pos").split(" ")
 
-                    routeEndLocation = Point(coordinates[1].toDouble(), coordinates[0].toDouble())
+                    presenter.form.routeEndLocation = Point(coordinates[1].toDouble(), coordinates[0].toDouble())
                     latitude = coordinates[1].toDouble()
                     longitude = coordinates[0].toDouble()
 
 
-                    submitRequest()
+                    presenter.submitRequest()
                 } else {
                     distance = 0
                     etDistance.hint = "0.0 km"
@@ -394,28 +384,25 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         presenter.onDrivingRoutesDone(routes)
     }
 
-    override fun submitRequest() {
-        if (routeEndLocation.latitude == 0.0) {
-            distance = 0
-            etDistance.hint = "0.0 km"
-            return
-        }
+
+    // MainView methods
+
+    override fun submitRequest(requestPoints: ArrayList<RequestPoint>) {
         val options = DrivingOptions()
-        val requestPoints = java.util.ArrayList<RequestPoint>()
-        requestPoints.add(
-            RequestPoint(
-                routeStartLocation,
-                RequestPointType.WAYPOINT,
-                null
-            )
-        )
-        requestPoints.add(
-            RequestPoint(
-                routeEndLocation,
-                RequestPointType.WAYPOINT, null
-            )
-        )
-        drivingSession = drivingRouter.requestRoutes(requestPoints, options, this)
+        drivingSession = drivingRouter.requestRoutes(requestPoints, options, this@MainActivity)
+    }
+
+    override fun openNewActivity(nextIntent: Intent) {
+        startActivity(nextIntent)
+    }
+
+    override fun openNewActivityForResult(nextIntent: Intent) {
+        startActivityForResult(nextIntent, 1)
+    }
+
+    override fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int) {
+        coalSpinner.adapter = adapter
+        routeStartLocation = Point(App.cuts[0][i], App.cuts[1][i])
     }
 
     override fun updateCost(_pricePerTon: Int, _distance: Int, _deliveryCost: Int, _overPrice: Int) {
@@ -425,21 +412,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         overPriceCost.hint = "$_overPrice рублей"
     }
 
-    override fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int) {
-        coalSpinner.adapter = adapter
-        routeStartLocation = Point(App.cuts[0][i], App.cuts[1][i])
-    }
-
-    override fun openNewActivity(nextIntent: Intent) {
-        startActivity(nextIntent)
-    }
-
     // Errors
-    override fun showNetworkConnectionError() {
-        alert("Заказать уголь без интернет подключения невозможно", "Внимание") {
-            yesButton { }
-        }.show()
-    }
 
     override fun showRoadNotFoundError() {
         alert("Дорога не найдена", "Ошибка") {
@@ -461,6 +434,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun showIncorrectAddressError() {
         alert(message = "Некорректный адрес доставки", title = "Ошибка") {
+            yesButton { }
+        }.show()
+    }
+
+    override fun showNetworkConnectionError() {
+        alert("Заказать уголь без интернет подключения невозможно", "Внимание") {
             yesButton { }
         }.show()
     }

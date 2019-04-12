@@ -6,14 +6,18 @@ import android.util.Log
 import android.widget.ArrayAdapter
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import com.yandex.mapkit.RequestPoint
+import com.yandex.mapkit.RequestPointType
 import com.yandex.mapkit.directions.driving.DrivingRoute
 import com.yandex.mapkit.geometry.Geo
 import com.yandex.mapkit.geometry.Point
+import kotlinx.android.synthetic.main.activity_main.*
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.data.entity.Form
+import sergey.yatsutko.siberiancoal.presentation.ui.MapsActivity
 import sergey.yatsutko.siberiancoal.presentation.ui.SecondActivity
 
 @InjectViewState
@@ -21,7 +25,7 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     val TAG = "MainPresenter"
     private var firmBool = false
-    private val form: Form = Form()
+    val form: Form = Form()
 
     init {
 
@@ -48,11 +52,13 @@ class MainPresenter : MvpPresenter<MainView>() {
                 4 -> selectEntries(context, R.array.Izihsky)
                 else -> selectEntries(context, R.array.Arshanovsky)
             }
+
+            form.routeStartLocation = Point(App.cuts[0][i], App.cuts[1][i])
             viewState.changeCoalSpinnerEntries(adapter, i)
         }
         firmBool = true
 
-        viewState.submitRequest()
+        submitRequest()
 
         updateCost()
 
@@ -126,8 +132,47 @@ class MainPresenter : MvpPresenter<MainView>() {
 
         val nextIntent = Intent(context, SecondActivity::class.java)
         nextIntent.putExtra("form", form)
-        viewState.openNewActivity(nextIntent = nextIntent)
 
+        viewState.openNewActivity(nextIntent = nextIntent)
+    }
+
+    fun goMapButtonWasPresed(context: Context) {
+        if (!hasConnection(context =  context)) {
+            viewState.showNetworkConnectionError()
+            return
+        }
+
+        val intent = Intent(
+            context,
+            MapsActivity::class.java
+        )
+
+        viewState.openNewActivityForResult(nextIntent = intent)
+    }
+
+    fun submitRequest() {
+        if (form.routeEndLocation.latitude == 0.0) {
+            form.distance = 0
+            updateCost()
+            return
+        }
+
+        val requestPoints = java.util.ArrayList<RequestPoint>()
+        requestPoints.add(
+            RequestPoint(
+                form.routeStartLocation,
+                RequestPointType.WAYPOINT,
+                null
+            )
+        )
+        requestPoints.add(
+            RequestPoint(
+                form.routeEndLocation,
+                RequestPointType.WAYPOINT, null
+            )
+        )
+
+        viewState.submitRequest(requestPoints = requestPoints)
     }
 
     fun updateCost() {
