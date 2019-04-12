@@ -1,6 +1,5 @@
 package sergey.yatsutko.siberiancoal.presentation.ui
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -20,7 +19,6 @@ import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.RequestPoint
-import com.yandex.mapkit.RequestPointType
 import com.yandex.mapkit.directions.DirectionsFactory
 import com.yandex.mapkit.directions.driving.DrivingOptions
 import com.yandex.mapkit.directions.driving.DrivingRoute
@@ -42,7 +40,6 @@ import org.json.JSONObject
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.InputFilterMinMax
-import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainPresenter
 import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainView
 
@@ -65,9 +62,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     // Users coordinates
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
-
-    private var routeStartLocation = Point(App.cuts[0][0], App.cuts[1][0])
-    private var routeEndLocation = Point(latitude, longitude)
 
     private lateinit var drivingRouter: DrivingRouter
     private lateinit var drivingSession: DrivingSession
@@ -185,6 +179,24 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        MapKitFactory.getInstance().onStart()
+    }
+
+    override fun onStop() {
+        MapKitFactory.getInstance().onStop()
+        super.onStop()
+    }
+
+    fun goNextActivity(v: View) {
+        presenter.nextActivityButtonWasPressed(context = this@MainActivity)
+    }
+
+    fun goMap(v: View) {
+        presenter.goMapButtonWasPresed(context = this@MainActivity)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (data == null) {
@@ -198,24 +210,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         presenter.updateCost()
 
         Log.d("etWeight", "Correct Address")
-    }
-
-    fun goNextActivity(v: View) {
-        presenter.nextActivityButtonWasPressed(context = this@MainActivity)
-    }
-
-    fun goMap(v: View) {
-        presenter.goMapButtonWasPresed(context = this@MainActivity)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        MapKitFactory.getInstance().onStart()
-    }
-
-    override fun onStop() {
-        MapKitFactory.getInstance().onStop()
-        super.onStop()
     }
 
     override fun onSuggestResponse(suggest: List<SuggestItem>) {
@@ -294,12 +288,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                 searchBar.setText(address)
 
                 if (isHouse == "house") {
-                    routeEndLocation = Point(latitude, longitude)
+                    presenter.form.routeEndLocation = Point(latitude, longitude)
                     presenter.submitRequest()
                 } else {
-                    distance = 0
-                    etDistance.hint = "0.0 km"
+                    presenter.form.distance = 0
 
+                    presenter.updateCost()
                     showHouseNotFoundError()
                 }
             },
