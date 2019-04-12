@@ -116,7 +116,23 @@ class MainPresenter : MvpPresenter<MainView>() {
         updateCost()
     }
 
+    fun inOnActivityResult(data: Intent?) {
+        if (data == null) {
+            return
+        }
 
+        form.routeEndLocation = Point(
+            data.extras.getDouble("latitude"),
+            data.extras.getDouble("longitude")
+        )
+
+        viewState.getAddress(
+            latitude = form.routeEndLocation.latitude,
+            longitude = form.routeEndLocation.longitude
+        )
+
+        updateCost()
+    }
 
     fun nextActivityButtonWasPressed(context: Context) {
 

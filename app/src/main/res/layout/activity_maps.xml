@@ -41,7 +41,7 @@
         />
 
         <android.support.design.widget.FloatingActionButton
-                android:id="@+id/floatBTN"
+                android:id="@+id/float_btn"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/ic_next"

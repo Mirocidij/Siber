@@ -194,14 +194,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/searchBar"
-            app:layout_constraintBottom_toTopOf="@id/btnMap"
+            app:layout_constraintBottom_toTopOf="@id/map_btn"
     />
 
     <Button
-            android:id="@+id/btnMap"
+            android:id="@+id/map_btn"
             android:text="@string/btnMapHint"
             android:layout_marginTop="16dp"
-            android:onClick="goMap"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
@@ -231,7 +230,7 @@
             android:textColor="@color/black"
             android:shadowColor="@color/black"
 
-            app:layout_constraintTop_toBottomOf="@id/btnMap"
+            app:layout_constraintTop_toBottomOf="@id/map_btn"
     />
 
     <EditText android:layout_width="match_parent"
@@ -250,7 +249,7 @@
               android:textColor="@color/black"
               android:shadowColor="@color/black"
 
-              app:layout_constraintTop_toBottomOf="@id/btnMap"
+              app:layout_constraintTop_toBottomOf="@id/map_btn"
     />
 
     <EditText
@@ -349,11 +348,10 @@
         />
 
         <android.support.design.widget.FloatingActionButton
-                android:id="@+id/floatBTN"
+                android:id="@+id/float_btn"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/ic_next"
-                android:onClick="goNextActivity"
                 android:backgroundTint="@color/lightBlue"
                 app:fabSize="normal"
                 app:layout_anchor="@id/babBar"

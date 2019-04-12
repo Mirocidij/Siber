@@ -52,8 +52,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     private var marker = true
 
-    private var distance = 0
-
     private var searchManager: SearchManager? = null
     private var suggestResultView: ListView? = null
     private var resultAdapter: ArrayAdapter<*>? = null
@@ -75,8 +73,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         setContentView(R.layout.activity_main)
         super.onCreate(savedInstanceState)
 
-        // Проверка интернет подключения
-        presenter.mainActivityWasCreated(this@MainActivity)
+
 
 
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
@@ -90,6 +87,20 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             suggestResult!!
         )
         suggestResultView!!.adapter = resultAdapter
+
+
+
+        // Проверка интернет подключения
+        presenter.mainActivityWasCreated(this@MainActivity)
+
+
+        float_btn.setOnClickListener {
+            presenter.nextActivityButtonWasPressed(context = this@MainActivity)
+        }
+
+        map_btn.setOnClickListener {
+            presenter.goMapButtonWasPresed(context = this@MainActivity)
+        }
 
         searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
@@ -189,27 +200,9 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         super.onStop()
     }
 
-    fun goNextActivity(v: View) {
-        presenter.nextActivityButtonWasPressed(context = this@MainActivity)
-    }
-
-    fun goMap(v: View) {
-        presenter.goMapButtonWasPresed(context = this@MainActivity)
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (data == null) {
-            return
-        }
-        latitude = data.extras.getDouble("latitude")
-        longitude = data.extras.getDouble("longitude")
-
-        getAddress(latitude = latitude, longitude = longitude)
-
-        presenter.updateCost()
-
-        Log.d("etWeight", "Correct Address")
+        presenter.inOnActivityResult(data = data)
     }
 
     override fun onSuggestResponse(suggest: List<SuggestItem>) {
@@ -245,7 +238,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         }
     }
 
-    private fun getAddress(latitude: Double, longitude: Double) {
+    override fun getAddress(latitude: Double, longitude: Double) {
 
         val queue = Volley.newRequestQueue(this)
         val url =
@@ -305,7 +298,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     }
 
-    private fun getCoordinates(address: String) {
+    override fun getCoordinates(address: String) {
 
         val queue = Volley.newRequestQueue(this)
         val url =
@@ -346,7 +339,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
                     presenter.submitRequest()
                 } else {
-                    distance = 0
+                    presenter.form.distance = 0
                     etDistance.hint = "0.0 km"
 
                     showHouseNotFoundError()

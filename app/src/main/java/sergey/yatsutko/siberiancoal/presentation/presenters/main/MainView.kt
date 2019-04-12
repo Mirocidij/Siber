@@ -19,6 +19,8 @@ interface MainView : MvpView {
     fun submitRequest(requestPoints: ArrayList<RequestPoint>)
     fun openNewActivity(nextIntent: Intent)
     fun openNewActivityForResult(nextIntent: Intent)
+    fun getAddress(latitude: Double, longitude: Double)
+    fun getCoordinates(address: String)
 
 
 
