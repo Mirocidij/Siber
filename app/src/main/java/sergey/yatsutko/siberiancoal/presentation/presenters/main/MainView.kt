@@ -10,8 +10,11 @@ interface MainView : MvpView {
         _deliveryCost: Int,
         _overPrice: Int
     )
-    fun showNetworkErrorMessage()
     fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int)
     fun submitRequest()
-    fun showErrorRoadNotFound()
+
+
+    fun showNetworkConnectionError()
+    fun showRoadNotFoundError()
+    fun showHouseNotFoundError()
 }

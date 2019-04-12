@@ -8,8 +8,6 @@ import com.arellomobile.mvp.MvpPresenter
 import com.yandex.mapkit.directions.driving.DrivingRoute
 import com.yandex.mapkit.geometry.Geo
 import com.yandex.mapkit.geometry.Point
-import org.jetbrains.anko.alert
-import org.jetbrains.anko.yesButton
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
@@ -30,7 +28,7 @@ class MainPresenter : MvpPresenter<MainView>() {
     fun mainActivityWasCreated(context: Context) {
 
         if (!hasConnection(context)) {
-            viewState.showNetworkErrorMessage()
+            viewState.showNetworkConnectionError()
         }
 
     }
@@ -38,7 +36,6 @@ class MainPresenter : MvpPresenter<MainView>() {
     fun firmSpinnerWasChanged(i: Int, selectedItem: String, context: Context) {
 
         form.coalFirm = selectedItem
-        Log.d(TAG, "Выбрана фирма: ${form.coalFirm}")
 
         if (firmBool) {
             val adapter: ArrayAdapter<CharSequence> = when (i) {
@@ -56,16 +53,18 @@ class MainPresenter : MvpPresenter<MainView>() {
         viewState.submitRequest()
 
         updateCost()
+
+        Log.d(TAG, "Выбрана фирма: ${form.coalFirm}")
     }
 
     fun coalSpinnerWasChanged(i: Int, selectedItem: String) {
         form.coalMark = selectedItem
         form.pricePerTonn = App.prices[i]
 
+        updateCost()
+
         Log.d(TAG, "Выбрана марка: ${form.coalMark}")
         Log.d(TAG, "Цена за тонну: ${form.pricePerTonn}")
-
-        updateCost()
     }
 
 
@@ -81,22 +80,47 @@ class MainPresenter : MvpPresenter<MainView>() {
                 distance += Geo.distance(points[i], points[i + 1])
             }
         } else {
-            viewState.showErrorRoadNotFound()
+            viewState.showRoadNotFoundError()
         }
 
         form.distance = (Math.round(distance) / 1000).toInt()
 
         updateCost()
 
+        Log.d(TAG, "Расстояние ${form.distance} км")
+
+    }
+
+    fun weightWasChanged(weight: Int) {
+        form.weight = weight
+        form.distanceCost = try {
+            when (form.weight) {
+                in 1..3 -> 10
+                in 4..7 -> 15
+                in 8..20 -> 35
+                in 21..40 -> 80
+                else -> 0
+            }
+        } catch (e: Throwable) {
+            0
+        }
+
+        updateCost()
     }
 
     private fun updateCost() {
+        form.deliveryCost = form.distanceCost * form.distance
+        form.overPrice = form.deliveryCost + form.pricePerTonn * form.weight
+
         viewState.updateCost(
-            _pricePerTon = form.pricePerTonn!!,
-            _overPrice = form.overPrice!!,
-            _deliveryCost = form.deliveryCost!!,
-            _distance = form.distance!!
+            _pricePerTon = form.pricePerTonn,
+            _overPrice = form.overPrice,
+            _deliveryCost = form.deliveryCost,
+            _distance = form.distance
         )
+
+        Log.d(TAG, "Стоимость доставки: ${form.deliveryCost}")
+        Log.d(TAG, "Полная стоимость: ${form.overPrice}")
     }
 
 }

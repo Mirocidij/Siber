@@ -161,25 +161,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             override fun afterTextChanged(s: Editable) {
 
                 try {
-                    weigth = Integer.parseInt(etWeight.text.toString())
+                    presenter.weightWasChanged(Integer.parseInt(s.toString()))
                 } catch (e: NumberFormatException) {
 
                 }
-
-                priceForWeight = try {
-                    when (weigth) {
-                        in 1..3 -> 10
-                        in 4..7 -> 15
-                        in 8..20 -> 35
-                        in 21..40 -> 80
-                        else -> 0
-                    }
-                } catch (e: Throwable) {
-                    0
-                }
-
-//                updateCost()
-
             }
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -215,7 +200,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
-
         }
     }
 
@@ -230,40 +214,18 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
         getAddress(latitude = latitude, longitude = longitude)
 
-        try {
-            weigth = Integer.parseInt(etWeight.text.toString())
-        } catch (e: NumberFormatException) {
-
-        }
-
-        priceForWeight = try {
-            when (weigth) {
-                in 1..3 -> 10
-                in 4..7 -> 15
-                in 8..20 -> 35
-                in 21..40 -> 80
-                else -> 0
-            }
-        } catch (e: Throwable) {
-            0
-        }
-
-
-
 //        updateCost()
 
         Log.d("etWeight", "Correct Address")
     }
 
     fun goNextActivity(v: View) {
-
         if (etWeight.text.toString() == "0" || etWeight.text.toString() == "00" || etWeight.text.toString().isEmpty()) {
             alert(message = "Некорректая масса", title = "Ошибка") {
                 yesButton { }
             }.show()
             return
         }
-
         if (distance == 0.0) {
             alert(message = "Некорректный адрес доставки", title = "Ошибка") {
                 yesButton { }
@@ -449,7 +411,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                     latitude = coordinates[1].toDouble()
                     longitude = coordinates[0].toDouble()
 
-//                toast(coordinates[0] + coordinates[1])
+
                     submitRequest()
                 } else {
                     distance = 0.0
@@ -459,16 +421,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                         yesButton { }
                     }.show()
                 }
-
-
             },
             Response.ErrorListener {
                 toast("That didn't work!")
             })
 
-
         queue.add(stringRequest)
-
     }
 
     override fun onBackPressed() {
@@ -483,18 +441,14 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         } else if (error is NetworkError) {
             errorMessage = getString(R.string.network_error_message)
         }
-
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {
-
         presenter.onDrivingRoutesDone(routes)
-
     }
 
     override fun submitRequest() {
-
         if (ROUTE_END_LOCATION.latitude == 0.0) {
             distance = 0.0
             etDistance.hint = "0.0 km"
@@ -519,21 +473,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     override fun updateCost(_pricePerTon: Int, _distance: Int, _deliveryCost: Int, _overPrice: Int) {
-
-
-        deliveryCost = km * priceForWeight
-        overPrice = km * priceForWeight + price * weigth
         etCost.hint = "$_pricePerTon руб/т"
         etDistance.hint = "$_distance km"
-        etCostForDelivery.hint = "$deliveryCost рублей"
-        overPriceCost.hint = "$overPrice рублей"
-
-
-
-    }
-
-    override fun showNetworkErrorMessage() {
-        alert("Заказать уголь без интернет подключения невозможно", "Внимание") { yesButton { } }.show()
+        etCostForDelivery.hint = "$_deliveryCost рублей"
+        overPriceCost.hint = "$_overPrice рублей"
     }
 
     override fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int) {
@@ -541,10 +484,23 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         ROUTE_START_LOCATION = Point(App.cuts[0][i], App.cuts[1][i])
     }
 
-    override fun showErrorRoadNotFound() {
+    // Errors
+
+    override fun showNetworkConnectionError() {
+        alert("Заказать уголь без интернет подключения невозможно", "Внимание") {
+            yesButton { }
+        }.show()
+    }
+
+    override fun showRoadNotFoundError() {
         alert("Дорога не найдена", "Ошибка") {
             yesButton { }
         }.show()
     }
 
+    override fun showHouseNotFoundError() {
+        alert("Выберите дом", "Ошибка") {
+            yesButton { }
+        }.show()
+    }
 }
