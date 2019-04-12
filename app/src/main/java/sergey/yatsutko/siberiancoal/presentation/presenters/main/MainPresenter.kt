@@ -11,7 +11,9 @@ import com.yandex.mapkit.RequestPointType
 import com.yandex.mapkit.directions.driving.DrivingRoute
 import com.yandex.mapkit.geometry.Geo
 import com.yandex.mapkit.geometry.Point
-import kotlinx.android.synthetic.main.activity_main.*
+import com.yandex.runtime.Error
+import com.yandex.runtime.network.NetworkError
+import com.yandex.runtime.network.RemoteError
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
@@ -24,18 +26,13 @@ import sergey.yatsutko.siberiancoal.presentation.ui.SecondActivity
 class MainPresenter : MvpPresenter<MainView>() {
 
     val TAG = "MainPresenter"
+
     private var firmBool = false
+    private var marker = true
+
     val form: Form = Form()
 
     init {
-
-    }
-
-    fun mainActivityWasCreated(context: Context) {
-
-        if (!hasConnection(context)) {
-            viewState.showNetworkConnectionError()
-        }
 
     }
 
@@ -65,17 +62,19 @@ class MainPresenter : MvpPresenter<MainView>() {
         Log.d(TAG, "Выбрана фирма: ${form.coalFirm}")
     }
 
-    fun coalSpinnerWasChanged(i: Int, selectedItem: String) {
-        form.coalMark = selectedItem
-        form.pricePerTonn = App.prices[i]
+    fun resultWasClicked(position: Int, suggestResult: MutableList<String>) {
+        marker = false
 
-        updateCost()
+        val streetName = suggestResult[position].split(", ")
+        val street = if (streetName.size >= 3) {
+            streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
+        } else {
+            suggestResult[position]
+        }
 
-        Log.d(TAG, "Выбрана марка: ${form.coalMark}")
-        Log.d(TAG, "Цена за тонну: ${form.pricePerTonn}")
+        viewState.updateSearchBar(street)
+        viewState.getCoordinates(street)
     }
-
-
 
     fun onDrivingRoutesDone(routes: MutableList<DrivingRoute>) {
 
@@ -99,39 +98,24 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     }
 
-    fun weightWasChanged(weight: Int) {
-        form.weight = weight
-        form.distanceCost = try {
-            when (form.weight) {
-                in 1..3 -> 10
-                in 4..7 -> 15
-                in 8..20 -> 35
-                in 21..40 -> 80
-                else -> 0
-            }
-        } catch (e: Throwable) {
-            0
+    fun inYandexErrorCallback(error: Error, context: Context) {
+        var errorMessage = context.getString(R.string.unknown_error_message)
+        if (error is RemoteError) {
+            errorMessage = context.getString(R.string.remote_error_message)
+        } else if (error is NetworkError) {
+            errorMessage = context.getString(R.string.network_error_message)
         }
-
-        updateCost()
+        viewState.showYandexErrorToast(errorMessage = errorMessage)
     }
 
-    fun inOnActivityResult(data: Intent?) {
-        if (data == null) {
-            return
-        }
-
-        form.routeEndLocation = doubleArrayOf(
-            data.extras.getDouble("latitude"),
-            data.extras.getDouble("longitude")
-        )
-
-        viewState.getAddress(
-            latitude = form.routeEndLocation[0],
-            longitude = form.routeEndLocation[1]
-        )
+    fun coalSpinnerWasChanged(i: Int, selectedItem: String) {
+        form.coalMark = selectedItem
+        form.pricePerTonn = App.prices[i]
 
         updateCost()
+
+        Log.d(TAG, "Выбрана марка: ${form.coalMark}")
+        Log.d(TAG, "Цена за тонну: ${form.pricePerTonn}")
     }
 
     fun nextActivityButtonWasPressed(context: Context) {
@@ -152,7 +136,15 @@ class MainPresenter : MvpPresenter<MainView>() {
         viewState.openNewActivity(nextIntent = nextIntent)
     }
 
-    fun goMapButtonWasPresed(context: Context) {
+    fun mainActivityWasCreated(context: Context) {
+
+        if (!hasConnection(context)) {
+            viewState.showNetworkConnectionError()
+        }
+
+    }
+
+    fun goMapButtonWasPressed(context: Context) {
         if (!hasConnection(context =  context)) {
             viewState.showNetworkConnectionError()
             return
@@ -164,6 +156,52 @@ class MainPresenter : MvpPresenter<MainView>() {
         )
 
         viewState.openNewActivityForResult(nextIntent = intent)
+    }
+
+    fun searchBarWasChanged(text: String) {
+        try {
+            if (marker) {
+                viewState.requestSuggest(text)
+            }
+            marker = true
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun inOnActivityResult(data: Intent?) {
+        if (data == null) {
+            return
+        }
+
+        form.routeEndLocation = doubleArrayOf(
+            data.extras.getDouble("latitude"),
+            data.extras.getDouble("longitude")
+        )
+
+        viewState.getAddress(
+            latitude = form.routeEndLocation[0],
+            longitude = form.routeEndLocation[1]
+        )
+
+        updateCost()
+    }
+
+    fun weightWasChanged(weight: Int) {
+        form.weight = weight
+        form.distanceCost = try {
+            when (form.weight) {
+                in 1..3 -> 10
+                in 4..7 -> 15
+                in 8..20 -> 35
+                in 21..40 -> 80
+                else -> 0
+            }
+        } catch (e: Throwable) {
+            0
+        }
+
+        updateCost()
     }
 
     fun submitRequest() {

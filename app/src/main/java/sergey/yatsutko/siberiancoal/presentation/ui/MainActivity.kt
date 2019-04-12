@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.Toast
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
@@ -28,8 +27,6 @@ import com.yandex.mapkit.search.SearchManager
 import com.yandex.mapkit.search.SearchManagerType
 import com.yandex.mapkit.search.SuggestItem
 import com.yandex.runtime.Error
-import com.yandex.runtime.network.NetworkError
-import com.yandex.runtime.network.RemoteError
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
@@ -61,6 +58,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     // Lifecycle methods
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         MapKitFactory.setApiKey(App.MAPKIT_API_KEY)
         MapKitFactory.initialize(this@MainActivity)
         DirectionsFactory.initialize(this@MainActivity)
@@ -71,7 +69,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
-        suggestResultView = findViewById<ListView>(R.id.suggestResult)
+        suggestResultView = findViewById(R.id.suggestResult)
         suggestResult = ArrayList()
         resultAdapter = ArrayAdapter(
             this,
@@ -80,7 +78,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             suggestResult!!
         )
         suggestResultView!!.adapter = resultAdapter
-
 
         // Проверка интернет подключения
         presenter.mainActivityWasCreated(this@MainActivity)
@@ -91,46 +88,23 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         }
 
         map_btn.setOnClickListener {
-            presenter.goMapButtonWasPresed(context = this@MainActivity)
+            presenter.goMapButtonWasPressed(context = this@MainActivity)
         }
 
+        // Слушатель изменений в поисковой строке
         searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
 
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
 
             override fun afterTextChanged(editable: Editable) {
-
-                try {
-                    scroll.elevation = 20f
-                    if (marker) {
-                        requestSuggest(editable.toString())
-                    }
-                    marker = true
-                } catch (e: IndexOutOfBoundsException) {
-                    e.printStackTrace()
-                }
-
+                presenter.searchBarWasChanged(editable.toString())
             }
         })
 
-
+        // Слушатель нажатий на эллементы ListView
         suggestResultView!!.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-
-            marker = false
-            scroll.elevation = 0f
-
-            val streetName = suggestResult!![position].split(", ")
-            val street = if (streetName.size >= 3) {
-                streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
-            } else {
-                suggestResult!![position]
-            }
-
-            searchBar.setText(street)
-            suggestResultView!!.visibility = View.INVISIBLE
-
-            getCoordinates(street)
+            presenter.resultWasClicked(position, suggestResult!!)
         }
 
 
@@ -204,15 +178,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         presenter.inOnActivityResult(data = data)
     }
 
-    private fun requestSuggest(query: String) {
-        try {
-            suggestResultView!!.visibility = View.INVISIBLE
-            searchManager!!.suggest(query, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
-        } catch (e: IndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
-    }
-
 
     // Yandex SearchKit callback methods
 
@@ -231,34 +196,31 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     override fun onSuggestError(error: Error) {
-        var errorMessage = getString(R.string.unknown_error_message)
-        if (error is RemoteError) {
-            errorMessage = getString(R.string.remote_error_message)
-        } else if (error is NetworkError) {
-            errorMessage = getString(R.string.network_error_message)
-        }
-        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+        presenter.inYandexErrorCallback(error = error, context = this@MainActivity)
     }
 
 
     // Yandex DirectionKit callback methods
 
+    override fun onDrivingRoutesError(error: Error) {
+        presenter.inYandexErrorCallback(error = error, context = this@MainActivity)
+    }
+
     override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {
         presenter.onDrivingRoutesDone(routes)
     }
 
-    override fun onDrivingRoutesError(error: Error) {
-        var errorMessage = getString(R.string.unknown_error_message)
-        if (error is RemoteError) {
-            errorMessage = getString(R.string.remote_error_message)
-        } else if (error is NetworkError) {
-            errorMessage = getString(R.string.network_error_message)
-        }
-        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
-    }
-
 
     // MainView methods
+
+    override fun requestSuggest(request: String) {
+        try {
+            suggestResultView!!.visibility = View.INVISIBLE
+            searchManager!!.suggest(request, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+    }
 
     override fun getCoordinates(address: String) {
 
@@ -301,7 +263,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                     presenter.submitRequest()
                 } else {
                     presenter.form.distance = 0
-                    etDistance.hint = "0.0 km"
+                    etDistance.hint = "0 км"
 
                     showHouseNotFoundError()
                 }
@@ -311,6 +273,19 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             })
 
         queue.add(stringRequest)
+    }
+
+    override fun updateSearchBar(address: String) {
+        searchBar.setText(address)
+        suggestResultView!!.visibility = View.INVISIBLE
+    }
+
+    override fun openNewActivity(nextIntent: Intent) {
+        startActivity(nextIntent)
+    }
+
+    override fun openNewActivityForResult(nextIntent: Intent) {
+        startActivityForResult(nextIntent, 1)
     }
 
     override fun getAddress(latitude: Double, longitude: Double) {
@@ -373,14 +348,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     }
 
-    override fun openNewActivity(nextIntent: Intent) {
-        startActivity(nextIntent)
-    }
-
-    override fun openNewActivityForResult(nextIntent: Intent) {
-        startActivityForResult(nextIntent, 1)
-    }
-
     override fun submitRequest(requestPoints: ArrayList<RequestPoint>) {
         drivingSession = drivingRouter.requestRoutes(requestPoints, DrivingOptions(), this@MainActivity)
     }
@@ -427,5 +394,9 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         alert("Заказать уголь без интернет подключения невозможно", "Внимание") {
             yesButton { }
         }.show()
+    }
+
+    override fun showYandexErrorToast(errorMessage: String) {
+        toast(errorMessage)
     }
 }

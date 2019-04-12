@@ -1,11 +1,9 @@
 package sergey.yatsutko.siberiancoal.presentation.presenters.main
 
-import android.content.Context
 import android.content.Intent
 import android.widget.ArrayAdapter
 import com.arellomobile.mvp.MvpView
 import com.yandex.mapkit.RequestPoint
-import com.yandex.mapkit.geometry.Point
 
 interface MainView : MvpView {
     fun updateCost(
@@ -14,14 +12,14 @@ interface MainView : MvpView {
         _deliveryCost: Int,
         _overPrice: Int
     )
-
+    fun updateSearchBar(address: String)
     fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int)
     fun submitRequest(requestPoints: ArrayList<RequestPoint>)
     fun openNewActivity(nextIntent: Intent)
     fun openNewActivityForResult(nextIntent: Intent)
     fun getAddress(latitude: Double, longitude: Double)
     fun getCoordinates(address: String)
-
+    fun requestSuggest(request: String)
 
 
     // Error
@@ -31,4 +29,5 @@ interface MainView : MvpView {
     fun showIncorrectWeightError()
     fun showIncorrectAddressError()
     fun showNetworkConnectionError()
+    fun showYandexErrorToast(errorMessage: String)
 }

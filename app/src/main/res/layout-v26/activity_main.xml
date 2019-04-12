@@ -148,6 +148,7 @@
     />
 
     <ScrollView
+
             android:id="@+id/scroll"
             app:layout_constraintTop_toBottomOf="@id/searchBar"
             app:layout_constraintStart_toStartOf="parent"
