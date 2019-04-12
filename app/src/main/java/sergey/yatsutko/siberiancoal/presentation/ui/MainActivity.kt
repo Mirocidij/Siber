@@ -9,10 +9,6 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.yandex.mapkit.MapKitFactory
@@ -31,7 +27,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.yesButton
-import org.json.JSONObject
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.InputFilterMinMax
@@ -82,11 +77,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         presenter.mainActivityWasCreated(this@MainActivity)
 
         float_btn.setOnClickListener {
-            presenter.nextActivityButtonWasPressed(context = this@MainActivity)
+            presenter.nextActivityButtonWasPressed()
         }
 
         map_btn.setOnClickListener {
-            presenter.goMapButtonWasPressed(context = this@MainActivity)
+            presenter.goMapButtonWasPressed()
         }
 
         // Слушатель изменений в поисковой строке
@@ -132,8 +127,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             ) {
                 presenter.firmSpinnerWasChanged(
                     selectedItemPosition,
-                    firmSpiner.selectedItem.toString(),
-                    this@MainActivity
+                    firmSpiner.selectedItem.toString()
                 )
             }
 
@@ -184,135 +178,21 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     override fun onSuggestError(error: Error) {
-        presenter.inYandexErrorCallback(error = error, context = this@MainActivity)
+        presenter.inYandexErrorCallback(error = error)
     }
 
 
     // Yandex DirectionKit callback methods
 
     override fun onDrivingRoutesError(error: Error) {
-        presenter.inYandexErrorCallback(error = error, context = this@MainActivity)
+        presenter.inYandexErrorCallback(error = error)
     }
 
     override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {
         presenter.onDrivingRoutesDone(routes)
     }
 
-
     // MainView methods
-
-    override fun getCoordinates(address: String) {
-
-        val queue = Volley.newRequestQueue(this)
-        val url =
-            "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$address&apikey=17757be8-4817-4365-886c-d89845ac6976"
-
-        var isHouse: String
-
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            Response.Listener<String> { response ->
-
-                val jsonObject =
-                    JSONObject(response)
-
-                isHouse = jsonObject.getJSONObject("response")
-                    .getJSONObject("GeoObjectCollection")
-                    .getJSONArray("featureMember")
-                    .getJSONObject(0)
-                    .getJSONObject("GeoObject")
-                    .getJSONObject("metaDataProperty")
-                    .getJSONObject("GeocoderMetaData")
-                    .getString("kind")
-
-
-                if (isHouse == "house") {
-                    val coordinates = jsonObject.getJSONObject("response")
-                        .getJSONObject("GeoObjectCollection")
-                        .getJSONArray("featureMember")
-                        .getJSONObject(0)
-                        .getJSONObject("GeoObject")
-                        .getJSONObject("Point")
-                        .getString("pos").split(" ")
-
-                    presenter.form.routeEndLocation =
-                        doubleArrayOf(coordinates[1].toDouble(), coordinates[0].toDouble())
-
-
-                    presenter.submitRequest()
-                } else {
-                    presenter.form.distance = 0
-                    etDistance.hint = "0 км"
-
-                    showHouseNotFoundError()
-                }
-            },
-            Response.ErrorListener {
-                toast("That didn't work!")
-            })
-
-        queue.add(stringRequest)
-    }
-
-    override fun getAddress(latitude: Double, longitude: Double) {
-
-        val queue = Volley.newRequestQueue(this)
-        val url =
-            "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$longitude,$latitude&apikey=17757be8-4817-4365-886c-d89845ac6976"
-        var address: String
-        var isHouse: String
-
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            Response.Listener<String> { response ->
-
-                val jsonObject =
-                    JSONObject(response)
-
-                isHouse = jsonObject.getJSONObject("response")
-                    .getJSONObject("GeoObjectCollection")
-                    .getJSONArray("featureMember")
-                    .getJSONObject(0)
-                    .getJSONObject("GeoObject")
-                    .getJSONObject("metaDataProperty")
-                    .getJSONObject("GeocoderMetaData")
-                    .getString("kind")
-
-                address = jsonObject.getJSONObject("response")
-                    .getJSONObject("GeoObjectCollection")
-                    .getJSONArray("featureMember")
-                    .getJSONObject(0)
-                    .getJSONObject("GeoObject")
-                    .getJSONObject("metaDataProperty")
-                    .getJSONObject("GeocoderMetaData")
-                    .getString("text")
-
-                val streetName = address.split(", ")
-                if (streetName.size >= 3) {
-                    address =
-                        streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
-                }
-
-                marker = false
-                searchBar.setText(address)
-
-                if (isHouse == "house") {
-                    presenter.form.routeEndLocation = doubleArrayOf(latitude, longitude)
-                    presenter.submitRequest()
-                } else {
-                    presenter.form.distance = 0
-
-                    presenter.updateCost()
-                    showHouseNotFoundError()
-                }
-            },
-            Response.ErrorListener {
-                address = "That didn't work!"
-            })
-
-        queue.add(stringRequest)
-
-    }
 
     override fun requestSuggest(request: String) {
         try {

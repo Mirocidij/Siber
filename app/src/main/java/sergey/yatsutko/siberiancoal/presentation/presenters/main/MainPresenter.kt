@@ -5,6 +5,10 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.yandex.mapkit.RequestPoint
@@ -16,6 +20,9 @@ import com.yandex.mapkit.search.SuggestItem
 import com.yandex.runtime.Error
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
+import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.toast
+import org.json.JSONObject
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
@@ -27,18 +34,17 @@ import sergey.yatsutko.siberiancoal.presentation.ui.SecondActivity
 @InjectViewState
 class MainPresenter : MvpPresenter<MainView>() {
 
-    val TAG = "MainPresenter"
-
+    private val TAG = "MainPresenter"
     private var firmBool = false
     private var marker = true
-
-    val form: Form = Form()
+    private val form: Form = Form()
+    lateinit var context: Context
 
     init {
 
     }
 
-    fun firmSpinnerWasChanged(i: Int, selectedItem: String, context: Context) {
+    fun firmSpinnerWasChanged(i: Int, selectedItem: String) {
 
         form.coalFirm = selectedItem
 
@@ -74,7 +80,6 @@ class MainPresenter : MvpPresenter<MainView>() {
         Log.d(TAG, "Цена за тонну: ${form.pricePerTonn}")
     }
 
-
     fun resultWasClicked(position: Int, suggestResult: MutableList<String>) {
         marker = false
 
@@ -86,7 +91,121 @@ class MainPresenter : MvpPresenter<MainView>() {
         }
 
         viewState.updateSearchBar(street)
-        viewState.getCoordinates(street)
+        getCoordinates(street)
+    }
+
+    fun getCoordinates(address: String) {
+
+        val queue = Volley.newRequestQueue(context)
+        val url =
+            "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$address&apikey=17757be8-4817-4365-886c-d89845ac6976"
+
+        var isHouse: String
+
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            Response.Listener<String> { response ->
+
+                val jsonObject =
+                    JSONObject(response)
+
+                isHouse = jsonObject.getJSONObject("response")
+                    .getJSONObject("GeoObjectCollection")
+                    .getJSONArray("featureMember")
+                    .getJSONObject(0)
+                    .getJSONObject("GeoObject")
+                    .getJSONObject("metaDataProperty")
+                    .getJSONObject("GeocoderMetaData")
+                    .getString("kind")
+
+
+                if (isHouse == "house") {
+                    val coordinates = jsonObject.getJSONObject("response")
+                        .getJSONObject("GeoObjectCollection")
+                        .getJSONArray("featureMember")
+                        .getJSONObject(0)
+                        .getJSONObject("GeoObject")
+                        .getJSONObject("Point")
+                        .getString("pos").split(" ")
+
+                    form.routeEndLocation =
+                        doubleArrayOf(coordinates[1].toDouble(), coordinates[0].toDouble())
+
+
+                    submitRequest()
+                } else {
+                    form.distance = 0
+                    updateCost()
+                    viewState.showHouseNotFoundError()
+                }
+            },
+
+            Response.ErrorListener {
+
+            })
+
+        queue.add(stringRequest)
+    }
+
+    fun getAddress(latitude: Double, longitude: Double) {
+
+        val queue = Volley.newRequestQueue(context)
+        val url =
+            "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$longitude,$latitude&apikey=17757be8-4817-4365-886c-d89845ac6976"
+        var address: String
+        var isHouse: String
+
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            Response.Listener<String> { response ->
+
+                val jsonObject =
+                    JSONObject(response)
+
+                isHouse = jsonObject.getJSONObject("response")
+                    .getJSONObject("GeoObjectCollection")
+                    .getJSONArray("featureMember")
+                    .getJSONObject(0)
+                    .getJSONObject("GeoObject")
+                    .getJSONObject("metaDataProperty")
+                    .getJSONObject("GeocoderMetaData")
+                    .getString("kind")
+
+                address = jsonObject.getJSONObject("response")
+                    .getJSONObject("GeoObjectCollection")
+                    .getJSONArray("featureMember")
+                    .getJSONObject(0)
+                    .getJSONObject("GeoObject")
+                    .getJSONObject("metaDataProperty")
+                    .getJSONObject("GeocoderMetaData")
+                    .getString("text")
+
+                val streetName = address.split(", ")
+                if (streetName.size >= 3) {
+                    address =
+                        streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
+                }
+
+                marker = false
+
+                viewState.updateSearchBar(address = address)
+
+                if (isHouse == "house") {
+                    form.routeEndLocation = doubleArrayOf(latitude, longitude)
+                    submitRequest()
+                } else {
+                    form.distance = 0
+
+                    updateCost()
+                    viewState.showHouseNotFoundError()
+                }
+            },
+            Response.ErrorListener {
+                address = "That didn't work!"
+            })
+
+        queue.add(stringRequest)
+
     }
 
     fun onDrivingRoutesDone(routes: MutableList<DrivingRoute>) {
@@ -111,7 +230,7 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     }
 
-    fun inYandexErrorCallback(error: Error, context: Context) {
+    fun inYandexErrorCallback(error: Error) {
         var errorMessage = context.getString(R.string.unknown_error_message)
         if (error is RemoteError) {
             errorMessage = context.getString(R.string.remote_error_message)
@@ -121,7 +240,7 @@ class MainPresenter : MvpPresenter<MainView>() {
         viewState.showYandexErrorToast(errorMessage = errorMessage)
     }
 
-    fun nextActivityButtonWasPressed(context: Context) {
+    fun nextActivityButtonWasPressed() {
 
         if (form.weight.toString() == "0" || form.weight.toString() == "00" || form.weight.toString().isEmpty()) {
             viewState.showIncorrectWeightError()
@@ -141,13 +260,14 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     fun mainActivityWasCreated(context: Context) {
 
+        this.context = context
         if (!hasConnection(context)) {
             viewState.showNetworkConnectionError()
         }
 
     }
 
-    fun goMapButtonWasPressed(context: Context) {
+    fun goMapButtonWasPressed() {
         if (!hasConnection(context =  context)) {
             viewState.showNetworkConnectionError()
             return
@@ -171,7 +291,7 @@ class MainPresenter : MvpPresenter<MainView>() {
             data.extras.getDouble("longitude")
         )
 
-        viewState.getAddress(
+        getAddress(
             latitude = form.routeEndLocation[0],
             longitude = form.routeEndLocation[1]
         )
@@ -224,8 +344,6 @@ class MainPresenter : MvpPresenter<MainView>() {
 
         updateCost()
     }
-
-
 
     fun submitRequest() {
         if (form.routeEndLocation[0] == 0.0) {
