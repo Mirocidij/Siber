@@ -65,8 +65,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
 
-    private var ROUTE_START_LOCATION = Point(App.cuts[0][0], App.cuts[1][0])
-    private var ROUTE_END_LOCATION = Point(latitude, longitude)
+    private var routeStartLocation = Point(App.cuts[0][0], App.cuts[1][0])
+    private var routeEndLocation = Point(latitude, longitude)
 
     private lateinit var drivingRouter: DrivingRouter
     private lateinit var drivingSession: DrivingSession
@@ -194,23 +194,19 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
         getAddress(latitude = latitude, longitude = longitude)
 
-//        updateCost()
+        presenter.updateCost()
 
         Log.d("etWeight", "Correct Address")
     }
 
     fun goNextActivity(v: View) {
-
         presenter.nextActivityButtonWasPressed(context = this@MainActivity)
-
     }
 
     fun goMap(v: View) {
 
         if (!hasConnection(context =  this@MainActivity)) {
-            alert("Отсутствует интернет соединение", "Операция невозможна") {
-                yesButton { }
-            }.show()
+            showNetworkConnectionError()
             return
         }
 
@@ -244,8 +240,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         } catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
         }
-
-
     }
 
     override fun onSuggestError(error: Error) {
@@ -310,15 +304,13 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                 searchBar.setText(address)
 
                 if (isHouse == "house") {
-                    ROUTE_END_LOCATION = Point(latitude, longitude)
+                    routeEndLocation = Point(latitude, longitude)
                     submitRequest()
                 } else {
                     distance = 0
                     etDistance.hint = "0.0 km"
 
-                    alert("Выберите дом", "Ошибка") {
-                        yesButton { }
-                    }.show()
+                    showHouseNotFoundError()
                 }
             },
             Response.ErrorListener {
@@ -363,7 +355,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
                         .getJSONObject("Point")
                         .getString("pos").split(" ")
 
-                    ROUTE_END_LOCATION = Point(coordinates[1].toDouble(), coordinates[0].toDouble())
+                    routeEndLocation = Point(coordinates[1].toDouble(), coordinates[0].toDouble())
                     latitude = coordinates[1].toDouble()
                     longitude = coordinates[0].toDouble()
 
@@ -403,7 +395,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     override fun submitRequest() {
-        if (ROUTE_END_LOCATION.latitude == 0.0) {
+        if (routeEndLocation.latitude == 0.0) {
             distance = 0
             etDistance.hint = "0.0 km"
             return
@@ -412,14 +404,14 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         val requestPoints = java.util.ArrayList<RequestPoint>()
         requestPoints.add(
             RequestPoint(
-                ROUTE_START_LOCATION,
+                routeStartLocation,
                 RequestPointType.WAYPOINT,
                 null
             )
         )
         requestPoints.add(
             RequestPoint(
-                ROUTE_END_LOCATION,
+                routeEndLocation,
                 RequestPointType.WAYPOINT, null
             )
         )
@@ -435,7 +427,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int) {
         coalSpinner.adapter = adapter
-        ROUTE_START_LOCATION = Point(App.cuts[0][i], App.cuts[1][i])
+        routeStartLocation = Point(App.cuts[0][i], App.cuts[1][i])
     }
 
     override fun openNewActivity(nextIntent: Intent) {

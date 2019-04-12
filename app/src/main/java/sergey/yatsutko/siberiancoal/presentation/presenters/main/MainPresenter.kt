@@ -110,20 +110,7 @@ class MainPresenter : MvpPresenter<MainView>() {
         updateCost()
     }
 
-    private fun updateCost() {
-        form.deliveryCost = form.distanceCost * form.distance
-        form.overPrice = form.deliveryCost + form.pricePerTonn * form.weight
 
-        viewState.updateCost(
-            _pricePerTon = form.pricePerTonn,
-            _overPrice = form.overPrice,
-            _deliveryCost = form.deliveryCost,
-            _distance = form.distance
-        )
-
-        Log.d(TAG, "Стоимость доставки: ${form.deliveryCost}")
-        Log.d(TAG, "Полная стоимость: ${form.overPrice}")
-    }
 
     fun nextActivityButtonWasPressed(context: Context) {
 
@@ -143,4 +130,18 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     }
 
+    fun updateCost() {
+        form.deliveryCost = form.distanceCost * form.distance
+        form.overPrice = form.deliveryCost + form.pricePerTonn * form.weight
+
+        viewState.updateCost(
+            _pricePerTon = form.pricePerTonn,
+            _overPrice = form.overPrice,
+            _deliveryCost = form.deliveryCost,
+            _distance = form.distance
+        )
+
+        Log.d(TAG, "Стоимость доставки: ${form.deliveryCost}")
+        Log.d(TAG, "Полная стоимость: ${form.overPrice}")
+    }
 }
