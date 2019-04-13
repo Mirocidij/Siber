@@ -1,5 +1,6 @@
 package sergey.yatsutko.siberiancoal.presentation.ui
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -11,6 +12,7 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
+import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.RequestPoint
 import com.yandex.mapkit.directions.DirectionsFactory
@@ -39,6 +41,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     @InjectPresenter
     lateinit var presenter: MainPresenter
+
+    @ProvidePresenter
+    fun provideMainPresenter(): MainPresenter {
+        return MainPresenter(context = this@MainActivity)
+    }
 
     private var suggestResult: MutableList<String>? = null
     private var resultAdapter: ArrayAdapter<*>? = null
@@ -74,7 +81,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         suggestResultView!!.adapter = resultAdapter
 
         // Проверка интернет подключения
-        presenter.mainActivityWasCreated(this@MainActivity)
+        presenter.mainActivityWasCreated()
 
         float_btn.setOnClickListener {
             presenter.nextActivityButtonWasPressed()

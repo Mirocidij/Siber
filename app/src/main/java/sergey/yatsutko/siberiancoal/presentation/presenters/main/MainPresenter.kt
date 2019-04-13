@@ -32,13 +32,12 @@ import sergey.yatsutko.siberiancoal.presentation.ui.MapsActivity
 import sergey.yatsutko.siberiancoal.presentation.ui.SecondActivity
 
 @InjectViewState
-class MainPresenter : MvpPresenter<MainView>() {
+class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
 
     private val TAG = "MainPresenter"
     private var firmBool = false
     private var marker = true
     private val form: Form = Form()
-    lateinit var context: Context
 
     init {
 
@@ -94,7 +93,146 @@ class MainPresenter : MvpPresenter<MainView>() {
         getCoordinates(street)
     }
 
-    fun getCoordinates(address: String) {
+    fun onDrivingRoutesDone(routes: MutableList<DrivingRoute>) {
+
+        val points = java.util.ArrayList<Point>()
+        var distance = 0.0
+        if (routes.size > 0) {
+            points.addAll(routes.get(0).getGeometry().getPoints())
+
+            for (i in 0 until points.size - 1) {
+                distance += Geo.distance(points[i], points[i + 1])
+            }
+        } else {
+            viewState.showRoadNotFoundError()
+        }
+
+        form.distance = (Math.round(distance) / 1000).toInt()
+
+        updateCost()
+
+        Log.d(TAG, "Расстояние ${form.distance} км")
+
+    }
+
+    fun inYandexErrorCallback(error: Error) {
+        var errorMessage = context.getString(R.string.unknown_error_message)
+        if (error is RemoteError) {
+            errorMessage = context.getString(R.string.remote_error_message)
+        } else if (error is NetworkError) {
+            errorMessage = context.getString(R.string.network_error_message)
+        }
+        viewState.showYandexErrorToast(errorMessage = errorMessage)
+    }
+
+    fun nextActivityButtonWasPressed() {
+
+        if (form.weight.toString() == "0" || form.weight.toString() == "00" || form.weight.toString().isEmpty()) {
+            viewState.showIncorrectWeightError()
+            return
+        }
+
+        if (form.distance == 0) {
+            viewState.showIncorrectAddressError()
+            return
+        }
+
+        val nextIntent = Intent(context, SecondActivity::class.java)
+        nextIntent.putExtra("form", form)
+
+        viewState.openNewActivity(nextIntent = nextIntent)
+    }
+
+    fun mainActivityWasCreated() {
+
+
+        if (!hasConnection(context)) {
+            viewState.showNetworkConnectionError()
+        }
+
+    }
+
+    fun goMapButtonWasPressed() {
+        if (!hasConnection(context =  context)) {
+            viewState.showNetworkConnectionError()
+            return
+        }
+
+        val intent = Intent(
+            context,
+            MapsActivity::class.java
+        )
+
+        viewState.openNewActivityForResult(nextIntent = intent)
+    }
+
+    fun inOnActivityResult(data: Intent?) {
+        if (data == null) {
+            return
+        }
+
+        form.routeEndLocation = doubleArrayOf(
+            data.extras.getDouble("latitude"),
+            data.extras.getDouble("longitude")
+        )
+
+        getAddress(
+            latitude = form.routeEndLocation[0],
+            longitude = form.routeEndLocation[1]
+        )
+
+        updateCost()
+    }
+
+    fun onSuggestResponseDone(suggest: List<SuggestItem>) {
+        val listItems  = ArrayList<String>(App.RESULT_NUMBER_LIMIT)
+
+        try {
+            for (i in 0..Math.min(App.RESULT_NUMBER_LIMIT - 1, suggest.size)) {
+                listItems.add(suggest[i].displayText!!)
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+
+        listItems.forEach {
+            Log.d(TAG, it)
+        }
+
+        viewState.displaySearchResult(listItems)
+    }
+
+    fun searchBarWasChanged(text: String) {
+        try {
+            if (marker) {
+                viewState.requestSuggest(text)
+            }
+            marker = true
+        } catch (e: IndexOutOfBoundsException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun weightWasChanged(weight: Int) {
+        form.weight = weight
+        form.distanceCost = try {
+            when (form.weight) {
+                in 1..3 -> 10
+                in 4..7 -> 15
+                in 8..20 -> 35
+                in 21..40 -> 80
+                else -> 0
+            }
+        } catch (e: Throwable) {
+            0
+        }
+
+        updateCost()
+    }
+
+    // Private Methods
+
+    private fun getCoordinates(address: String) {
 
         val queue = Volley.newRequestQueue(context)
         val url =
@@ -147,7 +285,7 @@ class MainPresenter : MvpPresenter<MainView>() {
         queue.add(stringRequest)
     }
 
-    fun getAddress(latitude: Double, longitude: Double) {
+    private fun getAddress(latitude: Double, longitude: Double) {
 
         val queue = Volley.newRequestQueue(context)
         val url =
@@ -208,144 +346,7 @@ class MainPresenter : MvpPresenter<MainView>() {
 
     }
 
-    fun onDrivingRoutesDone(routes: MutableList<DrivingRoute>) {
-
-        val points = java.util.ArrayList<Point>()
-        var distance = 0.0
-        if (routes.size > 0) {
-            points.addAll(routes.get(0).getGeometry().getPoints())
-
-            for (i in 0 until points.size - 1) {
-                distance += Geo.distance(points[i], points[i + 1])
-            }
-        } else {
-            viewState.showRoadNotFoundError()
-        }
-
-        form.distance = (Math.round(distance) / 1000).toInt()
-
-        updateCost()
-
-        Log.d(TAG, "Расстояние ${form.distance} км")
-
-    }
-
-    fun inYandexErrorCallback(error: Error) {
-        var errorMessage = context.getString(R.string.unknown_error_message)
-        if (error is RemoteError) {
-            errorMessage = context.getString(R.string.remote_error_message)
-        } else if (error is NetworkError) {
-            errorMessage = context.getString(R.string.network_error_message)
-        }
-        viewState.showYandexErrorToast(errorMessage = errorMessage)
-    }
-
-    fun nextActivityButtonWasPressed() {
-
-        if (form.weight.toString() == "0" || form.weight.toString() == "00" || form.weight.toString().isEmpty()) {
-            viewState.showIncorrectWeightError()
-            return
-        }
-
-        if (form.distance == 0) {
-            viewState.showIncorrectAddressError()
-            return
-        }
-
-        val nextIntent = Intent(context, SecondActivity::class.java)
-        nextIntent.putExtra("form", form)
-
-        viewState.openNewActivity(nextIntent = nextIntent)
-    }
-
-    fun mainActivityWasCreated(context: Context) {
-
-        this.context = context
-        if (!hasConnection(context)) {
-            viewState.showNetworkConnectionError()
-        }
-
-    }
-
-    fun goMapButtonWasPressed() {
-        if (!hasConnection(context =  context)) {
-            viewState.showNetworkConnectionError()
-            return
-        }
-
-        val intent = Intent(
-            context,
-            MapsActivity::class.java
-        )
-
-        viewState.openNewActivityForResult(nextIntent = intent)
-    }
-
-    fun inOnActivityResult(data: Intent?) {
-        if (data == null) {
-            return
-        }
-
-        form.routeEndLocation = doubleArrayOf(
-            data.extras.getDouble("latitude"),
-            data.extras.getDouble("longitude")
-        )
-
-        getAddress(
-            latitude = form.routeEndLocation[0],
-            longitude = form.routeEndLocation[1]
-        )
-
-        updateCost()
-    }
-
-    fun onSuggestResponseDone(suggest: List<SuggestItem>) {
-        val listItems  = ArrayList<String>(App.RESULT_NUMBER_LIMIT)
-
-        try {
-            for (i in 0..Math.min(App.RESULT_NUMBER_LIMIT - 1, suggest.size)) {
-                listItems!!.add(suggest[i].displayText!!)
-            }
-        } catch (e: IndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
-
-        listItems.forEach {
-            Log.d(TAG, it)
-        }
-
-        viewState.displaySearchResult(listItems)
-    }
-
-    fun searchBarWasChanged(text: String) {
-        try {
-            if (marker) {
-                viewState.requestSuggest(text)
-            }
-            marker = true
-        } catch (e: IndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
-    }
-
-    fun weightWasChanged(weight: Int) {
-        form.weight = weight
-        form.distanceCost = try {
-            when (form.weight) {
-                in 1..3 -> 10
-                in 4..7 -> 15
-                in 8..20 -> 35
-                in 21..40 -> 80
-                else -> 0
-            }
-        } catch (e: Throwable) {
-            0
-        }
-
-        updateCost()
-    }
-
-    fun submitRequest() {
+    private fun submitRequest() {
         if (form.routeEndLocation[0] == 0.0) {
             form.distance = 0
             updateCost()
@@ -376,7 +377,7 @@ class MainPresenter : MvpPresenter<MainView>() {
         viewState.submitRequest(requestPoints = requestPoints)
     }
 
-    fun updateCost() {
+    private fun updateCost() {
         form.deliveryCost = form.distanceCost * form.distance
         form.overPrice = form.deliveryCost + form.pricePerTonn * form.weight
 
