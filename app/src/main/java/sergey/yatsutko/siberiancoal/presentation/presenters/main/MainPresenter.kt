@@ -375,10 +375,10 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
         coalOrder.overPrice = coalOrder.deliveryCost + coalOrder.pricePerTonn * coalOrder.weight
 
         viewState.updateCost(
-            _pricePerTon = coalOrder.pricePerTonn,
-            _overPrice = coalOrder.overPrice,
-            _deliveryCost = coalOrder.deliveryCost,
-            _distance = coalOrder.distance
+            pricePerTon = coalOrder.pricePerTonn,
+            overPrice = coalOrder.overPrice,
+            deliveryCost = coalOrder.deliveryCost,
+            distance = coalOrder.distance
         )
 
         Log.d(TAG, "Стоимость доставки: ${coalOrder.deliveryCost}")
