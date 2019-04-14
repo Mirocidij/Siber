@@ -36,10 +36,6 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     private var marker = true
     private val coalOrder: CoalOrder = CoalOrder()
 
-    init {
-
-    }
-
     fun firmSpinnerWasChanged(i: Int, selectedItem: String) {
 
         coalOrder.coalFirm = selectedItem
