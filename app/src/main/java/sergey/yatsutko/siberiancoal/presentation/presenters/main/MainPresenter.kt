@@ -186,17 +186,6 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
         viewState.displaySearchResult(listItems)
     }
 
-    fun searchBarWasChanged(text: String) {
-        try {
-            if (marker) {
-                viewState.requestSuggest(text)
-            }
-            marker = true
-        } catch (e: IndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
-    }
-
     fun weightWasChanged(weight: Int) {
         coalOrder.weight = weight
         coalOrder.distanceCost = try {
@@ -306,7 +295,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
                         streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
                 }
 
-                marker = false
+//                marker = false
                 coalOrder.address = address
                 viewState.updateSearchBar(address = coalOrder.address)
 

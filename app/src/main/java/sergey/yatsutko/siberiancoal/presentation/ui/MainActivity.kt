@@ -8,7 +8,6 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ListView
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
@@ -52,6 +51,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     private lateinit var drivingRouter: DrivingRouter
     private lateinit var drivingSession: DrivingSession
 
+    var marker = true
+
     // Lifecycle methods
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,12 +88,20 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
 
             override fun afterTextChanged(editable: Editable) {
-                presenter.searchBarWasChanged(editable.toString())
+                try {
+                    if (marker) {
+                        requestSuggest(editable.toString())
+                    }
+                    marker = true
+                } catch (e: IndexOutOfBoundsException) {
+                    e.printStackTrace()
+                }
             }
         })
 
         // Слушатель нажатий на эллементы ListView
         suggest_Result.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+            marker = false
             presenter.resultWasClicked(position, suggestResult)
         }
 
