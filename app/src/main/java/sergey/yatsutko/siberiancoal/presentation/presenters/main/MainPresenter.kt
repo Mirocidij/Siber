@@ -78,14 +78,14 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
         Log.d(TAG, "Цена за тонну: ${coalOrder.pricePerTonn}")
     }
 
-    fun resultWasClicked(position: Int, suggestResult: MutableList<String>) {
+    fun resultWasClicked(result: String) {
         marker = false
 
-        val streetName = suggestResult[position].split(", ")
+        val streetName = result.split(", ")
         val street = if (streetName.size >= 3) {
             streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
         } else {
-            suggestResult[position]
+            result
         }
 
         viewState.updateSearchBar(street)

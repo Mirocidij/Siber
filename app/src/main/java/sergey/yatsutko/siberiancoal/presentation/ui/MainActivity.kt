@@ -102,7 +102,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         // Слушатель нажатий на эллементы ListView
         suggest_Result.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
             marker = false
-            presenter.resultWasClicked(position, suggestResult)
+            presenter.resultWasClicked(result = suggestResult[position])
         }
 
         //Inform Edit Text
@@ -112,11 +112,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         etWeight.addTextChangedListener(object : TextWatcher {
 
             override fun afterTextChanged(s: Editable) {
-
                 try {
                     presenter.weightWasChanged(Integer.parseInt(s.toString()))
                 } catch (e: NumberFormatException) {
-
+                    presenter.weightWasChanged(0)
                 }
             }
 
