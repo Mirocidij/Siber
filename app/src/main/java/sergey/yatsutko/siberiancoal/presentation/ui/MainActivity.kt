@@ -55,12 +55,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     // Lifecycle methods
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        resultAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_list_item_2,
-            android.R.id.text1,
-            suggestResult
-        )
         MapKitFactory.setApiKey(App.MAPKIT_API_KEY)
         MapKitFactory.initialize(this@MainActivity)
         DirectionsFactory.initialize(this@MainActivity)
@@ -70,7 +64,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
-
+        resultAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_list_item_2,
+            android.R.id.text1,
+            suggestResult
+        )
         suggest_Result.adapter = resultAdapter
 
         float_btn.setOnClickListener {
