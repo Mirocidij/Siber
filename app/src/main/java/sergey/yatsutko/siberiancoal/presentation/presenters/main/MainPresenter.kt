@@ -3,7 +3,6 @@ package sergey.yatsutko.siberiancoal.presentation.presenters.main
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.view.View
 import android.widget.ArrayAdapter
 import com.android.volley.Request
 import com.android.volley.Response
@@ -20,14 +19,12 @@ import com.yandex.mapkit.search.SuggestItem
 import com.yandex.runtime.Error
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
-import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.toast
 import org.json.JSONObject
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.commons.selectEntries
-import sergey.yatsutko.siberiancoal.data.entity.Form
+import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
 import sergey.yatsutko.siberiancoal.presentation.ui.MapsActivity
 import sergey.yatsutko.siberiancoal.presentation.ui.SecondActivity
 
@@ -37,7 +34,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     private val TAG = "MainPresenter"
     private var firmBool = false
     private var marker = true
-    private val form: Form = Form()
+    private val coalOrder: CoalOrder = CoalOrder()
 
     init {
 
@@ -45,7 +42,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
 
     fun firmSpinnerWasChanged(i: Int, selectedItem: String) {
 
-        form.coalFirm = selectedItem
+        coalOrder.coalFirm = selectedItem
 
         if (firmBool) {
             val adapter: ArrayAdapter<CharSequence> = when (i) {
@@ -57,7 +54,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
                 else -> selectEntries(context, R.array.Arshanovsky)
             }
 
-            form.routeStartLocation = doubleArrayOf(App.cuts[0][i], App.cuts[1][i])
+            coalOrder.routeStartLocation = doubleArrayOf(App.cuts[0][i], App.cuts[1][i])
             viewState.changeCoalSpinnerEntries(adapter, i)
         }
         firmBool = true
@@ -66,17 +63,17 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
 
         updateCost()
 
-        Log.d(TAG, "Выбрана фирма: ${form.coalFirm}")
+        Log.d(TAG, "Выбрана фирма: ${coalOrder.coalFirm}")
     }
 
     fun coalSpinnerWasChanged(i: Int, selectedItem: String) {
-        form.coalMark = selectedItem
-        form.pricePerTonn = App.prices[i]
+        coalOrder.coalMark = selectedItem
+        coalOrder.pricePerTonn = App.prices[i]
 
         updateCost()
 
-        Log.d(TAG, "Выбрана марка: ${form.coalMark}")
-        Log.d(TAG, "Цена за тонну: ${form.pricePerTonn}")
+        Log.d(TAG, "Выбрана марка: ${coalOrder.coalMark}")
+        Log.d(TAG, "Цена за тонну: ${coalOrder.pricePerTonn}")
     }
 
     fun resultWasClicked(position: Int, suggestResult: MutableList<String>) {
@@ -107,11 +104,11 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
             viewState.showRoadNotFoundError()
         }
 
-        form.distance = (Math.round(distance) / 1000).toInt()
+        coalOrder.distance = (Math.round(distance) / 1000).toInt()
 
         updateCost()
 
-        Log.d(TAG, "Расстояние ${form.distance} км")
+        Log.d(TAG, "Расстояние ${coalOrder.distance} км")
 
     }
 
@@ -127,18 +124,18 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
 
     fun nextActivityButtonWasPressed() {
 
-        if (form.weight.toString() == "0" || form.weight.toString() == "00" || form.weight.toString().isEmpty()) {
+        if (coalOrder.weight.toString() == "0" || coalOrder.weight.toString() == "00" || coalOrder.weight.toString().isEmpty()) {
             viewState.showIncorrectWeightError()
             return
         }
 
-        if (form.distance == 0) {
+        if (coalOrder.distance == 0) {
             viewState.showIncorrectAddressError()
             return
         }
 
         val nextIntent = Intent(context, SecondActivity::class.java)
-        nextIntent.putExtra("form", form)
+        nextIntent.putExtra("coalOrder", coalOrder)
 
         viewState.openNewActivity(nextIntent = nextIntent)
     }
@@ -171,14 +168,14 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
             return
         }
 
-        form.routeEndLocation = doubleArrayOf(
+        coalOrder.routeEndLocation = doubleArrayOf(
             data.extras.getDouble("latitude"),
             data.extras.getDouble("longitude")
         )
 
         getAddress(
-            latitude = form.routeEndLocation[0],
-            longitude = form.routeEndLocation[1]
+            latitude = coalOrder.routeEndLocation[0],
+            longitude = coalOrder.routeEndLocation[1]
         )
 
         updateCost()
@@ -214,9 +211,9 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     }
 
     fun weightWasChanged(weight: Int) {
-        form.weight = weight
-        form.distanceCost = try {
-            when (form.weight) {
+        coalOrder.weight = weight
+        coalOrder.distanceCost = try {
+            when (coalOrder.weight) {
                 in 1..3 -> 10
                 in 4..7 -> 15
                 in 8..20 -> 35
@@ -266,13 +263,13 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
                         .getJSONObject("Point")
                         .getString("pos").split(" ")
 
-                    form.routeEndLocation =
+                    coalOrder.routeEndLocation =
                         doubleArrayOf(coordinates[1].toDouble(), coordinates[0].toDouble())
 
 
                     submitRequest()
                 } else {
-                    form.distance = 0
+                    coalOrder.distance = 0
                     updateCost()
                     viewState.showHouseNotFoundError()
                 }
@@ -329,10 +326,10 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
                 viewState.updateSearchBar(address = address)
 
                 if (isHouse == "house") {
-                    form.routeEndLocation = doubleArrayOf(latitude, longitude)
+                    coalOrder.routeEndLocation = doubleArrayOf(latitude, longitude)
                     submitRequest()
                 } else {
-                    form.distance = 0
+                    coalOrder.distance = 0
 
                     updateCost()
                     viewState.showHouseNotFoundError()
@@ -347,8 +344,8 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     }
 
     private fun submitRequest() {
-        if (form.routeEndLocation[0] == 0.0) {
-            form.distance = 0
+        if (coalOrder.routeEndLocation[0] == 0.0) {
+            coalOrder.distance = 0
             updateCost()
             return
         }
@@ -357,8 +354,8 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
         requestPoints.add(
             RequestPoint(
                 Point(
-                    form.routeStartLocation[0],
-                    form.routeStartLocation[1]
+                    coalOrder.routeStartLocation[0],
+                    coalOrder.routeStartLocation[1]
                 ),
                 RequestPointType.WAYPOINT,
                 null
@@ -367,8 +364,8 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
         requestPoints.add(
             RequestPoint(
                 Point(
-                    form.routeEndLocation[0],
-                    form.routeEndLocation[1]
+                    coalOrder.routeEndLocation[0],
+                    coalOrder.routeEndLocation[1]
                 ),
                 RequestPointType.WAYPOINT, null
             )
@@ -378,17 +375,17 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     }
 
     private fun updateCost() {
-        form.deliveryCost = form.distanceCost * form.distance
-        form.overPrice = form.deliveryCost + form.pricePerTonn * form.weight
+        coalOrder.deliveryCost = coalOrder.distanceCost * coalOrder.distance
+        coalOrder.overPrice = coalOrder.deliveryCost + coalOrder.pricePerTonn * coalOrder.weight
 
         viewState.updateCost(
-            _pricePerTon = form.pricePerTonn,
-            _overPrice = form.overPrice,
-            _deliveryCost = form.deliveryCost,
-            _distance = form.distance
+            _pricePerTon = coalOrder.pricePerTonn,
+            _overPrice = coalOrder.overPrice,
+            _deliveryCost = coalOrder.deliveryCost,
+            _distance = coalOrder.distance
         )
 
-        Log.d(TAG, "Стоимость доставки: ${form.deliveryCost}")
-        Log.d(TAG, "Полная стоимость: ${form.overPrice}")
+        Log.d(TAG, "Стоимость доставки: ${coalOrder.deliveryCost}")
+        Log.d(TAG, "Полная стоимость: ${coalOrder.overPrice}")
     }
 }
