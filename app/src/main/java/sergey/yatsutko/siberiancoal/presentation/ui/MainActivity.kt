@@ -1,6 +1,5 @@
 package sergey.yatsutko.siberiancoal.presentation.ui
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -32,6 +31,7 @@ import org.jetbrains.anko.yesButton
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.InputFilterMinMax
+import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
 import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainPresenter
 import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainView
 
@@ -46,11 +46,15 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         return MainPresenter(context = this@MainActivity)
     }
 
-    private var suggestResult: MutableList<String>? = null
-    private var resultAdapter: ArrayAdapter<*>? = null
-    private var searchManager: SearchManager? = null
-    private var suggestResultView: ListView? = null
-
+    private var suggestResult: MutableList<String> = ArrayList()
+    private var resultAdapter: ArrayAdapter<*> = ArrayAdapter(
+        this,
+        android.R.layout.simple_list_item_2,
+        android.R.id.text1,
+        suggestResult
+    )
+    private lateinit var searchManager: SearchManager
+    private lateinit var suggestResultView: ListView
     private lateinit var drivingRouter: DrivingRouter
     private lateinit var drivingSession: DrivingSession
 
@@ -67,17 +71,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
         suggestResultView = findViewById(R.id.suggestResult)
-        suggestResult = ArrayList()
-        resultAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_list_item_2,
-            android.R.id.text1,
-            suggestResult!!
-        )
-        suggestResultView!!.adapter = resultAdapter
-
-        // Проверка интернет подключения
-        presenter.mainActivityWasCreated()
+        suggestResultView.adapter = resultAdapter
 
         float_btn.setOnClickListener {
             presenter.nextActivityButtonWasPressed()
@@ -197,7 +191,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     override fun requestSuggest(request: String) {
         try {
             suggestResultView!!.visibility = View.INVISIBLE
-            searchManager!!.suggest(request, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
+            searchManager.suggest(request, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
         } catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
         }
@@ -205,15 +199,15 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun updateSearchBar(address: String) {
         searchBar.setText(address)
-        suggestResultView!!.visibility = View.INVISIBLE
+        suggestResultView.visibility = View.INVISIBLE
     }
 
-    override fun openNewActivity(nextIntent: Intent) {
-        startActivity(nextIntent)
+    override fun openNewActivity(coalOrder: CoalOrder) {
+        startActivity(Intent(this@MainActivity, SecondActivity::class.java).putExtra("coalOrder", coalOrder))
     }
 
-    override fun openNewActivityForResult(nextIntent: Intent) {
-        startActivityForResult(nextIntent, 1)
+    override fun openNewActivityForResult() {
+        startActivityForResult(Intent(this@MainActivity, MapsActivity::class.java), 1)
     }
 
     override fun displaySearchResult(results: ArrayList<String>?) {

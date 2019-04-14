@@ -36,6 +36,12 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     private var marker = true
     private val coalOrder: CoalOrder = CoalOrder()
 
+    override fun onFirstViewAttach() {
+        if (!hasConnection(context)) {
+            viewState.showNetworkConnectionError()
+        }
+    }
+
     fun firmSpinnerWasChanged(i: Int, selectedItem: String) {
 
         coalOrder.coalFirm = selectedItem
@@ -131,18 +137,8 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
         }
 
         val nextIntent = Intent(context, SecondActivity::class.java)
-        nextIntent.putExtra("coalOrder", coalOrder)
 
-        viewState.openNewActivity(nextIntent = nextIntent)
-    }
-
-    fun mainActivityWasCreated() {
-
-
-        if (!hasConnection(context)) {
-            viewState.showNetworkConnectionError()
-        }
-
+        viewState.openNewActivity(coalOrder = coalOrder)
     }
 
     fun goMapButtonWasPressed() {
@@ -151,12 +147,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
             return
         }
 
-        val intent = Intent(
-            context,
-            MapsActivity::class.java
-        )
-
-        viewState.openNewActivityForResult(nextIntent = intent)
+        viewState.openNewActivityForResult()
     }
 
     fun inOnActivityResult(data: Intent?) {
