@@ -142,7 +142,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     }
 
     fun goMapButtonWasPressed() {
-        if (!hasConnection(context =  context)) {
+        if (!hasConnection(context = context)) {
             viewState.showNetworkConnectionError()
             return
         }

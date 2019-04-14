@@ -47,20 +47,20 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     private var suggestResult: MutableList<String> = ArrayList()
-    private var resultAdapter: ArrayAdapter<*> = ArrayAdapter(
-        this,
-        android.R.layout.simple_list_item_2,
-        android.R.id.text1,
-        suggestResult
-    )
+    private lateinit var resultAdapter: ArrayAdapter<*>
     private lateinit var searchManager: SearchManager
-    private lateinit var suggestResultView: ListView
     private lateinit var drivingRouter: DrivingRouter
     private lateinit var drivingSession: DrivingSession
 
     // Lifecycle methods
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        resultAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_list_item_2,
+            android.R.id.text1,
+            suggestResult
+        )
         MapKitFactory.setApiKey(App.MAPKIT_API_KEY)
         MapKitFactory.initialize(this@MainActivity)
         DirectionsFactory.initialize(this@MainActivity)
@@ -70,8 +70,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
-        suggestResultView = findViewById(R.id.suggestResult)
-        suggestResultView.adapter = resultAdapter
+
+        suggest_Result.adapter = resultAdapter
 
         float_btn.setOnClickListener {
             presenter.nextActivityButtonWasPressed()
@@ -93,8 +93,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         })
 
         // Слушатель нажатий на эллементы ListView
-        suggestResultView!!.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            presenter.resultWasClicked(position, suggestResult!!)
+        suggest_Result.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+            presenter.resultWasClicked(position, suggestResult)
         }
 
         //Inform Edit Text
@@ -190,7 +190,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun requestSuggest(request: String) {
         try {
-            suggestResultView!!.visibility = View.INVISIBLE
+            suggest_Result.visibility = View.INVISIBLE
             searchManager.suggest(request, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
         } catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
@@ -199,7 +199,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun updateSearchBar(address: String) {
         searchBar.setText(address)
-        suggestResultView.visibility = View.INVISIBLE
+        suggest_Result.visibility = View.INVISIBLE
     }
 
     override fun openNewActivity(coalOrder: CoalOrder) {
@@ -211,12 +211,12 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     override fun displaySearchResult(results: ArrayList<String>?) {
-        suggestResult!!.clear()
+        suggestResult.clear()
         results!!.forEach {
-            suggestResult!!.add(it)
+            suggestResult.add(it)
         }
-        resultAdapter!!.notifyDataSetChanged()
-        suggestResultView!!.visibility = View.VISIBLE
+        resultAdapter.notifyDataSetChanged()
+        suggest_Result.visibility = View.VISIBLE
     }
 
     override fun submitRequest(requestPoints: ArrayList<RequestPoint>) {
