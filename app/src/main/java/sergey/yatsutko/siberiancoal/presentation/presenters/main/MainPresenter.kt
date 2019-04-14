@@ -223,8 +223,6 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
         updateCost()
     }
 
-    // Private Methods
-
     private fun getCoordinates(address: String) {
 
         val queue = Volley.newRequestQueue(context)
