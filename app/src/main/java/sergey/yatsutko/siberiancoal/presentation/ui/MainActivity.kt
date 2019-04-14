@@ -170,7 +170,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        presenter.inOnActivityResult(data = data)
+        presenter.onMapPlaceSelected(place = data)
     }
 
     // Yandex SearchKit callback methods

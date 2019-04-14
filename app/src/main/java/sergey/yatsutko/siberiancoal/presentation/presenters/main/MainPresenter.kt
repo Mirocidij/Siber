@@ -25,7 +25,6 @@ import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
-import sergey.yatsutko.siberiancoal.presentation.ui.MapsActivity
 import sergey.yatsutko.siberiancoal.presentation.ui.SecondActivity
 
 @InjectViewState
@@ -35,6 +34,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     private var firmBool = false
     private var marker = true
     private val coalOrder: CoalOrder = CoalOrder()
+    val RESULT_NUMBER_OF_LIST_VIEW_LIMIT = 5
 
     override fun onFirstViewAttach() {
         if (!hasConnection(context)) {
@@ -150,14 +150,14 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
         viewState.openNewActivityForResult()
     }
 
-    fun inOnActivityResult(data: Intent?) {
-        if (data == null) {
+    fun onMapPlaceSelected(place: Intent?) {
+        if (place == null) {
             return
         }
 
         coalOrder.routeEndLocation = doubleArrayOf(
-            data.extras.getDouble("latitude"),
-            data.extras.getDouble("longitude")
+            place.extras.getDouble("latitude"),
+            place.extras.getDouble("longitude")
         )
 
         getAddress(
@@ -169,10 +169,10 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     }
 
     fun onSuggestResponseDone(suggest: List<SuggestItem>) {
-        val listItems  = ArrayList<String>(App.RESULT_NUMBER_LIMIT)
+        val listItems  = ArrayList<String>(RESULT_NUMBER_OF_LIST_VIEW_LIMIT)
 
         try {
-            for (i in 0..Math.min(App.RESULT_NUMBER_LIMIT - 1, suggest.size)) {
+            for (i in 0..Math.min(RESULT_NUMBER_OF_LIST_VIEW_LIMIT - 1, suggest.size)) {
                 listItems.add(suggest[i].displayText!!)
             }
         } catch (e: IndexOutOfBoundsException) {
