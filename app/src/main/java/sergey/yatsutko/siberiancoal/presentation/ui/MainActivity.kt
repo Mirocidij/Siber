@@ -35,7 +35,6 @@ import sergey.yatsutko.siberiancoal.commons.InputFilterMinMax
 import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainPresenter
 import sergey.yatsutko.siberiancoal.presentation.presenters.main.MainView
 
-
 class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestListener,
     DrivingSession.DrivingRouteListener {
 
@@ -52,8 +51,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     private var searchManager: SearchManager? = null
     private var suggestResultView: ListView? = null
 
-    private var marker = true
-
     private lateinit var drivingRouter: DrivingRouter
     private lateinit var drivingSession: DrivingSession
 
@@ -66,7 +63,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         SearchFactory.initialize(this@MainActivity)
         setContentView(R.layout.activity_main)
         super.onCreate(savedInstanceState)
-
 
         drivingRouter = DirectionsFactory.getInstance().createDrivingRouter()
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
@@ -106,7 +102,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         suggestResultView!!.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
             presenter.resultWasClicked(position, suggestResult!!)
         }
-
 
         //Inform Edit Text
 
@@ -177,7 +172,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         presenter.inOnActivityResult(data = data)
     }
 
-
     // Yandex SearchKit callback methods
 
     override fun onSuggestResponse(suggest: List<SuggestItem>) {
@@ -187,7 +181,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     override fun onSuggestError(error: Error) {
         presenter.inYandexErrorCallback(error = error)
     }
-
 
     // Yandex DirectionKit callback methods
 
