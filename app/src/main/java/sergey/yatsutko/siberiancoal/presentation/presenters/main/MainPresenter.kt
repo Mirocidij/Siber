@@ -322,8 +322,8 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
                 }
 
                 marker = false
-
-                viewState.updateSearchBar(address = address)
+                coalOrder.address = address
+                viewState.updateSearchBar(address = coalOrder.address)
 
                 if (isHouse == "house") {
                     coalOrder.routeEndLocation = doubleArrayOf(latitude, longitude)

@@ -7,7 +7,7 @@ class CoalOrder(
     var coalFirm : String = "Аршановский разрез",
     var coalMark : String = "ДМСШ 0-25",
     var pricePerTonn : Int = 1700,
-    var address : String = "Введите адресс доставки",
+    var address : String = "",
     var weight : Int = 0,
     var distance : Int = 0,
     var distanceCost : Int = 0,
