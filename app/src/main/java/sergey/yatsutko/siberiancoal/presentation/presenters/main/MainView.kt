@@ -1,6 +1,5 @@
 package sergey.yatsutko.siberiancoal.presentation.presenters.main
 
-import android.content.Intent
 import android.widget.ArrayAdapter
 import com.arellomobile.mvp.MvpView
 import com.yandex.mapkit.RequestPoint
@@ -15,18 +14,14 @@ interface MainView : MvpView {
     )
     fun updateSearchBar(address: String)
     fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int)
-    fun submitRequest(requestPoints: ArrayList<RequestPoint>)
+    fun submitRequest(requestPoints: List<RequestPoint>)
     fun openNewActivity(coalOrder: CoalOrder)
     fun openNewActivityForResult()
     fun requestSuggest(request: String)
-    fun displaySearchResult(results: ArrayList<String>?)
+    fun displaySearchResult(results: List<String?>)
 
-    // Error
+    // Errors
 
-    fun showRoadNotFoundError()
-    fun showHouseNotFoundError()
-    fun showIncorrectWeightError()
-    fun showIncorrectAddressError()
-    fun showNetworkConnectionError()
-    fun showYandexErrorToast(errorMessage: String)
+    fun showValidationError(titleRes: Int, messageRes: Int)
+    fun showYandexError(errorMessage: String)
 }

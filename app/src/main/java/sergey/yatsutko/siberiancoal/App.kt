@@ -20,8 +20,6 @@ class App : Application() {
 
         const val MAPKIT_API_KEY = "a139146c-adfa-484c-abb6-5ce42284f64e"
 
-        const val RESULT_NUMBER_LIMIT = 5
-
         private val CENTER = Point(53.721254, 91.443417)
         private const val BOX_SIZE = 0.2
         val BOUNDING_BOX = BoundingBox(

@@ -39,15 +39,6 @@ class SecondActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
 
-//        cuts = intent.getStringExtra("Cuts")
-//        coalMark = intent.getStringExtra("CoalMark")
-//        weight = intent.getStringExtra("Weight")
-//        price = intent.getIntExtra("price", 0)
-//        distance = intent.getIntExtra("km", 0)
-//        overPrice = intent.getIntExtra("overPrice", 0)
-//        deliveryCost = intent.getIntExtra("deliveryCost", 0)
-//        address = intent.getStringExtra("address")
-
         etCutsInfo2.hint = cuts
         etCoalInfo2.hint = coalMark
 

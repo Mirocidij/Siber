@@ -38,7 +38,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
 
     override fun onFirstViewAttach() {
         if (!hasConnection(context)) {
-            viewState.showNetworkConnectionError()
+            viewState.showValidationError(R.string.error, R.string.networkConnectionError)
         }
     }
 
@@ -61,7 +61,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
         }
         firmBool = true
 
-        submitRequest()
+        rebuildRoute()
 
         updateCost()
 
@@ -103,7 +103,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
                 distance += Geo.distance(points[i], points[i + 1])
             }
         } else {
-            viewState.showRoadNotFoundError()
+            viewState.showValidationError(R.string.error, R.string.roadNotFoundError)
         }
 
         coalOrder.distance = (Math.round(distance) / 1000).toInt()
@@ -114,25 +114,24 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
 
     }
 
-    fun inYandexErrorCallback(error: Error) {
-        var errorMessage = context.getString(R.string.unknown_error_message)
-        if (error is RemoteError) {
-            errorMessage = context.getString(R.string.remote_error_message)
-        } else if (error is NetworkError) {
-            errorMessage = context.getString(R.string.network_error_message)
+    fun onYandexError(error: Error) {
+        val errorMessage = when (error) {
+            is RemoteError -> context.getString(R.string.remote_error_message)
+            is NetworkError -> context.getString(R.string.network_error_message)
+            else -> context.getString(R.string.unknown_error_message)
         }
-        viewState.showYandexErrorToast(errorMessage = errorMessage)
+        viewState.showYandexError(errorMessage = errorMessage)
     }
 
     fun nextActivityButtonWasPressed() {
 
         if (coalOrder.weight.toString() == "0" || coalOrder.weight.toString() == "00" || coalOrder.weight.toString().isEmpty()) {
-            viewState.showIncorrectWeightError()
+            viewState.showValidationError(R.string.error, R.string.incorrectWeightError)
             return
         }
 
         if (coalOrder.distance == 0) {
-            viewState.showIncorrectAddressError()
+            viewState.showValidationError(R.string.error, R.string.incorrectAddressError)
             return
         }
 
@@ -143,7 +142,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
 
     fun goMapButtonWasPressed() {
         if (!hasConnection(context = context)) {
-            viewState.showNetworkConnectionError()
+            viewState.showValidationError(R.string.error, R.string.networkConnectionError)
             return
         }
 
@@ -169,15 +168,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     }
 
     fun onSuggestResponseDone(suggest: List<SuggestItem>) {
-        val listItems  = ArrayList<String>(RESULT_NUMBER_OF_LIST_VIEW_LIMIT)
-
-        try {
-            for (i in 0..Math.min(RESULT_NUMBER_OF_LIST_VIEW_LIMIT - 1, suggest.size)) {
-                listItems.add(suggest[i].displayText!!)
-            }
-        } catch (e: IndexOutOfBoundsException) {
-            e.printStackTrace()
-        }
+        val listItems = suggest.take(RESULT_NUMBER_OF_LIST_VIEW_LIMIT).map { it.displayText }
 
         listItems.forEach {
             Log.d(TAG, it)
@@ -241,16 +232,16 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
                         doubleArrayOf(coordinates[1].toDouble(), coordinates[0].toDouble())
 
 
-                    submitRequest()
+                    rebuildRoute()
                 } else {
                     coalOrder.distance = 0
                     updateCost()
-                    viewState.showHouseNotFoundError()
+                    viewState.showValidationError(R.string.error, R.string.choseHouseError)
                 }
             },
 
             Response.ErrorListener {
-
+                coalOrder.routeEndLocation = doubleArrayOf(0.0, 0.0)
             })
 
         queue.add(stringRequest)
@@ -295,20 +286,20 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
                         streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
                 }
 
-//                marker = false
                 coalOrder.address = address
                 viewState.updateSearchBar(address = coalOrder.address)
 
                 if (isHouse == "house") {
                     coalOrder.routeEndLocation = doubleArrayOf(latitude, longitude)
-                    submitRequest()
+                    rebuildRoute()
                 } else {
                     coalOrder.distance = 0
 
                     updateCost()
-                    viewState.showHouseNotFoundError()
+                    viewState.showValidationError(R.string.error, R.string.choseHouseError)
                 }
             },
+
             Response.ErrorListener {
                 address = "That didn't work!"
             })
@@ -317,15 +308,14 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
 
     }
 
-    private fun submitRequest() {
+    private fun rebuildRoute() {
         if (coalOrder.routeEndLocation[0] == 0.0) {
             coalOrder.distance = 0
             updateCost()
             return
         }
 
-        val requestPoints = java.util.ArrayList<RequestPoint>()
-        requestPoints.add(
+        val requestPoints = listOf(
             RequestPoint(
                 Point(
                     coalOrder.routeStartLocation[0],
@@ -333,9 +323,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
                 ),
                 RequestPointType.WAYPOINT,
                 null
-            )
-        )
-        requestPoints.add(
+            ),
             RequestPoint(
                 Point(
                     coalOrder.routeEndLocation[0],

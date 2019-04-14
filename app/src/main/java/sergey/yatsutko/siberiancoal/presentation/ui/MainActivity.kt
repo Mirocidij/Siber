@@ -71,18 +71,18 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             android.R.id.text1,
             suggestResult
         )
-        suggest_Result.adapter = resultAdapter
+        lvSearchResult.adapter = resultAdapter
 
-        float_btn.setOnClickListener {
+        fabNext.setOnClickListener {
             presenter.nextActivityButtonWasPressed()
         }
 
-        map_btn.setOnClickListener {
+        btnMap.setOnClickListener {
             presenter.goMapButtonWasPressed()
         }
 
         // Слушатель изменений в поисковой строке
-        searchBar.addTextChangedListener(object : TextWatcher {
+        etSearchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
 
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
@@ -100,7 +100,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         })
 
         // Слушатель нажатий на эллементы ListView
-        suggest_Result.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+        lvSearchResult.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
             marker = false
             presenter.resultWasClicked(result = suggestResult[position])
         }
@@ -124,27 +124,27 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
         })
 
-        firmSpiner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinnerFirm.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>, itemSelected: View, selectedItemPosition: Int, selectedId: Long
             ) {
                 presenter.firmSpinnerWasChanged(
                     selectedItemPosition,
-                    firmSpiner.selectedItem.toString()
+                    spinnerFirm.selectedItem.toString()
                 )
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        coalSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinnerCoal.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
                 itemSelected: View,
                 selectedItemPosition: Int,
                 selectedId: Long
             ) {
-                presenter.coalSpinnerWasChanged(selectedItemPosition, coalSpinner.selectedItem.toString())
+                presenter.coalSpinnerWasChanged(selectedItemPosition, spinnerCoal.selectedItem.toString())
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -160,8 +160,6 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         MapKitFactory.getInstance().onStop()
         super.onStop()
     }
-
-    //
 
     override fun onBackPressed() {
         super.onBackPressed()
@@ -180,13 +178,13 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     override fun onSuggestError(error: Error) {
-        presenter.inYandexErrorCallback(error = error)
+        presenter.onYandexError(error = error)
     }
 
     // Yandex DirectionKit callback methods
 
     override fun onDrivingRoutesError(error: Error) {
-        presenter.inYandexErrorCallback(error = error)
+        presenter.onYandexError(error = error)
     }
 
     override fun onDrivingRoutes(routes: MutableList<DrivingRoute>) {
@@ -197,7 +195,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     override fun requestSuggest(request: String) {
         try {
-            suggest_Result.visibility = View.INVISIBLE
+            lvSearchResult.visibility = View.INVISIBLE
             searchManager.suggest(request, App.BOUNDING_BOX, App.SEARCH_OPTIONS, this)
         } catch (e: IndexOutOfBoundsException) {
             e.printStackTrace()
@@ -205,8 +203,8 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     override fun updateSearchBar(address: String) {
-        searchBar.setText(address)
-        suggest_Result.visibility = View.INVISIBLE
+        etSearchBar.setText(address)
+        lvSearchResult.visibility = View.INVISIBLE
     }
 
     override fun openNewActivity(coalOrder: CoalOrder) {
@@ -217,21 +215,22 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         startActivityForResult(Intent(this@MainActivity, MapsActivity::class.java), 1)
     }
 
-    override fun displaySearchResult(results: ArrayList<String>?) {
+    override fun displaySearchResult(results: List<String?>) {
+
         suggestResult.clear()
-        results!!.forEach {
-            suggestResult.add(it)
+        results.forEach {
+            suggestResult.add(it.toString())
         }
         resultAdapter.notifyDataSetChanged()
-        suggest_Result.visibility = View.VISIBLE
+        lvSearchResult.visibility = View.VISIBLE
     }
 
-    override fun submitRequest(requestPoints: ArrayList<RequestPoint>) {
+    override fun submitRequest(requestPoints: List<RequestPoint>) {
         drivingSession = drivingRouter.requestRoutes(requestPoints, DrivingOptions(), this@MainActivity)
     }
 
     override fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int) {
-        coalSpinner.adapter = adapter
+        spinnerCoal.adapter = adapter
     }
 
     override fun updateCost(pricePerTon: Int, distance: Int, deliveryCost: Int, overPrice: Int) {
@@ -241,40 +240,15 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         overPriceCost.hint = "$overPrice рублей"
     }
 
-
     // Errors
 
-    override fun showRoadNotFoundError() {
-        alert("Дорога не найдена", "Ошибка") {
+    override fun showValidationError(titleRes: Int, messageRes: Int) {
+        alert(message = getString(messageRes), title = getString(titleRes)) {
             yesButton { }
         }.show()
     }
 
-    override fun showHouseNotFoundError() {
-        alert("Выберите дом", "Ошибка") {
-            yesButton { }
-        }.show()
-    }
-
-    override fun showIncorrectWeightError() {
-        alert(message = "Некорректая масса", title = "Ошибка") {
-            yesButton { }
-        }.show()
-    }
-
-    override fun showIncorrectAddressError() {
-        alert(message = "Некорректный адрес доставки", title = "Ошибка") {
-            yesButton { }
-        }.show()
-    }
-
-    override fun showNetworkConnectionError() {
-        alert("Заказать уголь без интернет подключения невозможно", "Внимание") {
-            yesButton { }
-        }.show()
-    }
-
-    override fun showYandexErrorToast(errorMessage: String) {
+    override fun showYandexError(errorMessage: String) {
         toast(errorMessage)
     }
 }

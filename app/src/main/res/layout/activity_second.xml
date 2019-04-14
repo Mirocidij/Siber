@@ -366,7 +366,7 @@
 
     <!--Bottom App Bar-->
     <android.support.design.widget.CoordinatorLayout
-            android:id="@+id/coordinator"
+            android:id="@+id/clCoordinator"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -374,7 +374,7 @@
             tools:layout_editor_absoluteX="0dp">
 
         <android.support.design.bottomappbar.BottomAppBar
-                android:id="@+id/babBar"
+                android:id="@+id/baBar"
                 android:layout_width="match_parent"
                 android:layout_gravity="bottom"
                 android:layout_height="56dp"
@@ -385,7 +385,7 @@
         />
 
         <android.support.design.widget.FloatingActionButton
-                android:id="@+id/float_btn"
+                android:id="@+id/fabNext"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/ic_done"
@@ -395,7 +395,7 @@
                 android:backgroundTint="@color/lightBlue"
 
 
-        />
+                mask:layout_anchor="@id/baBar"/>
 
     </android.support.design.widget.CoordinatorLayout>
     <!--Bottom App Bar-->

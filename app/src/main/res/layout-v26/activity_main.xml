@@ -10,20 +10,21 @@
 
         tools:context=".presentation.ui.MainActivity">
 
-    <TextView android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:id="@+id/tvFirmSelectHelper"
-              android:text="@string/firmSelect"
-              android:textColor="@color/black"
-              android:textSize="14sp"
-              android:layout_marginStart="16dp"
-              app:layout_constraintTop_toTopOf="@id/firmSpiner"
-              app:layout_constraintStart_toStartOf="parent"
-              app:layout_constraintBottom_toBottomOf="@id/firmSpiner"
+    <TextView
+            android:id="@+id/tvFirmSelectHelper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/firmSelect"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintTop_toTopOf="@id/spinnerFirm"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/spinnerFirm"
     />
 
     <Spinner
-            android:id="@+id/firmSpiner"
+            android:id="@+id/spinnerFirm"
             android:layout_width="match_parent"
             android:textAlignment="viewEnd"
             android:layout_height="60dp"
@@ -42,22 +43,22 @@
             android:textColor="@color/black"
             android:layout_marginLeft="16dp"
             android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="@id/coalSpinner"
-            app:layout_constraintTop_toTopOf="@id/coalSpinner"
-            app:layout_constraintBottom_toBottomOf="@id/coalSpinner"
+            app:layout_constraintStart_toStartOf="@id/spinnerCoal"
+            app:layout_constraintTop_toTopOf="@id/spinnerCoal"
+            app:layout_constraintBottom_toBottomOf="@id/spinnerCoal"
     />
 
 
     <Spinner
-            android:id="@+id/coalSpinner"
+            android:id="@+id/spinnerCoal"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:textAlignment="viewEnd"
             android:entries="@array/Arshanovsky"
             android:tooltipText="Здесь вы можете выбрать марку угля"
             style="@style/spinner_style"
-            app:layout_constraintTop_toBottomOf="@id/firmSpiner"
-            app:layout_constraintRight_toRightOf="@id/firmSpiner"
+            app:layout_constraintTop_toBottomOf="@id/spinnerFirm"
+            app:layout_constraintRight_toRightOf="@id/spinnerFirm"
     />
 
     <EditText
@@ -74,12 +75,12 @@
             android:textSize="14sp"
             android:textColor="@color/black"
             android:shadowColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/coalSpinner"
+            app:layout_constraintTop_toBottomOf="@id/spinnerCoal"
     />
 
     <EditText
-            android:hint="Цена:"
             android:id="@+id/etCost2"
+            android:hint="Цена:"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -93,7 +94,7 @@
             android:textColorHighlight="@color/black"
             android:textColor="@color/black"
             android:shadowColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/coalSpinner"
+            app:layout_constraintTop_toBottomOf="@id/spinnerCoal"
     />
 
     <TextView
@@ -103,7 +104,6 @@
             android:textSize="14sp"
             android:textColor="@color/black"
             android:text="@string/addWeigth"
-
             android:layout_marginTop="16dp"
             app:layout_constraintLeft_toLeftOf="@id/tvFirmSelectHelper"
             app:layout_constraintTop_toBottomOf="@id/etCost"
@@ -111,26 +111,24 @@
     />
 
     <EditText
+            android:id="@+id/etWeight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="@string/etWeigthHelper"
-            android:id="@+id/etWeight"
+            android:hint="@string/etWeightHelper"
             android:textSize="14sp"
             android:maxLength="2"
             android:gravity="center"
             android:inputType="number"
             android:imeOptions="actionDone"
             android:digits="0123456789"
-
-
             app:layout_constraintEnd_toEndOf="@id/etCost"
             app:layout_constraintTop_toBottomOf="@id/etCost"
     />
 
 
     <EditText
+            android:id="@+id/etSearchBar"
             android:textSize="14sp"
-            android:id="@+id/searchBar"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="@color/whitish"
@@ -148,9 +146,8 @@
     />
 
     <ScrollView
-
-            android:id="@+id/scroll"
-            app:layout_constraintTop_toBottomOf="@id/searchBar"
+            android:id="@+id/svScroll"
+            app:layout_constraintTop_toBottomOf="@id/etSearchBar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_width="wrap_content"
@@ -158,12 +155,12 @@
             android:elevation="20dp"
     >
         <ListView
+                android:id="@+id/lvSearchResult"
                 android:elevation="20dp"
                 android:background="@color/white"
-                android:id="@+id/suggest_Result"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                app:layout_constraintTop_toBottomOf="@id/searchBar"
+                app:layout_constraintTop_toBottomOf="@id/etSearchBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="invisible"/>
@@ -173,17 +170,17 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_second_search"
-            app:layout_constraintLeft_toLeftOf="@id/searchBar"
-            app:layout_constraintTop_toTopOf="@id/searchBar"
+            app:layout_constraintLeft_toLeftOf="@id/etSearchBar"
+            app:layout_constraintTop_toTopOf="@id/etSearchBar"
             android:elevation="10dp"
-            app:layout_constraintBottom_toBottomOf="@id/searchBar"
+            app:layout_constraintBottom_toBottomOf="@id/etSearchBar"
             android:layout_marginLeft="16dp"
 
     />
 
 
     <TextView
-            android:id="@+id/OR"
+            android:id="@+id/tvOr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
@@ -194,12 +191,12 @@
 
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/searchBar"
-            app:layout_constraintBottom_toTopOf="@id/map_btn"
+            app:layout_constraintTop_toBottomOf="@id/etSearchBar"
+            app:layout_constraintBottom_toTopOf="@id/btnMap"
     />
 
     <Button
-            android:id="@+id/map_btn"
+            android:id="@+id/btnMap"
             android:text="@string/btnMapHint"
             android:layout_marginTop="16dp"
             android:layout_width="match_parent"
@@ -211,14 +208,14 @@
 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/OR"
+            app:layout_constraintTop_toBottomOf="@id/tvOr"
 
     />
 
 
     <EditText
-            android:layout_width="match_parent"
             android:id="@+id/etDistance"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
@@ -231,26 +228,27 @@
             android:textColor="@color/black"
             android:shadowColor="@color/black"
 
-            app:layout_constraintTop_toBottomOf="@id/map_btn"
+            app:layout_constraintTop_toBottomOf="@id/btnMap"
     />
 
-    <EditText android:layout_width="match_parent"
-              android:id="@+id/etDistance2"
-              android:layout_height="wrap_content"
-              android:layout_marginTop="16dp"
-              android:focusable="false"
-              android:enabled="false"
-              android:text="Растояние:"
-              android:layout_marginLeft="16dp"
-              android:layout_marginRight="16dp"
-              android:gravity="left"
-              android:textSize="14sp"
-              app:layout_goneMarginTop="16dp"
-              android:textColorHighlight="@color/black"
-              android:textColor="@color/black"
-              android:shadowColor="@color/black"
+    <EditText
+            android:id="@+id/etDistance2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:focusable="false"
+            android:enabled="false"
+            android:text="Растояние:"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:gravity="left"
+            android:textSize="14sp"
+            app:layout_goneMarginTop="16dp"
+            android:textColorHighlight="@color/black"
+            android:textColor="@color/black"
+            android:shadowColor="@color/black"
 
-              app:layout_constraintTop_toBottomOf="@id/map_btn"
+            app:layout_constraintTop_toBottomOf="@id/btnMap"
     />
 
     <EditText
@@ -330,15 +328,15 @@
 
     <android.support.design.widget.CoordinatorLayout
 
+            android:id="@+id/clCoordinator"
             android:layout_width="match_parent"
-            android:id="@+id/coordinator"
             android:layout_height="100dp"
             app:layout_constraintBottom_toBottomOf="parent"
             android:elevation="5dp"
             tools:layout_editor_absoluteX="0dp">
 
         <android.support.design.bottomappbar.BottomAppBar
-                android:id="@+id/babBar"
+                android:id="@+id/baBar"
                 android:layout_width="match_parent"
                 android:layout_gravity="bottom"
                 android:layout_height="56dp"
@@ -349,13 +347,13 @@
         />
 
         <android.support.design.widget.FloatingActionButton
-                android:id="@+id/float_btn"
+                android:id="@+id/fabNext"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/ic_next"
                 android:backgroundTint="@color/lightBlue"
                 app:fabSize="normal"
-                app:layout_anchor="@id/babBar"
+                app:layout_anchor="@id/baBar"
 
 
         />
