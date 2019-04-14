@@ -20,7 +20,6 @@ interface MainView : MvpView {
     fun requestSuggest(request: String)
     fun displaySearchResult(results: ArrayList<String>?)
 
-
     // Error
 
     fun showRoadNotFoundError()
