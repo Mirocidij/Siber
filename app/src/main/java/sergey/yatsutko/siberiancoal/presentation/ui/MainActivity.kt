@@ -240,11 +240,11 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         coalSpinner.adapter = adapter
     }
 
-    override fun updateCost(_pricePerTon: Int, _distance: Int, _deliveryCost: Int, _overPrice: Int) {
-        etCost.hint = "$_pricePerTon руб/т"
-        etDistance.hint = "$_distance km"
-        etCostForDelivery.hint = "$_deliveryCost рублей"
-        overPriceCost.hint = "$_overPrice рублей"
+    override fun updateCost(pricePerTon: Int, distance: Int, deliveryCost: Int, overPrice: Int) {
+        etCost.hint = "$pricePerTon руб/т"
+        etDistance.hint = "$distance km"
+        etCostForDelivery.hint = "$deliveryCost рублей"
+        overPriceCost.hint = "$overPrice рублей"
     }
 
 

@@ -7,10 +7,10 @@ import com.yandex.mapkit.RequestPoint
 
 interface MainView : MvpView {
     fun updateCost(
-        _pricePerTon: Int,
-        _distance: Int,
-        _deliveryCost: Int,
-        _overPrice: Int
+        pricePerTon: Int,
+        distance: Int,
+        deliveryCost: Int,
+        overPrice: Int
     )
     fun updateSearchBar(address: String)
     fun changeCoalSpinnerEntries(adapter: ArrayAdapter<CharSequence>, i: Int)
