@@ -1,5 +1,7 @@
 package sergey.yatsutko.siberiancoal.presentation.presenters.second
 
-class SecondView {
+import com.arellomobile.mvp.MvpView
+
+interface SecondView: MvpView {
 
 }

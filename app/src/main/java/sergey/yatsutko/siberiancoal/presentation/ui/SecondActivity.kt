@@ -9,6 +9,8 @@ import android.text.InputType
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
+import com.arellomobile.mvp.MvpAppCompatActivity
+import com.arellomobile.mvp.presenter.InjectPresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_second.*
 import org.jetbrains.anko.*
@@ -16,9 +18,14 @@ import sergey.yatsutko.siberiancoal.R
 
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.data.repository.SmsApiRepository
+import sergey.yatsutko.siberiancoal.presentation.presenters.second.SecondPresenter
+import sergey.yatsutko.siberiancoal.presentation.presenters.second.SecondView
 import kotlin.random.Random
 
-class SecondActivity : AppCompatActivity() {
+class SecondActivity : MvpAppCompatActivity(), SecondView {
+
+    @InjectPresenter
+    lateinit var presenter: SecondPresenter
 
     private val repository: SmsApiRepository = SmsApiRepository()
 
