@@ -391,9 +391,7 @@
                 android:src="@drawable/ic_done"
                 android:onClick="done"
                 app:fabSize="normal"
-                app:layout_anchor="@id/babBar"
                 android:backgroundTint="@color/lightBlue"
-
 
                 mask:layout_anchor="@id/baBar"/>
 

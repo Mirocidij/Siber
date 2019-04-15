@@ -32,7 +32,6 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
 
     private val TAG = "MainPresenter"
     private var firmBool = false
-    private var marker = true
     private val coalOrder: CoalOrder = CoalOrder()
     val RESULT_NUMBER_OF_LIST_VIEW_LIMIT = 5
 
@@ -79,8 +78,6 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     }
 
     fun resultWasClicked(result: String) {
-        marker = false
-
         val streetName = result.split(", ")
         val street = if (streetName.size >= 3) {
             streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
@@ -135,8 +132,6 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
             return
         }
 
-        val nextIntent = Intent(context, SecondActivity::class.java)
-
         viewState.openNewActivity(coalOrder = coalOrder)
     }
 
@@ -168,7 +163,9 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     }
 
     fun onSuggestResponseDone(suggest: List<SuggestItem>) {
-        val listItems = suggest.take(RESULT_NUMBER_OF_LIST_VIEW_LIMIT).map { it.displayText }
+        val listItems = suggest.take(RESULT_NUMBER_OF_LIST_VIEW_LIMIT)
+            .filter { it.displayText != null }
+            .map { it.displayText!! }
 
         listItems.forEach {
             Log.d(TAG, it)
@@ -179,17 +176,14 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
 
     fun weightWasChanged(weight: Int) {
         coalOrder.weight = weight
-        coalOrder.distanceCost = try {
-            when (coalOrder.weight) {
-                in 1..3 -> 10
-                in 4..7 -> 15
-                in 8..20 -> 35
-                in 21..40 -> 80
-                else -> 0
-            }
-        } catch (e: Throwable) {
-            0
+        coalOrder.distanceCost = when (coalOrder.weight) {
+            in 1..3 -> 10
+            in 4..7 -> 15
+            in 8..20 -> 35
+            in 21..40 -> 80
+            else -> 0
         }
+
 
         updateCost()
     }

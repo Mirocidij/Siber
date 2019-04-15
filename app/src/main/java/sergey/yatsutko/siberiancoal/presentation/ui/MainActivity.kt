@@ -45,7 +45,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         return MainPresenter(context = this@MainActivity)
     }
 
-    private var suggestResult: MutableList<String> = ArrayList()
+    private var suggestResult = mutableListOf<String>()
     private lateinit var resultAdapter: ArrayAdapter<*>
     private lateinit var searchManager: SearchManager
     private lateinit var drivingRouter: DrivingRouter
@@ -112,11 +112,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         etWeight.addTextChangedListener(object : TextWatcher {
 
             override fun afterTextChanged(s: Editable) {
-                try {
-                    presenter.weightWasChanged(Integer.parseInt(s.toString()))
-                } catch (e: NumberFormatException) {
-                    presenter.weightWasChanged(0)
-                }
+                presenter.weightWasChanged(s.toString().toIntOrNull() ?: 0)
             }
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -193,6 +189,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
 
     // MainView methods
 
+    override fun openNewActivityForResult() {
+        startActivityForResult(Intent(this@MainActivity, MapsActivity::class.java), 1)
+    }
+
     override fun requestSuggest(request: String) {
         try {
             lvSearchResult.visibility = View.INVISIBLE
@@ -203,6 +203,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
     }
 
     override fun updateSearchBar(address: String) {
+        marker = false
         etSearchBar.setText(address)
         lvSearchResult.visibility = View.INVISIBLE
     }
@@ -211,16 +212,10 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         startActivity(Intent(this@MainActivity, SecondActivity::class.java).putExtra("coalOrder", coalOrder))
     }
 
-    override fun openNewActivityForResult() {
-        startActivityForResult(Intent(this@MainActivity, MapsActivity::class.java), 1)
-    }
-
-    override fun displaySearchResult(results: List<String?>) {
+    override fun displaySearchResult(results: List<String>) {
 
         suggestResult.clear()
-        results.forEach {
-            suggestResult.add(it.toString())
-        }
+        suggestResult.addAll(results)
         resultAdapter.notifyDataSetChanged()
         lvSearchResult.visibility = View.VISIBLE
     }
