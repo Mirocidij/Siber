@@ -1,4 +1,4 @@
-package sergey.yatsutko.siberiancoal.presentation.UI
+package sergey.yatsutko.siberiancoal.presentation.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -25,31 +25,22 @@ class SecondActivity : AppCompatActivity() {
     var phoneNumberLength = -1
     var code = "0"
 
-    private var cuts = ""
-    private var coalMark = ""
-    private var weight = ""
+    private var cuts = "0"
+    private var coalMark = "0"
+    private var weight = "0"
     private var price = 0
     private var distance = 0
-    private var phone = ""
+    private var phone = "0"
     private var overPrice = 0
     private var deliveryCost = 0
-    private var address = ""
+    private var address = "0"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
 
-        cuts = intent.getStringExtra("Cuts")
-        coalMark = intent.getStringExtra("CoalMark")
-        weight = intent.getStringExtra("Weight")
-        price = intent.getIntExtra("price", 0)
-        distance = intent.getIntExtra("km", 0)
-        overPrice = intent.getIntExtra("overPrice", 0)
-        deliveryCost = intent.getIntExtra("deliveryCost", 0)
-        address = intent.getStringExtra("address")
-
-        etCutsInfo2.hint = "$cuts"
-        etCoalInfo2.hint = (coalMark)
+        etCutsInfo2.hint = cuts
+        etCoalInfo2.hint = coalMark
 
         if (Integer.parseInt(weight) < 5) {
             etWeight2.hint = "$weight тонны"
@@ -71,46 +62,45 @@ class SecondActivity : AppCompatActivity() {
         etPhoneNumber.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
 
-                if (phoneNumberLength < etPhoneNumber.text.length) {
+                if (phoneNumberLength < s.toString().length) {
                     when {
-                        etPhoneNumber.text.toString() == "+" -> etPhoneNumber.setText("+7 (")
-                        etPhoneNumber.text.toString() == "7" -> etPhoneNumber.setText("+7 (")
-                        etPhoneNumber.text.toString() == "8" -> etPhoneNumber.setText("+7 (")
-                        etPhoneNumber.text.toString() == "9" -> etPhoneNumber.setText("+7 (9")
-                        etPhoneNumber.text.toString() == "6" -> etPhoneNumber.setText("+7 (6")
-                        etPhoneNumber.text.toString() == "5" -> etPhoneNumber.setText("+7 (5")
-                        etPhoneNumber.text.toString() == "4" -> etPhoneNumber.setText("+7 (4")
-                        etPhoneNumber.text.toString() == "3" -> etPhoneNumber.setText("+7 (3")
-                        etPhoneNumber.text.toString() == "2" -> etPhoneNumber.setText("+7 (2")
-                        etPhoneNumber.text.toString() == "1" -> etPhoneNumber.setText("+7 (1")
-                        etPhoneNumber.text.toString() == "0" -> etPhoneNumber.setText("+7 (0")
+                        s.toString() == "+" -> etPhoneNumber.setText("+7 (")
+                        s.toString() == "8" -> etPhoneNumber.setText("+7 (")
+                        s.toString() == "7" -> etPhoneNumber.setText("+7 (")
+                        s.toString() == "9" -> etPhoneNumber.setText("+7 (9")
+                        s.toString() == "6" -> etPhoneNumber.setText("+7 (6")
+                        s.toString() == "5" -> etPhoneNumber.setText("+7 (5")
+                        s.toString() == "4" -> etPhoneNumber.setText("+7 (4")
+                        s.toString() == "3" -> etPhoneNumber.setText("+7 (3")
+                        s.toString() == "2" -> etPhoneNumber.setText("+7 (2")
+                        s.toString() == "1" -> etPhoneNumber.setText("+7 (1")
+                        s.toString() == "0" -> etPhoneNumber.setText("+7 (0")
 
-                        etPhoneNumber.text.toString() == "+9" -> etPhoneNumber.setText("+7 (9")
-                        etPhoneNumber.text.toString() == "+8" -> etPhoneNumber.setText("+7 (8")
-                        etPhoneNumber.text.toString() == "+7" -> etPhoneNumber.setText("+7 (")
-                        etPhoneNumber.text.toString() == "+6" -> etPhoneNumber.setText("+7 (6")
-                        etPhoneNumber.text.toString() == "+5" -> etPhoneNumber.setText("+7 (5")
-                        etPhoneNumber.text.toString() == "+4" -> etPhoneNumber.setText("+7 (4")
-                        etPhoneNumber.text.toString() == "+3" -> etPhoneNumber.setText("+7 (3")
-                        etPhoneNumber.text.toString() == "+2" -> etPhoneNumber.setText("+7 (2")
-                        etPhoneNumber.text.toString() == "+1" -> etPhoneNumber.setText("+7 (1")
-                        etPhoneNumber.text.toString() == "+0" -> etPhoneNumber.setText("+7 (0")
+                        s.toString() == "+9" -> etPhoneNumber.setText("+7 (9")
+                        s.toString() == "+8" -> etPhoneNumber.setText("+7 (8")
+                        s.toString() == "+7" -> etPhoneNumber.setText("+7 (")
+                        s.toString() == "+6" -> etPhoneNumber.setText("+7 (6")
+                        s.toString() == "+5" -> etPhoneNumber.setText("+7 (5")
+                        s.toString() == "+4" -> etPhoneNumber.setText("+7 (4")
+                        s.toString() == "+3" -> etPhoneNumber.setText("+7 (3")
+                        s.toString() == "+2" -> etPhoneNumber.setText("+7 (2")
+                        s.toString() == "+1" -> etPhoneNumber.setText("+7 (1")
+                        s.toString() == "+0" -> etPhoneNumber.setText("+7 (0")
 
-                        etPhoneNumber.text.toString() == "+79" -> etPhoneNumber.setText("+7 (9")
-                        etPhoneNumber.text.toString() == "+78" -> etPhoneNumber.setText("+7 (8")
-                        etPhoneNumber.text.toString() == "+77" -> etPhoneNumber.setText("+7 (7")
-                        etPhoneNumber.text.toString() == "+76" -> etPhoneNumber.setText("+7 (6")
-                        etPhoneNumber.text.toString() == "+75" -> etPhoneNumber.setText("+7 (5")
-                        etPhoneNumber.text.toString() == "+74" -> etPhoneNumber.setText("+7 (4")
-                        etPhoneNumber.text.toString() == "+73" -> etPhoneNumber.setText("+7 (3")
-                        etPhoneNumber.text.toString() == "+72" -> etPhoneNumber.setText("+7 (2")
-                        etPhoneNumber.text.toString() == "+71" -> etPhoneNumber.setText("+7 (1")
-                        etPhoneNumber.text.toString() == "+70" -> etPhoneNumber.setText("+7 (0")
+                        s.toString() == "+79" -> etPhoneNumber.setText("+7 (9")
+                        s.toString() == "+78" -> etPhoneNumber.setText("+7 (8")
+                        s.toString() == "+77" -> etPhoneNumber.setText("+7 (7")
+                        s.toString() == "+76" -> etPhoneNumber.setText("+7 (6")
+                        s.toString() == "+75" -> etPhoneNumber.setText("+7 (5")
+                        s.toString() == "+74" -> etPhoneNumber.setText("+7 (4")
+                        s.toString() == "+73" -> etPhoneNumber.setText("+7 (3")
+                        s.toString() == "+72" -> etPhoneNumber.setText("+7 (2")
+                        s.toString() == "+71" -> etPhoneNumber.setText("+7 (1")
+                        s.toString() == "+70" -> etPhoneNumber.setText("+7 (0")
 
-
-                        etPhoneNumber.text.length == 7 -> etPhoneNumber.setText("${etPhoneNumber.text}) ")
-                        etPhoneNumber.text.length == 12 -> etPhoneNumber.setText("${etPhoneNumber.text}-")
-                        etPhoneNumber.text.length == 15 -> etPhoneNumber.setText("${etPhoneNumber.text}-")
+                        s.toString().length == 7 -> etPhoneNumber.setText("${etPhoneNumber.text}) ")
+                        s.toString().length == 12 -> etPhoneNumber.setText("${etPhoneNumber.text}-")
+                        s.toString().length == 15 -> etPhoneNumber.setText("${etPhoneNumber.text}-")
 
 
                     }
@@ -211,13 +201,13 @@ class SecondActivity : AppCompatActivity() {
     }
 
     private fun generateMessage(): String =
-            "Разрез: $cuts" +
-            "\nМарка: $coalMark" +
-            "\nМасса: $weight тонн" +
-            "\nАдресс: $address" +
-            "\nРасстояние: $distance км" +
-            "\nЦена за тонну: $price рублей" +
-            "\nЦена доставки: $deliveryCost рублей" +
-            "\nОбщая цена $overPrice рублей" +
-            "\nТелефон: $phone"
+        "Разрез: $cuts" +
+                "\nМарка: $coalMark" +
+                "\nМасса: $weight тонн" +
+                "\nАдресс: $address" +
+                "\nРасстояние: $distance км" +
+                "\nЦена за тонну: $price рублей" +
+                "\nЦена доставки: $deliveryCost рублей" +
+                "\nОбщая цена $overPrice рублей" +
+                "\nТелефон: $phone"
 }

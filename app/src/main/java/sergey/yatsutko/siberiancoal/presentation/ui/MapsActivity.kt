@@ -1,4 +1,4 @@
-package sergey.yatsutko.siberiancoal.presentation.UI
+package sergey.yatsutko.siberiancoal.presentation.ui
 
 import android.app.Activity
 import android.content.Intent
@@ -12,6 +12,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import android.widget.Toast
+import org.jetbrains.anko.toast
 import sergey.yatsutko.siberiancoal.R
 
 
@@ -30,6 +31,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
 
+
+
     }
 
     /**
@@ -43,7 +46,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
 
         // Add a marker in Sydney and move the camera
         val abakan = LatLng(53.717647, 91.429705)
@@ -60,11 +62,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun accept(v: View) {
-
-
         try {
             if (latitude == 0.0 && longitude == 0.0) {
-                Toast.makeText(this, "Не выбрано место доставки", Toast.LENGTH_LONG).show()
+                toast("Не выбрано место доставки")
             } else {
                 val intent = Intent(
                     this@MapsActivity,

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
-        tools:context=".presentation.UI.SecondActivity"
+        tools:context=".presentation.ui.SecondActivity"
 >
 
 
@@ -19,10 +19,9 @@
     <!--Cuts-->
     <EditText
             android:id="@+id/etCutsInfo"
-
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:hint="Постовщик:"
+            android:hint="Поставщик:"
             android:gravity="left"
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -367,7 +366,7 @@
 
     <!--Bottom App Bar-->
     <android.support.design.widget.CoordinatorLayout
-            android:id="@+id/coordinator"
+            android:id="@+id/clCoordinator"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -375,7 +374,7 @@
             tools:layout_editor_absoluteX="0dp">
 
         <android.support.design.bottomappbar.BottomAppBar
-                android:id="@+id/babBar"
+                android:id="@+id/baBar"
                 android:layout_width="match_parent"
                 android:layout_gravity="bottom"
                 android:layout_height="56dp"
@@ -386,17 +385,15 @@
         />
 
         <android.support.design.widget.FloatingActionButton
-                android:id="@+id/floatBTN"
+                android:id="@+id/fabNext"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/ic_done"
                 android:onClick="done"
                 app:fabSize="normal"
-                app:layout_anchor="@id/babBar"
                 android:backgroundTint="@color/lightBlue"
 
-
-        />
+                mask:layout_anchor="@id/baBar"/>
 
     </android.support.design.widget.CoordinatorLayout>
     <!--Bottom App Bar-->

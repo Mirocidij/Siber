@@ -5,10 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.widget.ArrayAdapter
 
-fun selectEntries(
-    context: Context,
-    textArrayResId: Int
-): ArrayAdapter<CharSequence> {
+fun selectEntries(context: Context, textArrayResId: Int): ArrayAdapter<CharSequence> {
     val adapter =
         ArrayAdapter.createFromResource(
             context,
