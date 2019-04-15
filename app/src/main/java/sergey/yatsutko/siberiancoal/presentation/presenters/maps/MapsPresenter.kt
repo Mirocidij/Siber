@@ -9,7 +9,7 @@ import sergey.yatsutko.siberiancoal.R
 @InjectViewState
 class MapsPresenter: MvpPresenter<MapsView>() {
 
-    private lateinit var point: LatLng
+    private var point = LatLng(0.0, 0.0)
 
     fun pointWasChecked(point: LatLng) {
         this.point = point

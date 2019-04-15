@@ -3,7 +3,6 @@ package sergey.yatsutko.siberiancoal.presentation.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -12,6 +11,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
+import kotlinx.android.synthetic.main.activity_maps.*
 import org.jetbrains.anko.toast
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.presentation.presenters.maps.MapsPresenter
@@ -24,16 +24,18 @@ class MapsActivity : MvpAppCompatActivity(), MapsView, OnMapReadyCallback {
     lateinit var presenter: MapsPresenter
 
     private lateinit var mMap: GoogleMap
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+            .findFragmentById(R.id.frMap) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        fabNext.setOnClickListener {
+            presenter.acceptButtonWasPressed()
+        }
     }
 
     /**
@@ -57,9 +59,6 @@ class MapsActivity : MvpAppCompatActivity(), MapsView, OnMapReadyCallback {
         }
     }
 
-    fun accept(v: View) {
-        presenter.acceptButtonWasPressed()
-    }
 
     override fun refreshFlag(point: LatLng) {
         mMap.clear()
