@@ -73,42 +73,7 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
         }
     }
 
-    fun done(v: View) {
-        presenter.doneButtonWasPressed()
-
-        val a = etPhoneNumber.text
-        var count = 0
-
-        for (i in 0 until a.length) {
-            if (a[i] == '+') count++
-        }
-
-        if (etPhoneNumber.text.length == 18
-            && etPhoneNumber.text.toString()[0] == '+'
-            && etPhoneNumber.text.toString()[1] == '7'
-            && etPhoneNumber.text.isNotEmpty()
-            && count == 1
-        ) {
-
-            val string = etPhoneNumber.text.toString()
-            phone = string.replace("[^0-9+]".toRegex(), "")
-            code = Random.nextInt(1000, 9999).toString()
-
-            repository.sendSms(phoneNumber = phone, message = code)
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete {
-                    showCodeAlert(message = "", title = "Введите код из SMS", hint = "")
-                    toast(code)
-                }
-                .subscribe()
-        } else {
-
-            toast("Некорректный номер телефона")
-
-        }
-    }
-
-    private fun showCodeAlert(message: String, title: String, hint: String) {
+    override fun showCodeAlert(message: String, title: String, hint: String) {
         alert(message = message, title = title) {
             customView {
                 val a = editText()
@@ -119,26 +84,25 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
                 a.filters = arrayOf(InputFilter.LengthFilter(4))
 
                 yesButton {
-                    if (a.text.toString() != code) {
-                        showCodeAlert(message = "", title = "Введите код из SMS", hint = "Неверный код")
-                    } else {
-                        repository
-                            .sendSms(phoneNumber = "+79628003000", message = generateMessage())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnComplete {
-                                alert(
-                                    message = "В ближашее время оператор с вами свяжется",
-                                    title = "Спасибо за заказ"
-                                ) {
-                                    yesButton { startActivity(Intent(this@SecondActivity, MainActivity::class.java)) }
-                                }.show()
-                            }
-                            .subscribe()
-                    }
+
+                    presenter.userPressYesAlertButton(code = a.text.toString())
+
+
                 }
             }
             noButton { toast("No") }
         }.show()
+    }
+
+    override fun showInformAlert(titleRes: Int, messageRes: Int) {
+        alert(message = getString(R.string.userInformMessage), title = getString(R.string.userInformTitle))
+        {
+            yesButton { startActivity(Intent(this@SecondActivity, MainActivity::class.java)) }
+        }.show()
+    }
+
+    override fun showCode(code: String) {
+        toast(code)
     }
 
     override fun changePhoneNumber(number: String) {
@@ -160,7 +124,7 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
         etAddress2.setText(coalOrder.address)
     }
 
-    override fun showError(titleRes: Int, messageRes: Int) {
-        alert(message = getString(messageRes), title = getString(titleRes)) { yesButton {  } }.show()
+    override fun showAlert(titleRes: Int, messageRes: Int) {
+        alert(message = getString(messageRes), title = getString(titleRes)) { yesButton { } }.show()
     }
 }
