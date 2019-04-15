@@ -33,7 +33,7 @@ class MapsActivity : MvpAppCompatActivity(), MapsView, OnMapReadyCallback {
             .findFragmentById(R.id.frMap) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        fabNext.setOnClickListener {
+        fabDone.setOnClickListener {
             presenter.acceptButtonWasPressed()
         }
     }

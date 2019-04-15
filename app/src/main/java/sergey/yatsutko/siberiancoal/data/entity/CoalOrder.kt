@@ -14,5 +14,6 @@ class CoalOrder(
     var deliveryCost : Int = 0,
     var overPrice : Int = 0,
     var routeStartLocation: DoubleArray = doubleArrayOf(App.cuts[0][0], App.cuts[1][0]),
-    var routeEndLocation: DoubleArray = doubleArrayOf(0.0, 0.0)
+    var routeEndLocation: DoubleArray = doubleArrayOf(0.0, 0.0),
+    var phoneNumber: String = ""
 ): Serializable

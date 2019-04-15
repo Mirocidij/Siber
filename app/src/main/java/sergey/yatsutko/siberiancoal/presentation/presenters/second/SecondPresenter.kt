@@ -1,12 +1,15 @@
 package sergey.yatsutko.siberiancoal.presentation.presenters.second
 
+import android.content.Context
 import android.util.Log
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import sergey.yatsutko.siberiancoal.R
+import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
 
 @InjectViewState
-class SecondPresenter(private val coalOrder: CoalOrder): MvpPresenter<SecondView>() {
+class SecondPresenter(private val coalOrder: CoalOrder,private val context: Context): MvpPresenter<SecondView>() {
 
     private var phoneNumberLength = -1
     val TAG = "MainPresenter"
@@ -75,5 +78,27 @@ class SecondPresenter(private val coalOrder: CoalOrder): MvpPresenter<SecondView
         }
         phoneNumberLength = editPhone.length
     }
+
+    fun doneButtonWasPressed() {
+        if (!hasConnection(context = context)) {
+                viewState.showError(titleRes = R.string.error, messageRes = R.string.networkConnectionError)
+            return
+        }
+
+
+    }
+
+    private fun generateMessage(): String =
+        "Разрез: ${coalOrder.coalFirm}" +
+                "\nМарка: ${coalOrder.coalMark}" +
+                "\nМасса: ${coalOrder.weight} тонн" +
+                "\nАдресс: ${coalOrder.address}" +
+                "\nРасстояние: ${coalOrder.distance} км" +
+                "\nЦена за тонну: ${coalOrder.pricePerTonn} рублей" +
+                "\nЦена доставки: ${coalOrder.deliveryCost} рублей" +
+                "\nОбщая цена ${coalOrder.overPrice} рублей" +
+                "\nТелефон: ${coalOrder.phoneNumber}"
+
+    fun cleearNumber(number: String) = number.replace("[^0-9+]".toRegex(), "")
 
 }

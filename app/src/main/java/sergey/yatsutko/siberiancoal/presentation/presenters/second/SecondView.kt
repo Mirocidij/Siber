@@ -7,6 +7,6 @@ interface SecondView: MvpView {
 
     fun updateFields(coalOrder: CoalOrder)
     fun changePhoneNumber(number: String)
-    fun doneButtonWasPressed()
+    fun showError(titleRes: Int, messageRes: Int)
 
 }

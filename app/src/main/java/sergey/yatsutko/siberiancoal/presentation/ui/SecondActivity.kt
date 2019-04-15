@@ -16,7 +16,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_second.*
 import org.jetbrains.anko.*
 import sergey.yatsutko.siberiancoal.R
-import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
 import sergey.yatsutko.siberiancoal.data.repository.SmsApiRepository
 import sergey.yatsutko.siberiancoal.presentation.presenters.second.SecondPresenter
@@ -31,25 +30,16 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
     @ProvidePresenter
     fun provideSecondPresenter(): SecondPresenter {
         val coalOrder = intent.getSerializableExtra("coalOrder") as CoalOrder
-        return SecondPresenter(coalOrder)
+        return SecondPresenter(coalOrder = coalOrder, context = this@SecondActivity)
     }
 
     val TAG = "SecondActivity"
 
     private val repository: SmsApiRepository = SmsApiRepository()
 
-
     var code = "0"
 
-    private var cuts = "0"
-    private var coalMark = "0"
-    private var weight = "0"
-    private var price = 0
-    private var distance = 0
     private var phone = "0"
-    private var overPrice = 0
-    private var deliveryCost = 0
-    private var address = "0"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +60,9 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
             }
         })
 
-
+        fabDone.setOnClickListener {
+            presenter.doneButtonWasPressed()
+        }
     }
 
     override fun onBackPressed() {
@@ -82,11 +74,7 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
     }
 
     fun done(v: View) {
-
-        if (!hasConnection(this@SecondActivity)) {
-            alert("Отсутствует интернет соединение", "Операция невозможна") { yesButton { } }.show()
-            return
-        }
+        presenter.doneButtonWasPressed()
 
         val a = etPhoneNumber.text
         var count = 0
@@ -113,8 +101,6 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
                     toast(code)
                 }
                 .subscribe()
-
-
         } else {
 
             toast("Некорректный номер телефона")
@@ -155,22 +141,6 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
         }.show()
     }
 
-    private fun generateMessage(): String =
-        "Разрез: $cuts" +
-                "\nМарка: $coalMark" +
-                "\nМасса: $weight тонн" +
-                "\nАдресс: $address" +
-                "\nРасстояние: $distance км" +
-                "\nЦена за тонну: $price рублей" +
-                "\nЦена доставки: $deliveryCost рублей" +
-                "\nОбщая цена $overPrice рублей" +
-                "\nТелефон: $phone"
-
-
-    override fun doneButtonWasPressed() {
-
-    }
-
     override fun changePhoneNumber(number: String) {
         etPhoneNumber.setText(number)
     }
@@ -188,5 +158,9 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
         etOverPrice2.hint = "${coalOrder.overPrice} рублей"
         etDeliveryCost2.hint = "${coalOrder.deliveryCost} рублей"
         etAddress2.setText(coalOrder.address)
+    }
+
+    override fun showError(titleRes: Int, messageRes: Int) {
+        alert(message = getString(messageRes), title = getString(titleRes)) { yesButton {  } }.show()
     }
 }
