@@ -6,7 +6,7 @@
     <string name="addWeigth">Введите массу в тоннах:</string>
     <string name="firmSpinnerTooltip">Здесь вы можете выбрать разрез, уголь с котрого хотите заказать</string>
     <string name="tvMapHelper">Укажите свой адресс</string>
-    <string name="etWeightHelper">0-40</string>
+    <string name="etWeightHelper">0–40</string>
 
     <string-array name="firms">
         <item>Аршановский разрез</item>

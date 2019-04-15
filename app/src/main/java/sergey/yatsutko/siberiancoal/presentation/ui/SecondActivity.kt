@@ -8,19 +8,15 @@ import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
 import android.view.Gravity
-import android.view.View
 import com.arellomobile.mvp.MvpAppCompatActivity
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_second.*
 import org.jetbrains.anko.*
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
-import sergey.yatsutko.siberiancoal.data.repository.SmsApiRepository
 import sergey.yatsutko.siberiancoal.presentation.presenters.second.SecondPresenter
 import sergey.yatsutko.siberiancoal.presentation.presenters.second.SecondView
-import kotlin.random.Random
 
 class SecondActivity : MvpAppCompatActivity(), SecondView {
 
@@ -33,13 +29,7 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
         return SecondPresenter(coalOrder = coalOrder, context = this@SecondActivity)
     }
 
-    val TAG = "SecondActivity"
-
-    private val repository: SmsApiRepository = SmsApiRepository()
-
-    var code = "0"
-
-    private var phone = "0"
+    private val TAG = "SecondActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

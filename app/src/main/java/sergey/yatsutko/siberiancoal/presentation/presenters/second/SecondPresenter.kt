@@ -15,7 +15,7 @@ import kotlin.random.Random
 class SecondPresenter(private val coalOrder: CoalOrder, private val context: Context) : MvpPresenter<SecondView>() {
 
     private var phoneNumberLength = -1
-    val TAG = "MainPresenter"
+    val TAG = "SecondPresenter"
     private var code = "0"
     private val repository: SmsApiRepository = SmsApiRepository()
 
