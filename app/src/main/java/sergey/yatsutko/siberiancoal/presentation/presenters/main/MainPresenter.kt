@@ -192,13 +192,28 @@ class MainPresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
 
+                Log.d(TAG, it.response
+                    .geoObjectCollection
+                    .featureMember[0]
+                    .geoObject
+                    .metaDataProperty
+                    .geocoderMetaData
+                    .kind)
+
                 val isHouse = "house" == it.response
                     .geoObjectCollection
                     .featureMember[0]
                     .geoObject
                     .metaDataProperty
                     .geocoderMetaData
-                    .kind.toShortOrNull() ?: ""
+                    .kind
+
+                Log.d(TAG, it.response
+                    .geoObjectCollection
+                    .featureMember[0]
+                    .geoObject
+                    .point
+                    .pos)
 
                 val point = it.response
                     .geoObjectCollection
@@ -218,7 +233,7 @@ class MainPresenter(
             }, {
                 it.printStackTrace()
             })
-            .dispose()
+
 
     }
 
@@ -228,13 +243,29 @@ class MainPresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
 
+                Log.d(TAG, it.response
+                    .geoObjectCollection
+                    .featureMember[0]
+                    .geoObject
+                    .metaDataProperty
+                    .geocoderMetaData
+                    .kind)
+
                 val isHouse = "house" == it.response
                     .geoObjectCollection
                     .featureMember[0]
                     .geoObject
                     .metaDataProperty
                     .geocoderMetaData
-                    .kind.toShortOrNull() ?: ""
+                    .kind
+
+                Log.d(TAG, it.response
+                    .geoObjectCollection
+                    .featureMember[0]
+                    .geoObject
+                    .metaDataProperty
+                    .geocoderMetaData
+                    .text)
 
                 val address = it.response
                     .geoObjectCollection
@@ -254,6 +285,8 @@ class MainPresenter(
                 }
 
                 viewState.updateSearchBar(coalOrder.address)
+
+                Log.d(TAG, "CoalOrder address: ${coalOrder.address}")
 
                 if (isHouse) {
                     coalOrder.routeEndLocation = doubleArrayOf(latitude, longitude)
