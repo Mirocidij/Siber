@@ -4,10 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.ArrayAdapter
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.yandex.mapkit.RequestPoint
@@ -20,7 +16,6 @@ import com.yandex.runtime.Error
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
 import io.reactivex.android.schedulers.AndroidSchedulers
-import org.json.JSONObject
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
