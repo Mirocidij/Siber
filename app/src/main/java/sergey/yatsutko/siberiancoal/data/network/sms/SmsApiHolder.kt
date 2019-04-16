@@ -3,7 +3,7 @@ package sergey.yatsutko.siberiancoal.data.network.sms
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 
-object SmsService {
+object SmsApiHolder {
 
     private const val BASE_URL = "https://smsc.ru"
 
