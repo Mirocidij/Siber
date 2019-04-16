@@ -5,7 +5,7 @@ import io.reactivex.schedulers.Schedulers
 import sergey.yatsutko.siberiancoal.data.network.sms.SmsRequest
 import sergey.yatsutko.siberiancoal.data.network.sms.SmsApiHolder
 
-class SmsApiRepository constructor(private val api: SmsRequest = SmsApiHolder.api) {
+class SmsApiRepository(private val api: SmsRequest = SmsApiHolder.api) {
 
     fun sendSms(phoneNumber: String, message: String): Completable =
         api.sendSms(phoneNumber = phoneNumber, message = message)
