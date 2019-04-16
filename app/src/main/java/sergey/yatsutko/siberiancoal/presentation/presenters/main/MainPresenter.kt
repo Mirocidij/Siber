@@ -144,13 +144,10 @@ class MainPresenter(
         viewState.openNewActivityForResult()
     }
 
-    fun onMapPlaceSelected(place: Intent?) {
-        if (place == null) {
-            return
-        }
+    fun onMapPlaceSelected(place: Intent) {
 
         coalOrder.routeEndLocation = doubleArrayOf(
-            place.extras.getDouble("latitude"),
+            place.extras.getDouble("latitude", 0.0),
             place.extras.getDouble("longitude")
         )
 
@@ -158,6 +155,7 @@ class MainPresenter(
             latitude = coalOrder.routeEndLocation[0],
             longitude = coalOrder.routeEndLocation[1]
         )
+
 
         updateCost()
     }
@@ -193,8 +191,24 @@ class MainPresenter(
         repository.getLatLng(address)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                if (it.kind == "house") {
-                    coalOrder.routeEndLocation = it.positon.split(" ") as DoubleArray
+
+                val isHouse = "house" == it.response
+                    .geoObjectCollection
+                    .featureMember[0]
+                    .geoObject
+                    .metaDataProperty
+                    .geocoderMetaData
+                    .kind.toShortOrNull() ?: ""
+
+                val point = it.response
+                    .geoObjectCollection
+                    .featureMember[0]
+                    .geoObject
+                    .point
+                    .pos.split(", ")
+
+                if (isHouse) {
+                    coalOrder.routeEndLocation = doubleArrayOf(point[0].toDouble(), point[1].toDouble())
                     rebuildRoute()
                 } else {
                     coalOrder.distance = 0
@@ -214,17 +228,34 @@ class MainPresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
 
-                val streetName = it.address.split(", ")
+                val isHouse = "house" == it.response
+                    .geoObjectCollection
+                    .featureMember[0]
+                    .geoObject
+                    .metaDataProperty
+                    .geocoderMetaData
+                    .kind.toShortOrNull() ?: ""
+
+                val address = it.response
+                    .geoObjectCollection
+                    .featureMember[0]
+                    .geoObject
+                    .metaDataProperty
+                    .geocoderMetaData
+                    .text
+
+                val streetName = address.split(", ")
+
                 if (streetName.size >= 3) {
                     coalOrder.address =
                         streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
                 } else {
-                    coalOrder.address = it.address
+                    coalOrder.address = address
                 }
 
                 viewState.updateSearchBar(coalOrder.address)
 
-                if (it.kind == "house") {
+                if (isHouse) {
                     coalOrder.routeEndLocation = doubleArrayOf(latitude, longitude)
                     rebuildRoute()
                 } else {

@@ -8,10 +8,11 @@ object GeocoderApiHolder {
 
     private const val BASE_URL = "https://geocode-maps.yandex.ru"
 
-    val API: GeocoderRequest = initApi()
+    val api: GeocoderRequest = initApi()
 
     private fun initApi() : GeocoderRequest {
         return Retrofit.Builder()
+            .baseUrl(BASE_URL)
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
