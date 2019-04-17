@@ -254,7 +254,7 @@ class MainPresenter(
 
             }, {
                 it.printStackTrace()
-            }).dispose()
+            })
     }
 
     private fun rebuildRoute() {
