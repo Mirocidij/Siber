@@ -16,7 +16,6 @@ class GeocoderPojo {
         .geocoderMetaData
         .kind
 
-
     val point = response.geoObjectCollection
         .featureMember[0]
         .geoObject
