@@ -15,12 +15,15 @@ import com.yandex.mapkit.search.SuggestItem
 import com.yandex.runtime.Error
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
+import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
+import sergey.yatsutko.siberiancoal.data.entity.geocoderPojo.GeocoderPojo
 import sergey.yatsutko.siberiancoal.data.repository.GeocoderApiRepository
 
 @InjectViewState
@@ -190,26 +193,48 @@ class MainPresenter(
 
         repository.getLatLng(address)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
+            .subscribe(object : SingleObserver<GeocoderPojo> {
+                override fun onSuccess(geocoderPojo: GeocoderPojo) {
+                    val isHouse = "house" == geocoderPojo.response
+                        .geoObjectCollection
+                        .featureMember[0]
+                        .geoObject
+                        .metaDataProperty
+                        .geocoderMetaData
+                        .kind
 
-                Log.d(TAG, it.kind)
+                    Log.d(TAG, "pos ${geocoderPojo.response.geoObjectCollection
+                        .featureMember[0]
+                        .geoObject
+                        .point
+                        .pos}")
 
-                val isHouse = "house" == it.kind
+                    val point = geocoderPojo.response.geoObjectCollection
+                        .featureMember[0]
+                        .geoObject
+                        .point
+                        .pos
+                        .split(" ")
 
-                Log.d(TAG, it.point)
+                    Log.d(TAG, "point[0] ${point[0]}")
 
-                val point = it.point.split(", ")
-
-                if (isHouse) {
-                    coalOrder.routeEndLocation = doubleArrayOf(point[0].toDouble(), point[1].toDouble())
-                    rebuildRoute()
-                } else {
-                    coalOrder.distance = 0
-                    updateCost()
-                    viewState.showValidationError(R.string.error, R.string.choseHouseError)
+                    if (isHouse) {
+                        coalOrder.routeEndLocation = doubleArrayOf(point[1].toDouble(), point[0].toDouble())
+                        rebuildRoute()
+                    } else {
+                        coalOrder.distance = 0
+                        updateCost()
+                        viewState.showValidationError(R.string.error, R.string.choseHouseError)
+                    }
                 }
-            }, {
-                it.printStackTrace()
+
+                override fun onSubscribe(d: Disposable) {
+                    Log.e(TAG, "We are subscribers")
+                }
+
+                override fun onError(e: Throwable) {
+                    e.printStackTrace()
+                }
             })
 
 
@@ -217,43 +242,59 @@ class MainPresenter(
 
     private fun getAddress(latitude: Double, longitude: Double) {
 
-        repository.getAddress(latitude = latitude, longitude = longitude)
+        repository.getAddress(latitude = longitude, longitude = latitude)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
+            .subscribe(object : SingleObserver<GeocoderPojo> {
+                override fun onSuccess(geocoderPojo: GeocoderPojo) {
 
-                Log.d(TAG, it.kind)
+                    val isHouse: Boolean = "house" == geocoderPojo.response
+                        .geoObjectCollection
+                        .featureMember[0]
+                        .geoObject
+                        .metaDataProperty
+                        .geocoderMetaData
+                        .kind
 
-                val isHouse = "house" == it.kind
 
-                Log.d(TAG, it.address)
+                    val address = geocoderPojo.response
+                        .geoObjectCollection
+                        .featureMember[0]
+                        .geoObject
+                        .metaDataProperty
+                        .geocoderMetaData
+                        .text
 
-                val address = it.address
+                    val streetName = address.split(", ")
 
-                val streetName = address.split(", ")
+                    if (streetName.size >= 3) {
+                        coalOrder.address =
+                            streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
+                    } else {
+                        coalOrder.address = address
+                    }
 
-                if (streetName.size >= 3) {
-                    coalOrder.address =
-                        streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
-                } else {
-                    coalOrder.address = address
+                    viewState.updateSearchBar(coalOrder.address)
+
+                    Log.d(TAG, "CoalOrder address: ${coalOrder.address}")
+
+                    if (isHouse) {
+                        coalOrder.routeEndLocation = doubleArrayOf(latitude, longitude)
+                        rebuildRoute()
+                    } else {
+                        coalOrder.distance = 0
+                        updateCost()
+                        viewState.showValidationError(R.string.error, R.string.choseHouseError)
+                    }
                 }
 
-                viewState.updateSearchBar(coalOrder.address)
-
-                Log.d(TAG, "CoalOrder address: ${coalOrder.address}")
-
-                if (isHouse) {
-                    coalOrder.routeEndLocation = doubleArrayOf(latitude, longitude)
-                    rebuildRoute()
-                } else {
-                    coalOrder.distance = 0
-
-                    updateCost()
-                    viewState.showValidationError(R.string.error, R.string.choseHouseError)
+                override fun onSubscribe(d: Disposable) {
+                    Log.e(TAG, "We are subscribers")
                 }
 
-            }, {
-                it.printStackTrace()
+                override fun onError(e: Throwable) {
+                    e.printStackTrace()
+                }
+
             })
     }
 
