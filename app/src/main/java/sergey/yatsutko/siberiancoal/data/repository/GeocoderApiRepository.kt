@@ -9,7 +9,7 @@ import sergey.yatsutko.siberiancoal.data.network.yandexGeocoder.GeocoderRequest
 class GeocoderApiRepository(private val api: GeocoderRequest = GeocoderApiHolder.api) {
 
     fun getAddress(latitude: Double, longitude: Double): Single<GeocoderPojo> {
-        return api.getHouseMeta("$latitude,$longitude")
+        return api.getHouseMeta("$longitude,$latitude")
             .subscribeOn(Schedulers.io())
     }
 

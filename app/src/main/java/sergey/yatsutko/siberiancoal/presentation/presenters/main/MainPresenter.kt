@@ -242,7 +242,7 @@ class MainPresenter(
 
     private fun getAddress(latitude: Double, longitude: Double) {
 
-        repository.getAddress(latitude = longitude, longitude = latitude)
+        repository.getAddress(latitude = latitude, longitude = longitude)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : SingleObserver<GeocoderPojo> {
                 override fun onSuccess(geocoderPojo: GeocoderPojo) {
