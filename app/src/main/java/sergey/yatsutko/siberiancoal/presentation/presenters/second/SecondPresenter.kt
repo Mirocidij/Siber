@@ -26,15 +26,13 @@ class SecondPresenter(
         viewState.updateFields(coalOrder = coalOrder)
     }
 
-    fun phoneNumberWasChanged(number: String) {
-        coalOrder.phoneNumber = number
-    }
-
-    fun onSendOrder() {
+    fun onSendOrder(number: String) {
         if (!hasConnection(context = context)) {
             viewState.showAlert(titleRes = R.string.error, messageRes = R.string.networkConnectionError)
             return
         }
+
+        coalOrder.phoneNumber = number
 
         var count = 0
         for (i in 0 until coalOrder.phoneNumber.length) {
@@ -52,7 +50,7 @@ class SecondPresenter(
         if (coalOrder.phoneNumber.length == 18
             && coalOrder.phoneNumber[0] == '+'
             && coalOrder.phoneNumber[1] == '7'
-            /*&& coalOrder.phoneNumber.isNotEmpty()*/
+            && coalOrder.phoneNumber.isNotEmpty()
             && count == 1
         ) {
             val phone = clearNumber(coalOrder.phoneNumber)
@@ -88,8 +86,8 @@ class SecondPresenter(
         }
     }
 
-    fun onSendConfirmationOrder(intent: Intent) {
-        viewState.finishOrder(intent)
+    fun onSendConfirmationOrder() {
+        viewState.finishOrder()
     }
 
     private fun generateMessage(): String {

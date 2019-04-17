@@ -46,7 +46,6 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                presenter.phoneNumberWasChanged(s.toString())
                 var editPhone = s.toString()
                 if (phoneNumberLength < s.toString().length) {
                     phoneNumberLength = s.toString().length
@@ -104,7 +103,7 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
         })
 
         fabDone.setOnClickListener {
-            presenter.onSendOrder()
+            presenter.onSendOrder(etPhoneNumber.text.toString())
         }
     }
 
@@ -141,23 +140,17 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
         )
         {
             yesButton {
-                presenter.onSendConfirmationOrder(
-                    Intent(this@SecondActivity, MainActivity::class.java)
-                )
+                presenter.onSendConfirmationOrder()
             }
         }.show()
     }
 
-    override fun finishOrder(intent: Intent) {
-        startActivity(intent)
+    override fun finishOrder() {
+        startActivity(Intent(this@SecondActivity, MainActivity::class.java))
     }
 
     override fun showCode(code: String) {
         toast(code)
-    }
-
-    override fun changePhoneNumber(number: String) {
-        etPhoneNumber.setText(number)
     }
 
     override fun updateFields(coalOrder: CoalOrder) {

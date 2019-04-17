@@ -11,9 +11,8 @@ import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
 interface SecondView: MvpView {
 
     fun updateFields(coalOrder: CoalOrder)
-    fun changePhoneNumber(number: String)
     @StateStrategyType(OneExecutionStateStrategy::class)
-    fun finishOrder(intent: Intent)
+    fun finishOrder()
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showCode(code: String)
     @StateStrategyType(OneExecutionStateStrategy::class)
