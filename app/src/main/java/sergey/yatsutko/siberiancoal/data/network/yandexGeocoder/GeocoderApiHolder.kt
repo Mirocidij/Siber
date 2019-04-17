@@ -13,8 +13,8 @@ object GeocoderApiHolder {
     private fun initApi() : GeocoderRequest {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
             .create(GeocoderRequest::class.java)
     }
