@@ -192,35 +192,13 @@ class MainPresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
 
-                Log.d(TAG, it.response
-                    .geoObjectCollection
-                    .featureMember[0]
-                    .geoObject
-                    .metaDataProperty
-                    .geocoderMetaData
-                    .kind)
+                Log.d(TAG, it.kind)
 
-                val isHouse = "house" == it.response
-                    .geoObjectCollection
-                    .featureMember[0]
-                    .geoObject
-                    .metaDataProperty
-                    .geocoderMetaData
-                    .kind
+                val isHouse = "house" == it.kind
 
-                Log.d(TAG, it.response
-                    .geoObjectCollection
-                    .featureMember[0]
-                    .geoObject
-                    .point
-                    .pos)
+                Log.d(TAG, it.point)
 
-                val point = it.response
-                    .geoObjectCollection
-                    .featureMember[0]
-                    .geoObject
-                    .point
-                    .pos.split(", ")
+                val point = it.point.split(", ")
 
                 if (isHouse) {
                     coalOrder.routeEndLocation = doubleArrayOf(point[0].toDouble(), point[1].toDouble())
@@ -243,37 +221,13 @@ class MainPresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
 
-                Log.d(TAG, it.response
-                    .geoObjectCollection
-                    .featureMember[0]
-                    .geoObject
-                    .metaDataProperty
-                    .geocoderMetaData
-                    .kind)
+                Log.d(TAG, it.kind)
 
-                val isHouse = "house" == it.response
-                    .geoObjectCollection
-                    .featureMember[0]
-                    .geoObject
-                    .metaDataProperty
-                    .geocoderMetaData
-                    .kind
+                val isHouse = "house" == it.kind
 
-                Log.d(TAG, it.response
-                    .geoObjectCollection
-                    .featureMember[0]
-                    .geoObject
-                    .metaDataProperty
-                    .geocoderMetaData
-                    .text)
+                Log.d(TAG, it.address)
 
-                val address = it.response
-                    .geoObjectCollection
-                    .featureMember[0]
-                    .geoObject
-                    .metaDataProperty
-                    .geocoderMetaData
-                    .text
+                val address = it.address
 
                 val streetName = address.split(", ")
 
@@ -301,7 +255,6 @@ class MainPresenter(
             }, {
                 it.printStackTrace()
             }).dispose()
-
     }
 
     private fun rebuildRoute() {
