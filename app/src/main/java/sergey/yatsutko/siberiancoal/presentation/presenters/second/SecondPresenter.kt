@@ -19,10 +19,8 @@ class SecondPresenter(
     private val repository: SmsApiRepository = SmsApiRepository()
 ) : MvpPresenter<SecondView>() {
 
-
     val TAG = "SecondPresenter"
     private var code = "0"
-
 
     override fun onFirstViewAttach() {
         viewState.updateFields(coalOrder = coalOrder)
