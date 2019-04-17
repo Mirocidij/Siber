@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <android.support.constraint.ConstraintLayout
+        android:id="@+id/clConstraint"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:id="@+id/jepa"
 
 >
     <fragment
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/frMap"
             android:layout_centerHorizontal="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             tools:context=".presentation.ui.MapsActivity"
-            android:name="com.google.android.gms.maps.SupportMapFragment"/>
-
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+    />
 
     <android.support.design.widget.CoordinatorLayout
 
-            android:layout_width="match_parent"
             android:id="@+id/clCoordinator"
+            android:layout_width="match_parent"
             android:layout_height="100dp"
-            app:layout_constraintBottom_toBottomOf="parent"
             android:elevation="5dp"
-            tools:layout_editor_absoluteX="0dp">
+            app:layout_constraintBottom_toBottomOf="parent"
+    >
 
         <android.support.design.bottomappbar.BottomAppBar
                 android:id="@+id/baBar"
@@ -36,27 +36,17 @@
                 android:layout_height="56dp"
                 android:backgroundTint="@color/colorPrimary"
                 app:fabCradleRoundedCornerRadius="20dp"
-
-
         />
 
         <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fabNext"
+                android:id="@+id/fabDone"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/ic_next"
-                android:onClick="accept"
                 android:backgroundTint="@color/lightBlue"
                 app:fabSize="normal"
                 app:layout_anchor="@id/baBar"
-
-
         />
 
     </android.support.design.widget.CoordinatorLayout>
-
-
-
-
-
 </android.support.constraint.ConstraintLayout>

@@ -73,7 +73,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         )
         lvSearchResult.adapter = resultAdapter
 
-        fabNext.setOnClickListener {
+        fabDone.setOnClickListener {
             presenter.nextActivityButtonWasPressed()
         }
 

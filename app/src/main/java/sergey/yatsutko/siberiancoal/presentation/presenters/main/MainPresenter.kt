@@ -25,7 +25,6 @@ import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
-import sergey.yatsutko.siberiancoal.presentation.ui.SecondActivity
 
 @InjectViewState
 class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
@@ -84,7 +83,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
         } else {
             result
         }
-
+        coalOrder.address = street
         viewState.updateSearchBar(street)
         getCoordinates(street)
     }
