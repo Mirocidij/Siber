@@ -59,7 +59,6 @@ class MapsActivity : MvpAppCompatActivity(), MapsView, OnMapReadyCallback {
         }
     }
 
-
     override fun refreshFlag(point: LatLng) {
         mMap.clear()
         mMap.addMarker(MarkerOptions().position(point))
@@ -70,8 +69,8 @@ class MapsActivity : MvpAppCompatActivity(), MapsView, OnMapReadyCallback {
             this@MapsActivity,
             MainActivity::class.java
         )
-        intent.putExtra("longitude", point.longitude)
-        intent.putExtra("latitude", point.latitude)
+        .putExtra("longitude", point.longitude)
+        .putExtra("latitude", point.latitude)
         setResult(Activity.RESULT_OK, intent)
         finish()
     }

@@ -7,7 +7,7 @@ import sergey.yatsutko.siberiancoal.R
 
 
 @InjectViewState
-class MapsPresenter: MvpPresenter<MapsView>() {
+class MapsPresenter : MvpPresenter<MapsView>() {
 
     private var point = LatLng(0.0, 0.0)
 
