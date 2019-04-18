@@ -22,8 +22,9 @@ import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.commons.selectEntries
+import sergey.yatsutko.siberiancoal.data.entity.Address
 import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
-import sergey.yatsutko.siberiancoal.data.entity.geocoderPojo.GeocoderPojo
+import sergey.yatsutko.siberiancoal.data.entity.Position
 import sergey.yatsutko.siberiancoal.data.repository.GeocoderApiRepository
 
 @InjectViewState
@@ -184,42 +185,16 @@ class MainPresenter(
             in 21..40 -> 80
             else -> 0
         }
-
-
         updateCost()
     }
 
     private fun getCoordinates(address: String) {
-
         repository.getLatLng(address)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : SingleObserver<GeocoderPojo> {
-                override fun onSuccess(geocoderPojo: GeocoderPojo) {
-                    val isHouse = "house" == geocoderPojo.response
-                        .geoObjectCollection
-                        .featureMember[0]
-                        .geoObject
-                        .metaDataProperty
-                        .geocoderMetaData
-                        .kind
-
-                    Log.d(TAG, "pos ${geocoderPojo.response.geoObjectCollection
-                        .featureMember[0]
-                        .geoObject
-                        .point
-                        .pos}")
-
-                    val point = geocoderPojo.response.geoObjectCollection
-                        .featureMember[0]
-                        .geoObject
-                        .point
-                        .pos
-                        .split(" ")
-
-                    Log.d(TAG, "point[0] ${point[0]}")
-
-                    if (isHouse) {
-                        coalOrder.routeEndLocation = doubleArrayOf(point[1].toDouble(), point[0].toDouble())
+            .subscribe(object : SingleObserver<Position> {
+                override fun onSuccess(t: Position) {
+                    if (t.isHouse) {
+                        coalOrder.routeEndLocation = doubleArrayOf(t.position!![1], t.position[0])
                         rebuildRoute()
                     } else {
                         coalOrder.distance = 0
@@ -229,55 +204,25 @@ class MainPresenter(
                 }
 
                 override fun onSubscribe(d: Disposable) {
-                    Log.e(TAG, "We are subscribers")
+
                 }
 
                 override fun onError(e: Throwable) {
                     e.printStackTrace()
                 }
             })
-
-
     }
 
     private fun getAddress(latitude: Double, longitude: Double) {
 
-        repository.getAddress(latitude = latitude, longitude = longitude)
+        repository.getAddress(latitude, longitude)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : SingleObserver<GeocoderPojo> {
-                override fun onSuccess(geocoderPojo: GeocoderPojo) {
+            .subscribe (object : SingleObserver<Address> {
+                override fun onSuccess(t: Address) {
 
-                    val isHouse: Boolean = "house" == geocoderPojo.response
-                        .geoObjectCollection
-                        .featureMember[0]
-                        .geoObject
-                        .metaDataProperty
-                        .geocoderMetaData
-                        .kind
+                    coalOrder.address = t.address.toString()
 
-
-                    val address = geocoderPojo.response
-                        .geoObjectCollection
-                        .featureMember[0]
-                        .geoObject
-                        .metaDataProperty
-                        .geocoderMetaData
-                        .text
-
-                    val streetName = address.split(", ")
-
-                    if (streetName.size >= 3) {
-                        coalOrder.address =
-                            streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
-                    } else {
-                        coalOrder.address = address
-                    }
-
-                    viewState.updateSearchBar(coalOrder.address)
-
-                    Log.d(TAG, "CoalOrder address: ${coalOrder.address}")
-
-                    if (isHouse) {
+                    if (t.isHouse) {
                         coalOrder.routeEndLocation = doubleArrayOf(latitude, longitude)
                         rebuildRoute()
                     } else {
@@ -285,10 +230,11 @@ class MainPresenter(
                         updateCost()
                         viewState.showValidationError(R.string.error, R.string.choseHouseError)
                     }
+                    viewState.updateSearchBar(coalOrder.address)
                 }
 
                 override fun onSubscribe(d: Disposable) {
-                    Log.e(TAG, "We are subscribers")
+
                 }
 
                 override fun onError(e: Throwable) {
