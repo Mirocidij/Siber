@@ -9,16 +9,15 @@ import com.yandex.mapkit.search.SearchOptions
 import com.yandex.mapkit.search.SearchType
 import sergey.yatsutko.siberiancoal.data.entity.Address
 import sergey.yatsutko.siberiancoal.data.entity.Position
-import sergey.yatsutko.siberiancoal.data.network.yandexGeocoder.DeserializeAddress
-import sergey.yatsutko.siberiancoal.data.network.yandexGeocoder.DeserializePosition
+import sergey.yatsutko.siberiancoal.data.network.yandexGeocoder.Deserializer
 
 class App : Application() {
 
     companion object {
 
         val gson: Gson = GsonBuilder()
-            .registerTypeAdapter(Address::class.java, DeserializeAddress.route)
-            .registerTypeAdapter(Position::class.java, DeserializePosition.route)
+            .registerTypeAdapter(Address::class.java, Deserializer.address)
+            .registerTypeAdapter(Position::class.java, Deserializer.position)
             .create()
 
         // Цены за разные марки угля
@@ -43,7 +42,4 @@ class App : Application() {
                     SearchType.TRANSIT.value
         )!!
     }
-
-
-
 }

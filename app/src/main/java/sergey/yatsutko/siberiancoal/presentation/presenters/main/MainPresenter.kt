@@ -15,24 +15,20 @@ import com.yandex.mapkit.search.SuggestItem
 import com.yandex.runtime.Error
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
-import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.subscribeBy
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.commons.selectEntries
-import sergey.yatsutko.siberiancoal.data.entity.Address
 import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
-import sergey.yatsutko.siberiancoal.data.entity.Position
 import sergey.yatsutko.siberiancoal.data.repository.GeocoderApiRepository
 
 @InjectViewState
 class MainPresenter(
-    private val context: Context
-) : MvpPresenter<MainView>() {
-
+    private val context: Context,
     private val repository: GeocoderApiRepository = GeocoderApiRepository()
+) : MvpPresenter<MainView>() {
 
     private val TAG = "MainPresenter"
     private var firmBool = false
@@ -59,7 +55,7 @@ class MainPresenter(
                 else -> selectEntries(context, R.array.Arshanovsky)
             }
 
-            coalOrder.routeStartLocation = doubleArrayOf(App.cuts[0][i], App.cuts[1][i])
+            coalOrder.routeStartLocation = listOf(App.cuts[0][i], App.cuts[1][i])
             viewState.changeCoalSpinnerEntries(adapter, i)
         }
         firmBool = true
@@ -148,18 +144,18 @@ class MainPresenter(
         viewState.openNewActivityForResult()
     }
 
-    fun onMapPlaceSelected(place: Intent) {
-
-        coalOrder.routeEndLocation = doubleArrayOf(
-            place.extras.getDouble("latitude", 0.0),
-            place.extras.getDouble("longitude")
-        )
+    fun onMapPlaceSelected(place: Intent?) {
+        if (place != null) {
+            coalOrder.routeEndLocation = listOf(
+                place.extras.getDouble("latitude", 0.0),
+                place.extras.getDouble("longitude")
+            )
+        }
 
         getAddress(
             latitude = coalOrder.routeEndLocation[0],
             longitude = coalOrder.routeEndLocation[1]
         )
-
 
         updateCost()
     }
@@ -191,57 +187,44 @@ class MainPresenter(
     private fun getCoordinates(address: String) {
         repository.getLatLng(address)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : SingleObserver<Position> {
-                override fun onSuccess(t: Position) {
-                    if (t.isHouse) {
-                        coalOrder.routeEndLocation = doubleArrayOf(t.position!![1], t.position[0])
+            .subscribeBy(
+                onSuccess = {
+                    if (it.position != null) {
+                        coalOrder.routeEndLocation = listOf(it.position[1], it.position[0])
                         rebuildRoute()
                     } else {
                         coalOrder.distance = 0
                         updateCost()
                         viewState.showValidationError(R.string.error, R.string.choseHouseError)
                     }
+                },
+                onError = {
+                    it.printStackTrace()
                 }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-                    e.printStackTrace()
-                }
-            })
+            )
     }
 
     private fun getAddress(latitude: Double, longitude: Double) {
 
         repository.getAddress(latitude, longitude)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe (object : SingleObserver<Address> {
-                override fun onSuccess(t: Address) {
-
-                    coalOrder.address = t.address.toString()
-
-                    if (t.isHouse) {
-                        coalOrder.routeEndLocation = doubleArrayOf(latitude, longitude)
+            .subscribeBy(
+                onSuccess = {
+                    if (it.address != null) {
+                        coalOrder.address = it.address
+                        coalOrder.routeEndLocation = listOf(latitude, longitude)
                         rebuildRoute()
+                        viewState.updateSearchBar(coalOrder.address)
                     } else {
                         coalOrder.distance = 0
                         updateCost()
                         viewState.showValidationError(R.string.error, R.string.choseHouseError)
                     }
-                    viewState.updateSearchBar(coalOrder.address)
+                },
+                onError = {
+                    it.printStackTrace()
                 }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-                    e.printStackTrace()
-                }
-
-            })
+            )
     }
 
     private fun rebuildRoute() {
