@@ -385,11 +385,10 @@
         />
 
         <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fabNext"
+                android:id="@+id/fabDone"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:src="@drawable/ic_done"
-                android:onClick="done"
                 app:fabSize="normal"
                 android:backgroundTint="@color/lightBlue"
 

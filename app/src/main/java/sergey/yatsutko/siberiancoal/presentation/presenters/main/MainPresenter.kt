@@ -84,7 +84,7 @@ class MainPresenter(
         } else {
             result
         }
-
+        coalOrder.address = street
         viewState.updateSearchBar(street)
         getCoordinates(street)
     }
