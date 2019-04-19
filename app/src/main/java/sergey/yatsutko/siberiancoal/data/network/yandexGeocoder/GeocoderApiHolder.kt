@@ -7,7 +7,7 @@ import sergey.yatsutko.siberiancoal.App
 
 object GeocoderApiHolder {
 
-    val gson = App.gson
+    private val gson = App.gson
 
     private const val BASE_URL = "https://geocode-maps.yandex.ru"
 
