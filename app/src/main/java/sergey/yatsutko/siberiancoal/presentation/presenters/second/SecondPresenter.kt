@@ -1,7 +1,6 @@
 package sergey.yatsutko.siberiancoal.presentation.presenters.second
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter

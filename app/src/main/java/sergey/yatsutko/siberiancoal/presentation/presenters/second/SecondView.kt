@@ -1,6 +1,5 @@
 package sergey.yatsutko.siberiancoal.presentation.presenters.second
 
-import android.content.Intent
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy

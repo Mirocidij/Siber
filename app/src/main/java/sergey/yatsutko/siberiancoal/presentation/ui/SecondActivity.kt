@@ -135,8 +135,8 @@ class SecondActivity : MvpAppCompatActivity(), SecondView {
 
     override fun showInformAlert(titleRes: Int, messageRes: Int) {
         alert(
-            message = getString(R.string.userInformMessage),
-            title = getString(R.string.userInformTitle)
+            message = getString(titleRes),
+            title = getString(messageRes)
         )
         {
             yesButton {
