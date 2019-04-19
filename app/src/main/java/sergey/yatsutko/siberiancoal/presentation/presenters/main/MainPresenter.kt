@@ -4,10 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.ArrayAdapter
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.yandex.mapkit.RequestPoint
@@ -19,15 +15,20 @@ import com.yandex.mapkit.search.SuggestItem
 import com.yandex.runtime.Error
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
-import org.json.JSONObject
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.subscribeBy
 import sergey.yatsutko.siberiancoal.App
 import sergey.yatsutko.siberiancoal.R
 import sergey.yatsutko.siberiancoal.commons.hasConnection
 import sergey.yatsutko.siberiancoal.commons.selectEntries
 import sergey.yatsutko.siberiancoal.data.entity.CoalOrder
+import sergey.yatsutko.siberiancoal.data.repository.GeocoderApiRepository
 
 @InjectViewState
-class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
+class MainPresenter(
+    private val context: Context,
+    private val repository: GeocoderApiRepository = GeocoderApiRepository()
+) : MvpPresenter<MainView>() {
 
     private val TAG = "MainPresenter"
     private var firmBool = false
@@ -54,7 +55,7 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
                 else -> selectEntries(context, R.array.Arshanovsky)
             }
 
-            coalOrder.routeStartLocation = doubleArrayOf(App.cuts[0][i], App.cuts[1][i])
+            coalOrder.routeStartLocation = listOf(App.cuts[0][i], App.cuts[1][i])
             viewState.changeCoalSpinnerEntries(adapter, i)
         }
         firmBool = true
@@ -144,14 +145,12 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
     }
 
     fun onMapPlaceSelected(place: Intent?) {
-        if (place == null) {
-            return
+        if (place != null) {
+            coalOrder.routeEndLocation = listOf(
+                place.extras.getDouble("latitude", 0.0),
+                place.extras.getDouble("longitude")
+            )
         }
-
-        coalOrder.routeEndLocation = doubleArrayOf(
-            place.extras.getDouble("latitude"),
-            place.extras.getDouble("longitude")
-        )
 
         getAddress(
             latitude = coalOrder.routeEndLocation[0],
@@ -182,123 +181,50 @@ class MainPresenter(private val context: Context) : MvpPresenter<MainView>() {
             in 21..40 -> 80
             else -> 0
         }
-
-
         updateCost()
     }
 
     private fun getCoordinates(address: String) {
-
-        val queue = Volley.newRequestQueue(context)
-        val url =
-            "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$address&apikey=17757be8-4817-4365-886c-d89845ac6976"
-
-        var isHouse: String
-
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            Response.Listener<String> { response ->
-
-                val jsonObject =
-                    JSONObject(response)
-
-                isHouse = jsonObject.getJSONObject("response")
-                    .getJSONObject("GeoObjectCollection")
-                    .getJSONArray("featureMember")
-                    .getJSONObject(0)
-                    .getJSONObject("GeoObject")
-                    .getJSONObject("metaDataProperty")
-                    .getJSONObject("GeocoderMetaData")
-                    .getString("kind")
-
-
-                if (isHouse == "house") {
-                    val coordinates = jsonObject.getJSONObject("response")
-                        .getJSONObject("GeoObjectCollection")
-                        .getJSONArray("featureMember")
-                        .getJSONObject(0)
-                        .getJSONObject("GeoObject")
-                        .getJSONObject("Point")
-                        .getString("pos").split(" ")
-
-                    coalOrder.routeEndLocation =
-                        doubleArrayOf(coordinates[1].toDouble(), coordinates[0].toDouble())
-
-
-                    rebuildRoute()
-                } else {
-                    coalOrder.distance = 0
-                    updateCost()
-                    viewState.showValidationError(R.string.error, R.string.choseHouseError)
+        repository.getLatLng(address)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = {
+                    if (it.position != null) {
+                        coalOrder.routeEndLocation = listOf(it.position[1], it.position[0])
+                        rebuildRoute()
+                    } else {
+                        coalOrder.distance = 0
+                        updateCost()
+                        viewState.showValidationError(R.string.error, R.string.choseHouseError)
+                    }
+                },
+                onError = {
+                    it.printStackTrace()
                 }
-            },
-
-            Response.ErrorListener {
-                coalOrder.routeEndLocation = doubleArrayOf(0.0, 0.0)
-            })
-
-        queue.add(stringRequest)
+            )
     }
 
     private fun getAddress(latitude: Double, longitude: Double) {
 
-        val queue = Volley.newRequestQueue(context)
-        val url =
-            "https://geocode-maps.yandex.ru/1.x/?format=json&geocode=$longitude,$latitude&apikey=17757be8-4817-4365-886c-d89845ac6976"
-        var address: String
-        var isHouse: String
-
-        val stringRequest = StringRequest(
-            Request.Method.GET, url,
-            Response.Listener<String> { response ->
-
-                val jsonObject =
-                    JSONObject(response)
-
-                isHouse = jsonObject.getJSONObject("response")
-                    .getJSONObject("GeoObjectCollection")
-                    .getJSONArray("featureMember")
-                    .getJSONObject(0)
-                    .getJSONObject("GeoObject")
-                    .getJSONObject("metaDataProperty")
-                    .getJSONObject("GeocoderMetaData")
-                    .getString("kind")
-
-                address = jsonObject.getJSONObject("response")
-                    .getJSONObject("GeoObjectCollection")
-                    .getJSONArray("featureMember")
-                    .getJSONObject(0)
-                    .getJSONObject("GeoObject")
-                    .getJSONObject("metaDataProperty")
-                    .getJSONObject("GeocoderMetaData")
-                    .getString("text")
-
-                val streetName = address.split(", ")
-                if (streetName.size >= 3) {
-                    address =
-                        streetName[streetName.size - 3] + ", " + streetName[streetName.size - 2] + ", " + streetName[streetName.size - 1]
+        repository.getAddress(latitude, longitude)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = {
+                    if (it.address != null) {
+                        coalOrder.address = it.address
+                        coalOrder.routeEndLocation = listOf(latitude, longitude)
+                        rebuildRoute()
+                        viewState.updateSearchBar(coalOrder.address)
+                    } else {
+                        coalOrder.distance = 0
+                        updateCost()
+                        viewState.showValidationError(R.string.error, R.string.choseHouseError)
+                    }
+                },
+                onError = {
+                    it.printStackTrace()
                 }
-
-                coalOrder.address = address
-                viewState.updateSearchBar(address = coalOrder.address)
-
-                if (isHouse == "house") {
-                    coalOrder.routeEndLocation = doubleArrayOf(latitude, longitude)
-                    rebuildRoute()
-                } else {
-                    coalOrder.distance = 0
-
-                    updateCost()
-                    viewState.showValidationError(R.string.error, R.string.choseHouseError)
-                }
-            },
-
-            Response.ErrorListener {
-                address = "That didn't work!"
-            })
-
-        queue.add(stringRequest)
-
+            )
     }
 
     private fun rebuildRoute() {

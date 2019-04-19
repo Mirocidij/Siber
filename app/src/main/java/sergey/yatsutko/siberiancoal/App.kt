@@ -1,15 +1,25 @@
 package sergey.yatsutko.siberiancoal
 
 import android.app.Application
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.yandex.mapkit.geometry.BoundingBox
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.search.SearchOptions
 import com.yandex.mapkit.search.SearchType
+import sergey.yatsutko.siberiancoal.data.entity.Address
+import sergey.yatsutko.siberiancoal.data.entity.Position
+import sergey.yatsutko.siberiancoal.data.network.yandexGeocoder.Deserializer
 
 class App : Application() {
 
-
     companion object {
+
+        val gson: Gson = GsonBuilder()
+            .registerTypeAdapter(Address::class.java, Deserializer.address)
+            .registerTypeAdapter(Position::class.java, Deserializer.position)
+            .create()
+
         // Цены за разные марки угля
         val prices = intArrayOf(1700, 1800, 1900, 2000)
         // Координаты разрезов
@@ -32,6 +42,4 @@ class App : Application() {
                     SearchType.TRANSIT.value
         )!!
     }
-
-
 }

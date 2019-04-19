@@ -100,7 +100,7 @@ class MainActivity : MvpAppCompatActivity(), MainView, SearchManager.SuggestList
         })
 
         // Слушатель нажатий на эллементы ListView
-        lvSearchResult.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+        lvSearchResult.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             marker = false
             presenter.resultWasClicked(result = suggestResult[position])
         }
